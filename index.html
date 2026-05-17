@@ -843,10 +843,6 @@ async function submitChosungAnswer(){
       await addPoints(myNick,50);
       alert(`⚡ 정답! +50P 획득! 🎉`);
     }
-    setTimeout(async()=>{
-      const nextIdx=((state.qIdx||0)+1);
-      await startChosungQuestion(nextIdx);
-    },3000);
   }
 }
 
