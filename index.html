@@ -7,7 +7,7 @@
 <meta property="og:title" content="💕 연애 미니게임 × 러브몬">
 <meta property="og:description" content="MBTI · 밸런스게임 · 연애성향 · 장미꽃 · 러브몬 육성 · 초성광장">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:ital,wght=0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
 :root {
   --rose:       #E8537A;
   --rose2:      #C73B65;
@@ -478,9 +478,23 @@ function load(){
       if(S.screen==="board"&&S.tab==="lm_pet")render();
     });
 
-    if(S.myEntry?.nick&&!S.myPet) initOrLoadPet(S.myEntry.nick,S.myEntry.gender,S.myEntry.mbti,S.myBalEntry?.answers);
-    ensureChosungGame();
-    if(S.myPet) checkDailyBonus();
+    if(S.myEntry?.nick && !S.myPet){
+      initOrLoadPet(
+        S.myEntry.nick,
+        S.myEntry.gender,
+        S.myEntry.mbti,
+        S.myBalEntry?.answers
+      );
+    }
+
+// 초성게임 강제 초기화
+setTimeout(()=>{
+  ensureChosungGame();
+},1000);
+
+if(S.myPet){
+  checkDailyBonus();
+}
   }catch(e){
     console.error(e);S.loading=false;render();
   }
