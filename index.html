@@ -215,6 +215,25 @@ body::before{
 .baby-care-item:hover{border-color:var(--rose);background:var(--rose-lt);transform:translateY(-2px);}
 .baby-care-item:active{transform:scale(.97);}
 
+/* ── 던전 / 배틀 UI ── */
+.dungeon-floor-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.dungeon-floor-card{border:1.5px solid var(--border);border-radius:12px;background:white;padding:12px 10px;text-align:center;cursor:pointer;transition:all .15s;}
+.dungeon-floor-card:hover{border-color:var(--rose);background:var(--rose-lt);transform:translateY(-2px);}
+.dungeon-floor-card.locked{opacity:.45;cursor:not-allowed;pointer-events:none;}
+.hp-bar{height:10px;background:#FFCDD2;border-radius:99px;overflow:hidden;}
+.hp-fill{height:100%;background:linear-gradient(90deg,#EF5350,#E53935);border-radius:99px;transition:width .4s ease;}
+.mp-bar{height:10px;background:#BBDEFB;border-radius:99px;overflow:hidden;}
+.mp-fill{height:100%;background:linear-gradient(90deg,#42A5F5,#1E88E5);border-radius:99px;transition:width .4s ease;}
+.sp-bar{height:8px;background:#E1BEE7;border-radius:99px;overflow:hidden;}
+.sp-fill{height:100%;background:linear-gradient(90deg,#AB47BC,#8E24AA);border-radius:99px;transition:width .4s ease;}
+.battle-log{max-height:130px;overflow-y:auto;font-size:12px;line-height:1.7;color:var(--text2);padding:6px 8px;background:rgba(0,0,0,.02);border-radius:8px;border:1px solid var(--border);}
+.battle-log::-webkit-scrollbar{width:3px;}
+.battle-log::-webkit-scrollbar-thumb{background:var(--rose-lt);}
+.skill-btn-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.dice-stat-box{background:white;border:1.5px solid var(--border);border-radius:10px;padding:10px;text-align:center;}
+.dice-stat-box .val{font-size:20px;font-weight:700;color:var(--rose2);}
+.dice-stat-box .lbl{font-size:10.5px;color:var(--text3);margin-top:2px;}
+
 /* ── 랭킹 모드 탭 ── */
 .lb-mode-tabs{display:flex;gap:6px;margin-bottom:10px;}
 .lb-mode-btn{flex:1;padding:8px;font-size:12.5px;font-family:'Noto Sans KR',sans-serif;border:1.5px solid var(--border2);border-radius:8px;cursor:pointer;background:white;color:var(--text2);transition:all .15s;}
@@ -713,7 +732,7 @@ const CHOSUNG_QS=[
   {genre:'노래',cho:['ㅅ','ㅇ','ㅇ','ㅁ','ㅎ','ㅂ'],ans:'소원을말해봐',hint:'제기차기 춤 (소녀시대)'},
   {genre:'노래',cho:['ㄱ','ㄴ','ㅅ','ㅌ','ㅇ'],ans:'강남스타일',hint:'싸이의 전 세계적 메가 히트곡'},
   {genre:'노래',cho:['ㅊ','ㄷ'],ans:'초대',hint:'오늘을 기다렸어~ 이런 밤이 오기를 (엄정화)'},
-  {genre:'노래',cho:['ㄱ','ㄴ','ㄹ'],ans:'기다릴게',hint:'설레는 마음으로 기다리는 사랑 노래'},
+  {genre:'노래',cho:['ㄱ','ㄷ','ㄹ','ㄱ'],ans:'기다릴게',hint:'설레는 마음으로 기다리는 사랑 노래'},
   {genre:'노래',cho:['ㄴ','ㅇ','ㅇ','ㅁ'],ans:'너의의미',hint:'산울림 노래를 아이유가 리메이크'},
   {genre:'노래',cho:['ㅊ','ㄴ'],ans:'첫눈',hint:'겨울에 처음으로 내리는 눈 (엑소 겨울 노래)'},
   {genre:'직업',cho:['ㅇ','ㅅ'],ans:'의사',hint:'아픈 사람의 병을 고쳐주는 직업'},
@@ -751,8 +770,53 @@ const BABY_CARE_ITEMS=[
 
 const XP_PER_LV=500;
 const MAX_LV=99;
-const BREED_LV=15; /* ★ 교배 레벨 조건: 15 */
-const BREED_AFFECTION=100; /* ★ 교배 호감도 조건 */
+const BREED_LV=15;
+const BREED_AFFECTION=100;
+
+/* ── 던전 / 배틀 상수 ── */
+const ATK_SKILLS=[
+  {id:'basic', name:'기본 공격',       emoji:'⚔️',  sp:0,  dmgMult:1.0, desc:'기본 타격 (SP 소모 없음)'},
+  {id:'power', name:'파워 스트라이크', emoji:'💥',  mp:20, dmgMult:2.0, desc:'강력한 일격 · MP -20'},
+  {id:'magic', name:'마법 폭발',       emoji:'✨',  mp:25, dmgMult:2.3, mpCost:10, desc:'마법 타격 · MP -25'},
+  {id:'crit',  name:'크리티컬 히트',   emoji:'🗡️',  sp:50, dmgMult:8, desc:'치명타 확정 · SP -50'},
+];
+const DEF_SKILLS=[
+  {id:'guard', name:'철벽 가드',    emoji:'🛡️',  mp:15, defMult:2.5, desc:'방어력 2.5배 (이번 턴) · MP -15'},
+  {id:'dodge', name:'회피 강화',    emoji:'💨',  mp:20, evaMult:2.0, desc:'회피율 2배 (이번 턴) · MP -20'},
+  {id:'heal',  name:'자가 치유',    emoji:'💚',  mp:30, mpCost:20, healPct:0.22, desc:'HP 22% 회복 · MP -30'},
+];
+const POTION_ITEMS=[
+  {id:'hp_sm',  name:'HP 소형 물약',  emoji:'🧪', cost:50,  hp:200,   desc:'HP +200 즉시 회복'},
+  {id:'hp_lg',  name:'HP 대형 물약',  emoji:'🫙', cost:150,  hp:500,  desc:'HP +500 즉시 회복'},
+  {id:'mp_sm',  name:'MP 소형 물약',  emoji:'💧', cost:100,  mp:100,   desc:'MP +100 즉시 회복'},
+  {id:'mp_lg',  name:'MP 대형 물약',  emoji:'🌊', cost:300,  mp:300,  desc:'MP +300 즉시 회복'},
+];
+const DUNGEON_FLOORS=[
+  {floor:1, name:'풀숲 입구',   emoji:'🌿', reqLv:1,
+   mobs:[
+     {name:'풀 슬라임',    emoji:'🟢', hp:140,  atk:16,  def:12,  eva:10,  xp:100,  pts:255},
+     {name:'버섯 몬스터',  emoji:'🍄', hp:155,  atk:18,  def:23,  eva:10,  xp:155,  pts:255},
+   ]},
+  {floor:2, name:'어두운 동굴', emoji:'🕳️', reqLv:5,
+   mobs:[
+     {name:'박쥐 귀신',    emoji:'🦇', hp:380,  atk:54, def:35,  eva:12, xp:190,  pts:560},
+     {name:'돌 골렘',      emoji:'🪨', hp:520, atk:80, def:48, eva:15,  xp:210, pts:575},
+   ]},
+  {floor:3, name:'용암 지대',   emoji:'🌋', reqLv:10,
+   mobs:[
+     {name:'화염 도마뱀',  emoji:'🦎', hp:700, atk:102, def:40, eva:15, xp:360, pts:1110},
+     {name:'불꽃 오크',    emoji:'👹', hp:1000, atk:120, def:50, eva:15,  xp:385, pts:1130},
+   ]},
+  {floor:4, name:'마왕의 성',   emoji:'🏰', reqLv:15,
+   mobs:[
+     {name:'언데드 기사',  emoji:'💀', hp:1500, atk:150, def:60, eva:19, xp:460, pts:2200},
+     {name:'다크 위저드',  emoji:'🧙', hp:2000, atk:200, def:60, eva:18, xp:585, pts:2220},
+   ]},
+  {floor:5, name:'최후의 결전', emoji:'⚡', reqLv:20,
+   mobs:[
+     {name:'카오스 드래곤',emoji:'🐲', hp:10000, atk:300, def:70, eva:20, xp:1650, pts:10500},
+   ]},
+];
 
 /* ═══════════════════════════════════════
    STATE
@@ -773,7 +837,9 @@ let S={
   /* 2세 육아 */
   babyPets:[],
   /* Color Chart */
-  colorSlots:{}
+  colorSlots:{},
+  /* 던전 배틀 상태 */
+  dungeonState:null,
 };
 /* Persist identity */
 (()=>{
@@ -1353,32 +1419,26 @@ async function completeBreed(reqId,parent1Nick,parent2Nick,pet1,pet2){
       childEmoji,childName,childDesc,timestamp:TS()
     });
 
-    /* ★ 2세 알 생성 (신규) - 24시간 부화 타이머 */
+    /* ★ 2세 알 생성 - 24시간 부화 타이머
+       부모 펫은 그대로 유지. 부화 후 공동 육아 공간에 별도 펫으로 탄생. */
     const babyEmojis=["🦄","🐉","🦊","🐰","🦋","🕊️","🐲","🌟","🦚","🦜"];
     const babyEmoji=babyEmojis[Math.floor(Math.random()*babyEmojis.length)];
     await babyPetCol.add({
       parent1Nick,parent2Nick,
+      parent1Emoji:pet1.petEmoji, parent2Emoji:pet2.petEmoji,
       babyEmoji,
       babyName:`${shortNick(parent1Nick).slice(0,2)}${shortNick(parent2Nick).slice(0,2)}몬`,
-      hatchTime:Date.now()+(24*60*60*1000), /* unix ms */
+      babyDesc:`${pet1.mbti||'??'} × ${pet2.mbti||'??'} 혼종 2세 러브몬`,
+      hatchTime:Date.now()+(24*60*60*1000),
       hatchReduction:0,
       hatched:false,
-      babyStats:null,
-      rarity:null,
+      /* 부화 후 성장 스탯 (부화 시 초기화) */
+      babyLevel:0, babyXp:0, babyPoints:0,
+      babyStats:null, rarity:null,
+      feedLog:[],
       timestamp:TS()
     });
-
-    const myNick = S.myPet?.nick;
-    if (myNick === parent1Nick || myNick === parent2Nick) {
-      await petCol.doc(myNick).update({
-        petEmoji: childEmoji, petName: childName, petDesc: childDesc,
-        level: 1, xp: 0, isBred: true
-      });
-      S.myPet.petEmoji = childEmoji;S.myPet.petName = childName;
-      S.myPet.petDesc = childDesc;S.myPet.level = 1;
-      S.myPet.xp = 0;S.myPet.isBred = true;
-    }
-    alert(`🎉 교배 성공!\n2세 알이 탄생했어요! 🥚\n24시간 후 '2세육아' 탭에서 부화시킬 수 있어요!\n${parent1Nick} × ${parent2Nick} 공동육아 💕`);
+    alert(`🎉 교배 성공! 2세 알이 탄생했어요! 🥚\n부모님 펫은 그대로 유지됩니다.\n24시간 후 '2세육아' 탭에서 함께 키워요!\n${parent1Nick} 💕 ${parent2Nick} 공동육아`);
     render();
   }catch(e){console.error(e);}
 }
@@ -1400,9 +1460,9 @@ async function careForBaby(babyId, reductionMins, cost){
   }catch(e){console.error(e);alert("오류가 발생했습니다.");}
 }
 
-/* ★ 2세 부화 (신규) */
+/* ★ 2세 부화 → 공동 육아 펫으로 탄생 */
 async function hatchBaby(babyId){
-  if(!confirm("🥚 알을 부화시키겠습니까?\n랜덤 스탯의 2세 러브몬이 탄생합니다!"))return;
+  if(!confirm("🥚 알을 부화시키겠습니까?\n랜덤 스탯의 2세 러브몬이 탄생하고\n부모 양쪽이 함께 키울 수 있어요!"))return;
   const baby=S.babyPets.find(b=>b.id===babyId);
   const statNames=['힘','마력','민첩','지능','매력'];
   const stats={};
@@ -1410,17 +1470,343 @@ async function hatchBaby(babyId){
   const rarities=['일반','희귀','레어','에픽','전설'];
   const rarity=rarities[Math.floor(Math.random()*rarities.length)];
   try{
-    await babyPetCol.doc(babyId).update({hatched:true,babyStats:stats,rarity,hatchedAt:Date.now()});
-    if(baby){baby.hatched=true;baby.babyStats=stats;baby.rarity=rarity;}
+    await babyPetCol.doc(babyId).update({
+      hatched:true,
+      babyStats:stats,
+      rarity,
+      hatchedAt:Date.now(),
+      /* ★ 공동 육아 성장 스탯 초기화 */
+      babyLevel:1,
+      babyXp:0,
+      babyPoints:30, /* 신규 탄생 보너스 */
+      feedLog:[],
+    });
+    if(baby){
+      baby.hatched=true; baby.babyStats=stats; baby.rarity=rarity;
+      baby.babyLevel=1; baby.babyXp=0; baby.babyPoints=30;
+    }
     const statStr=statNames.map(s=>`${s} ${stats[s]}`).join(' · ');
-    alert(`🎉 2세 러브몬 [${baby?.babyName||'아기몬'}]이 탄생했습니다!\n✨ 희귀도: ${rarity}\n📊 스탯: ${statStr}`);
+    alert(`🐣 2세 러브몬 [${baby?.babyName||'아기몬'}]이 탄생했습니다!\n✨ 희귀도: ${rarity}\n📊 초기 스탯: ${statStr}\n\n이제 부모 양쪽이 함께 먹이를 주며 키워보세요! 💕`);
     render();
   }catch(e){console.error(e);alert("부화 중 오류가 발생했습니다.");}
 }
 
+/* ★ 공동 육아 - 아기 먹이 주기 */
+async function feedBaby(babyId, cost, xp){
+  const myNick=S.myEntry?.nick;
+  if(!myNick||!S.myPet){alert("MBTI 검사 완료 후 이용해주세요!");return;}
+  if((S.myPet.points||0)<cost){alert(`포인트가 부족합니다! (필요: ${cost}P, 보유: ${S.myPet.points||0}P)`);return;}
+  const baby=S.babyPets.find(b=>b.id===babyId);
+  if(!baby){alert("아기 러브몬을 찾을 수 없어요.");return;}
+  if(!confirm(`🍼 아기 러브몬에게 먹이를 주겠습니까?\n(-${cost}P / XP +${xp})`))return;
+  try{
+    /* 부모 포인트 차감 */
+    await petCol.doc(myNick).update({points:INC(-cost)});
+    S.myPet.points=(S.myPet.points||0)-cost;
+
+    /* 아기 XP 추가 + 레벨업 체크 */
+    let newXp=(baby.babyXp||0)+xp;
+    let newLevel=baby.babyLevel||1;
+    let leveledUp=false;
+    while(newXp>=XP_PER_LV&&newLevel<MAX_LV){newLevel++;newXp-=XP_PER_LV;leveledUp=true;}
+
+    /* 먹이 기록 (최근 30개) */
+    const feedLog=baby.feedLog||[];
+    feedLog.push({nick:shortNick(myNick),xp,time:Date.now()});
+    const trimmedLog=feedLog.slice(-30);
+
+    await babyPetCol.doc(babyId).update({
+      babyXp:newXp, babyLevel:newLevel, feedLog:trimmedLog
+    });
+    baby.babyXp=newXp; baby.babyLevel=newLevel; baby.feedLog=trimmedLog;
+
+    if(leveledUp){
+      alert(`🎉 아기 러브몬 레벨업! Lv.${newLevel} 달성! 🌟\n(-${cost}P)`);
+    }else{
+      alert(`🍼 먹이 주기 완료! XP +${xp} (-${cost}P)`);
+    }
+    render();
+  }catch(e){console.error(e);alert("오류가 발생했습니다.");}
+}
+
 /* ═══════════════════════════════════════
-   초성 게임 LOGIC
+   🎲 주사위 & 스탯 시스템
 ═══════════════════════════════════════ */
+function rollDiceStats(){
+  return{
+    hp:  Math.floor(Math.random()*151)+50,  /* 50~200 */
+    mp:  Math.floor(Math.random()*121)+30,  /* 30~150 */
+    atk: Math.floor(Math.random()*41)+10,   /* 10~50  */
+    def: Math.floor(Math.random()*26)+5,    /* 5~30   */
+    eva: Math.floor(Math.random()*21)+5,    /* 5~25 % */
+  };
+}
+function getScaledStats(pet){
+  const d=pet.diceStats||{hp:80,mp:50,atk:15,def:8,eva:10};
+  const lv=pet.level||1;
+  return{
+    maxHp: Math.round(d.hp+(lv-1)*12),
+    maxMp: Math.round(d.mp+(lv-1)*6),
+    atk:   Math.round(d.atk+(lv-1)*3),
+    def:   Math.round(d.def+(lv-1)*2),
+    eva:   Math.min(75,Math.round(d.eva+(lv-1)*0.5)),
+    maxSp: 100,
+  };
+}
+async function rerollDice(){
+  const myNick=S.myEntry?.nick;
+  if(!myNick||!S.myPet){alert("MBTI 검사 완료 후 이용해주세요!");return;}
+  const isFirst=!S.myPet.diceStats;
+  const cost=isFirst?0:1000;
+  if(cost>0&&(S.myPet.points||0)<cost){alert("포인트가 부족합니다! (필요: 1000P)");return;}
+  if(!confirm(`🎲 주사위를 굴려 기본 스탯을 결정합니다!\n${isFirst?'첫 번째 굴림은 무료예요! 🎁':'추가 굴림은 1000P 차감됩니다.'}\n\n결과는 랜덤이며 레벨에 비례해 성장합니다.`))return;
+  const newStats=rollDiceStats();
+  const scaled=getScaledStats({...S.myPet,diceStats:newStats});
+  const updateData={
+    diceStats:newStats,
+    currentHp:scaled.maxHp,
+    currentMp:scaled.maxMp,
+    currentSp:100,
+    inventory:S.myPet.inventory||{},
+  };
+  if(cost>0)updateData.points=INC(-cost);
+  try{
+    await petCol.doc(myNick).update(updateData);
+    S.myPet={...S.myPet,...updateData,diceStats:newStats};
+    if(cost>0)S.myPet.points=(S.myPet.points||0)-cost;
+    alert(`🎲 주사위 결과!\nHP ${newStats.hp} · MP ${newStats.mp} · ATK ${newStats.atk} · DEF ${newStats.def} · EVA ${newStats.eva}%\n(레벨 성장으로 추가 증가해요 📈)`);
+    render();
+  }catch(e){console.error(e);alert("오류가 발생했습니다.");}
+}
+async function buyPotion(itemId){
+  const item=POTION_ITEMS.find(i=>i.id===itemId);
+  if(!item)return;
+  const myNick=S.myEntry?.nick;
+  if(!myNick||!S.myPet){alert("MBTI 검사 완료 후 이용해주세요!");return;}
+  if((S.myPet.points||0)<item.cost){alert(`포인트가 부족합니다! (필요: ${item.cost}P)`);return;}
+  if(!confirm(`${item.emoji} ${item.name}을 구입하겠습니까? (-${item.cost}P)`))return;
+  try{
+    const inv=S.myPet.inventory||{};
+    inv[itemId]=(inv[itemId]||0)+1;
+    await petCol.doc(myNick).update({points:INC(-item.cost),inventory:inv});
+    S.myPet.points=(S.myPet.points||0)-item.cost;
+    S.myPet.inventory=inv;
+    alert(`${item.emoji} ${item.name} 구입 완료! (보유: ${inv[itemId]}개)`);
+    render();
+  }catch(e){console.error(e);}
+}
+
+/* ═══════════════════════════════════════
+   ⚔️ 던전 배틀 시스템
+═══════════════════════════════════════ */
+function startDungeon(floorIdx, mobIdx){
+  const myPet=S.myPet;
+  if(!myPet){alert("펫이 없어요!");return;}
+  if(!myPet.diceStats){alert("먼저 주사위를 굴려 기본 스탯을 설정해주세요! 🎲");return;}
+  const floor=DUNGEON_FLOORS[floorIdx];
+  const mob={...floor.mobs[mobIdx]};
+  const scaled=getScaledStats(myPet);
+  /* 현재 HP/MP 가져오기 (DB 값 or 최대값) */
+  const curHp=Math.min(myPet.currentHp??scaled.maxHp, scaled.maxHp);
+  const curMp=Math.min(myPet.currentMp??scaled.maxMp, scaled.maxMp);
+  const curSp=myPet.currentSp??100;
+  /* 2세 펫 지원 가능 여부 */
+  const myNick=S.myEntry?.nick;
+  const hatchedBaby=S.babyPets.find(b=>b.hatched&&(b.parent1Nick===myNick||b.parent2Nick===myNick));
+  S.dungeonState={
+    active:true, floorIdx, mobIdx,
+    floorName:floor.name, floorEmoji:floor.emoji,
+    mob:{...mob}, mobCurrentHp:mob.hp,
+    playerHp:curHp, playerMaxHp:scaled.maxHp,
+    playerMp:curMp, playerMaxMp:scaled.maxMp,
+    playerSp:curSp, playerMaxSp:100,
+    defBoost:1, evaBoost:1,
+    log:[`⚔️ ${floor.emoji} ${floor.name} ${floorIdx+1}층에 입장!`,`👾 ${mob.emoji} ${mob.name} 등장! (HP ${mob.hp})`],
+    turn:1, won:false, lost:false,
+    totalXp:0, totalPts:0,
+    baby:hatchedBaby,
+    babyCooldown:0,
+    inventory:{...myPet.inventory||{}},
+  };
+  render();
+}
+
+function calcDmg(atk, def, mult=1){
+  const base=Math.max(1, Math.round((atk-def)*mult + (Math.random()*6-3)));
+  return Math.max(1,base);
+}
+function checkEva(eva){ return Math.random()*100 < eva; }
+
+function dungeonAction(actionType, skillId){
+  const ds=S.dungeonState;
+  if(!ds||ds.won||ds.lost)return;
+  const myPet=S.myPet;
+  const scaled=getScaledStats(myPet);
+  let log=[];
+  let defBoostNext=1, evaBoostNext=1;
+
+  /* ── 플레이어 행동 ── */
+  if(actionType==='attack'){
+    const skill=ATK_SKILLS.find(s=>s.id===skillId)||ATK_SKILLS[0];
+    /* SP 체크 */
+    if(skill.sp>0&&ds.playerSp<skill.sp){
+      alert(`SP가 부족합니다! (필요: ${skill.sp}SP, 보유: ${ds.playerSp}SP)`);return;
+    }
+    if(skill.mpCost&&ds.playerMp<skill.mpCost){
+      alert(`MP가 부족합니다! (필요: ${skill.mpCost}MP)`);return;
+    }
+    ds.playerSp=Math.max(0,ds.playerSp-skill.sp);
+    if(skill.mpCost)ds.playerMp=Math.max(0,ds.playerMp-skill.mpCost);
+
+    /* 크리티컬 확정 or 랜덤 */
+    const isCrit=skill.id==='crit'||Math.random()<0.12;
+    const mult=skill.dmgMult*(isCrit&&skill.id!=='crit'?1.5:1);
+    const dmg=calcDmg(scaled.atk, ds.mob.def, mult);
+    ds.mobCurrentHp=Math.max(0,ds.mobCurrentHp-dmg);
+    log.push(`${skill.emoji} ${skill.name}! ${ds.mob.emoji}에게 ${dmg} 피해${isCrit&&skill.id!=='crit'?' ⚡크리!':''} (남은 HP: ${ds.mobCurrentHp})`);
+    ds.playerSp=Math.min(100,ds.playerSp+5); /* SP 턴당 +5 회복 */
+  }
+  else if(actionType==='defense'){
+    const skill=DEF_SKILLS.find(s=>s.id===skillId);
+    if(!skill)return;
+    if(skill.sp>0&&ds.playerSp<skill.sp){alert(`SP 부족! (필요 ${skill.sp}SP)`);return;}
+    if(skill.mpCost&&ds.playerMp<skill.mpCost){alert(`MP 부족! (필요 ${skill.mpCost}MP)`);return;}
+    ds.playerSp=Math.max(0,ds.playerSp-skill.sp);
+    if(skill.mpCost)ds.playerMp=Math.max(0,ds.playerMp-skill.mpCost);
+
+    if(skill.id==='guard'){defBoostNext=skill.defMult;log.push(`${skill.emoji} 철벽 가드! 방어력 ${skill.defMult}배 (이번 턴)`);}
+    else if(skill.id==='dodge'){evaBoostNext=skill.evaMult;log.push(`${skill.emoji} 회피 강화! 회피율 ${skill.evaMult}배 (이번 턴)`);}
+    else if(skill.id==='heal'){
+      const healAmt=Math.round(ds.playerMaxHp*skill.healPct);
+      ds.playerHp=Math.min(ds.playerMaxHp,ds.playerHp+healAmt);
+      log.push(`${skill.emoji} 자가 치유! HP +${healAmt} (현재 ${ds.playerHp}/${ds.playerMaxHp})`);
+    }
+    ds.playerSp=Math.min(100,ds.playerSp+5);
+  }
+  else if(actionType==='potion'){
+    const item=POTION_ITEMS.find(i=>i.id===skillId);
+    if(!item)return;
+    const cnt=ds.inventory[skillId]||0;
+    if(cnt<=0){alert("물약이 없어요! 상점에서 구입해주세요 🧪");return;}
+    ds.inventory[skillId]=cnt-1;
+    if(item.hp){ds.playerHp=Math.min(ds.playerMaxHp,ds.playerHp+item.hp);log.push(`${item.emoji} HP +${item.hp} 회복! (현재 ${ds.playerHp}/${ds.playerMaxHp})`);}
+    if(item.mp){ds.playerMp=Math.min(ds.playerMaxMp,ds.playerMp+item.mp);log.push(`${item.emoji} MP +${item.mp} 회복! (현재 ${ds.playerMp}/${ds.playerMaxMp})`);}
+  }
+  else if(actionType==='baby'){
+    /* 2세 펫 지원 */
+    if(ds.babyCooldown>0){alert(`2세 펫은 ${ds.babyCooldown}턴 후 다시 지원 가능해요!`);return;}
+    const baby=ds.baby;
+    if(!baby){alert("지원 가능한 2세 펫이 없어요!");return;}
+    const babyAtk=(baby.babyStats?.힘||10)+(baby.babyLevel||1)*2;
+    const babyDmg=calcDmg(babyAtk,ds.mob.def,1.2);
+    ds.mobCurrentHp=Math.max(0,ds.mobCurrentHp-babyDmg);
+    const babyHeal=Math.round(ds.playerMaxHp*0.08);
+    ds.playerHp=Math.min(ds.playerMaxHp,ds.playerHp+babyHeal);
+    ds.babyCooldown=3;
+    log.push(`🍼 ${baby.babyEmoji||'🐣'} 2세 지원! 적 ${babyDmg} 피해 + HP +${babyHeal} 회복!`);
+  }
+  else if(actionType==='flee'){
+    if(!confirm("던전에서 도망칩니다. 이번 전투 보상은 없어요."))return;
+    S.dungeonState=null;render();return;
+  }
+
+  /* ── 몹이 죽었는지 체크 ── */
+  if(ds.mobCurrentHp<=0){
+    ds.won=true;
+    ds.totalXp+=ds.mob.xp;
+    ds.totalPts+=ds.mob.pts;
+    log.push(`🎉 ${ds.mob.emoji} ${ds.mob.name} 처치! XP +${ds.mob.xp} · 포인트 +${ds.mob.pts}`);
+    ds.log=[...ds.log,...log];
+    setTimeout(()=>finalizeDungeon(true),800);
+    render();return;
+  }
+
+  /* ── 몹 공격 턴 ── */
+  const defEff=Math.round(scaled.def*defBoostNext);
+  const evaEff=Math.min(75,Math.round(scaled.eva*evaBoostNext));
+  if(checkEva(evaEff)){
+    log.push(`💨 회피 성공! ${ds.mob.emoji}의 공격을 피했어요!`);
+  }else{
+    const mobDmg=calcDmg(ds.mob.atk, defEff);
+    ds.playerHp=Math.max(0,ds.playerHp-mobDmg);
+    log.push(`${ds.mob.emoji} ${ds.mob.name} 공격! ${mobDmg} 피해 (남은 HP: ${ds.playerHp}/${ds.playerMaxHp})`);
+  }
+
+  /* 2세 쿨다운 감소 */
+  if(ds.babyCooldown>0)ds.babyCooldown--;
+
+  /* ── 플레이어가 죽었는지 체크 ── */
+  if(ds.playerHp<=0){
+    ds.lost=true;
+    log.push(`💀 ${myPet.petName}이(가) 쓰러졌어요...`);
+    ds.log=[...ds.log,...log];
+    setTimeout(()=>finalizeDungeon(false),800);
+    render();return;
+  }
+
+  ds.turn++;
+  ds.log=[...ds.log,...log];
+  if(ds.log.length>30)ds.log=ds.log.slice(-30);
+  render();
+}
+
+async function finalizeDungeon(won){
+  const ds=S.dungeonState;
+  const myNick=S.myEntry?.nick;
+  if(!myNick||!S.myPet)return;
+  try{
+    if(won){
+      /* 보상: XP + 포인트 적립, 현재 HP/MP/SP 저장 */
+      let newXp=(S.myPet.xp||0)+ds.totalXp;
+      let newLv=S.myPet.level||1;
+      let leveled=false;
+      while(newXp>=XP_PER_LV&&newLv<MAX_LV){newLv++;newXp-=XP_PER_LV;leveled=true;}
+      await petCol.doc(myNick).update({
+        xp:newXp, level:newLv,
+        points:INC(ds.totalPts),
+        currentHp:ds.playerHp, currentMp:ds.playerMp,
+        currentSp:ds.playerSp,
+        inventory:ds.inventory,
+      });
+      S.myPet={...S.myPet,xp:newXp,level:newLv,
+        points:(S.myPet.points||0)+ds.totalPts,
+        currentHp:ds.playerHp,currentMp:ds.playerMp,
+        currentSp:ds.playerSp,inventory:ds.inventory};
+      alert(`🏆 전투 승리!\n획득: XP +${ds.totalXp} · 포인트 +${ds.totalPts}${leveled?`\n🎉 레벨업! Lv.${newLv} 달성!`:''}`);
+    }else{
+      /* 패배: XP -100, 포인트 -1000, HP 1로 부활 */
+      const penaltyXp=Math.min(100,S.myPet.xp||0);
+      const newXp=Math.max(0,(S.myPet.xp||0)-penaltyXp);
+      await petCol.doc(myNick).update({
+        xp:newXp, points:INC(-1000),
+        currentHp:1, currentMp:ds.playerMp,
+        currentSp:ds.playerSp,
+      });
+      S.myPet={...S.myPet,xp:newXp,
+        points:Math.max(0,(S.myPet.points||0)-1000),
+        currentHp:1,currentMp:ds.playerMp,currentSp:ds.playerSp};
+      alert(`💀 전투 패배...\n페널티: XP -${penaltyXp} · 포인트 -1000\nHP 1로 부활했어요. 물약을 사용해 회복하세요!`);
+    }
+  }catch(e){console.error(e);}
+  S.dungeonState=null;
+  render();
+}
+
+async function restoreHpMp(){
+  /* 던전 밖에서 시간 경과 회복 (버튼으로 요청) */
+  const myNick=S.myEntry?.nick;
+  if(!myNick||!S.myPet)return;
+  const scaled=getScaledStats(S.myPet);
+  if(!confirm("HP/MP를 최대치로 회복합니다. (500P 소모)"))return;
+  if((S.myPet.points||0)<500){alert("포인트가 부족합니다! (500P 필요)");return;}
+  await petCol.doc(myNick).update({
+    currentHp:scaled.maxHp,currentMp:scaled.maxMp,currentSp:100,points:INC(-500)
+  });
+  S.myPet={...S.myPet,currentHp:scaled.maxHp,currentMp:scaled.maxMp,currentSp:100,
+    points:(S.myPet.points||0)-500};
+  alert("✅ HP/MP/SP 완전 회복! (-500P)");
+  render();
+}
 async function ensureChosungGame(){
   try{
     const snap=await gameStateCol.doc("chosung_current").get();
@@ -1711,6 +2097,7 @@ function rBoard(){
     {id:"rose",label:"🌹\n장미꽃"},
     {id:"lm_pet",label:"🐾\n러브몬"},
     {id:"lm_plaza",label:"⚡\n광장"},
+    {id:"lm_dungeon",label:"⚔️\n던전"},
     {id:"lm_colors",label:"🎨\n색상표"},
     {id:"admin",label:"⚙️\n관리"},
   ];
@@ -1723,6 +2110,7 @@ function rBoard(){
   else if(S.tab==="lm_pet")content=rLovemonTab();
   else if(S.tab==="lm_baby")content=rBabyTab();
   else if(S.tab==="lm_plaza")content=rPlazaTab();
+  else if(S.tab==="lm_dungeon")content=rDungeonTab();
   else if(S.tab==="lm_colors")content=rColorTab();
   else if(S.tab==="admin")content=rAdminTab();
 
@@ -1742,23 +2130,40 @@ function rBoard(){
 function rBoardTab(){
   if(S.loading)return`<p style="text-align:center;color:var(--text3);padding:3rem">불러오는 중... 💕</p>`;
   if(!S.entries.length)return`<div style="text-align:center;padding:3rem 0"><div style="font-size:40px;margin-bottom:12px">💌</div><p style="color:var(--text2);margin-bottom:16px">참여자가 없어요. 첫 번째로 검사해보세요!</p><button class="btn btn-primary" style="padding:10px 22px" data-a="goHome">시작하기</button></div>`;
+
   const today=todayStr();
   const myNick=S.myEntry?.nick;
+
+  /* ★ 핵심 로직: 보는 사람(뷰어) 본인이 승인됐는지 체크
+     - 관리자 → 항상 열람 가능
+     - 내 항목의 isAdminChecked === true → 열람 가능
+     - 그 외(신규 가입자 등) → 전체 잠금 화면 표시 */
+  const myEntry=S.entries.find(e=>e.nick===myNick);
+  const viewerApproved=S.isAdmin||(myEntry?.isAdminChecked===true);
+
+  if(!viewerApproved){
+    return`<div class="card" style="text-align:center;padding:2.5rem 1.5rem;margin-bottom:10px">
+      <div style="font-size:56px;margin-bottom:16px" class="float">🔒</div>
+      <p style="font-size:17px;font-weight:700;color:var(--text1);margin-bottom:8px">승인 대기 중이에요</p>
+      <p style="font-size:13px;color:var(--text3);line-height:1.75;margin-bottom:20px">
+        관리자 승인 후 참여자 프로필을<br>열람할 수 있어요.<br>
+        <span style="color:var(--gold);font-size:12px">✨ 승인되면 모든 기능이 활성화됩니다!</span>
+      </p>
+      <div style="background:linear-gradient(135deg,rgba(212,168,83,.08),rgba(212,168,83,.04));border:1px solid rgba(212,168,83,.25);border-radius:12px;padding:14px;text-align:left">
+        <p style="font-size:12px;font-weight:700;color:var(--gold);margin:0 0 8px">📋 승인 대기 안내</p>
+        <div style="display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--text2)">
+          <span>• MBTI 검사 완료 후 관리자가 승인합니다</span>
+          <span>• 승인 전까지는 커뮤니티 열람이 제한됩니다</span>
+          <span>• 러브몬 펫 육성은 승인 전에도 가능해요 🐾</span>
+        </div>
+      </div>
+      ${myNick?`<p style="font-size:11.5px;color:var(--text3);margin-top:16px">닉네임: <b>${esc(myNick)}</b> · 승인 요청 완료</p>`:''}
+    </div>`;
+  }
+
+  /* 뷰어가 승인된 경우 → 전체 참여자 프로필 정상 출력 */
   return S.entries.map(e=>{
     const isMe=e.nick===myNick;
-    const isVisible=S.isAdmin||e.isAdminChecked||isMe;
-
-    /* ★ 미승인 참여자 - 대기 카드 */
-    if(!isVisible){
-      return`<div class="pending-card" style="margin-bottom:8px">
-        <div style="font-size:32px">⏳</div>
-        <div>
-          <div style="font-size:13px;font-weight:700;color:var(--text1);margin-bottom:3px">관리자 승인 대기 중</div>
-          <div style="font-size:11.5px;color:var(--text3)">참여자 정보는 관리자 승인 후 공개됩니다</div>
-        </div>
-      </div>`;
-    }
-
     const roseCount=S.roseEntries.filter(r=>r.receiver===e.nick&&r.date===today).length;
     const hasBal=S.balEntries.some(b=>b.nick===e.nick);
     const hasDat=S.datEntries.some(d=>d.nick===e.nick);
@@ -1965,6 +2370,7 @@ function rColorTab() {
   colorChartHtml += `</div></div>`;
   return colorChartHtml;
 }
+
 /* ─── ADMIN TAB ─── */
 /* ★ 승인 버튼 + 연동 삭제 추가 */
 function rAdminTab(){
@@ -2198,34 +2604,23 @@ function rBabyTab(){
       <p style="font-size:13px;color:var(--text2)">MBTI 검사 완료 후 이용 가능합니다.</p>
     </div>`;
   }
+
+  /* ★ 부화 완료된 공동 육아 펫이 있으면 먼저 표시 */
+  const hatchedBaby=S.babyPets.find(b=>b.hatched&&(b.parent1Nick===myNick||b.parent2Nick===myNick));
+  if(hatchedBaby){
+    return rHatchedBabyUI(hatchedBaby, myNick);
+  }
+
+  /* 아직 알 단계 */
   const baby=S.babyPets.find(b=>!b.hatched&&(b.parent1Nick===myNick||b.parent2Nick===myNick));
   if(!baby){
-    /* 부화된 2세 보기 */
-    const hatchedBaby=S.babyPets.find(b=>b.hatched&&(b.parent1Nick===myNick||b.parent2Nick===myNick));
-    if(hatchedBaby){
-      const stats=hatchedBaby.babyStats||{};
-      const statNames=['힘','마력','민첩','지능','매력'];
-      const rarityColors={일반:'#888',희귀:'#2196F3',레어:'#9C27B0',에픽:'#FF5722',전설:'#FFD700'};
-      const rc=rarityColors[hatchedBaby.rarity]||'#888';
-      return`<div class="card card-rose" style="text-align:center;padding:1.5rem;margin-bottom:12px">
-        <div style="font-size:64px;margin-bottom:8px" class="float">${hatchedBaby.babyEmoji||'🐣'}</div>
-        <div style="font-size:20px;font-weight:700;color:var(--rose2);margin-bottom:4px">${esc(hatchedBaby.babyName||'아기몬')}</div>
-        <div style="display:inline-block;background:${rc};color:white;padding:2px 14px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:14px">✨ ${hatchedBaby.rarity||'일반'}</div>
-        <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap">
-          ${statNames.map(s=>`<div style="text-align:center"><div style="font-size:18px;font-weight:700;color:var(--rose2)">${stats[s]||0}</div><div style="font-size:10.5px;color:var(--text3)">${s}</div></div>`).join('')}
-        </div>
-        <div style="margin-top:14px;font-size:12px;color:var(--text3)">
-          ${esc(hatchedBaby.parent1Nick)} 💕 ${esc(hatchedBaby.parent2Nick)} 의 2세
-        </div>
-      </div>`;
-    }
     return`<div class="card" style="text-align:center;padding:2rem">
       <div style="font-size:48px;margin-bottom:12px">🥚</div>
       <p style="font-size:13px;color:var(--text2)">현재 육아 중인 알이 없어요.<br>교배를 통해 2세 알을 만들어보세요!</p>
     </div>`;
   }
 
-  /* 부화 타이머 계산 */
+  /* 알 단계 - 부화 대기 */
   const effectiveHatchMs=(baby.hatchTime||0)-(baby.hatchReduction||0)*60000;
   const now=Date.now();
   const canHatch=now>=effectiveHatchMs;
@@ -2244,8 +2639,8 @@ function rBabyTab(){
       ? `<div style="background:linear-gradient(135deg,rgba(232,83,122,.1),rgba(155,89,182,.1));border:1px solid var(--border2);border-radius:12px;padding:12px;margin-bottom:14px">
            <div style="font-size:14px;font-weight:700;color:var(--rose2);margin-bottom:4px">🎉 부화 준비 완료!</div>
            <p style="font-size:13px;color:var(--text2);margin:0">부화 버튼을 눌러 2세 러브몬을 탄생시키세요!</p>
-           </div>
-           <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;margin-top:4px" data-a="lm_hatchBaby" data-id="${baby.id}">🐣 지금 부화시키기!</button>`
+         </div>
+         <button class="btn btn-primary" style="width:100%;padding:14px;font-size:15px;margin-top:4px" data-a="lm_hatchBaby" data-id="${baby.id}">🐣 지금 부화시키기!</button>`
       : `<div style="background:rgba(46,196,182,.08);border:1px solid rgba(46,196,182,.25);border-radius:12px;padding:12px;margin-bottom:14px">
            <div style="font-size:13px;font-weight:700;color:var(--mint);margin-bottom:6px">⏳ 부화까지 남은 시간</div>
            <div style="font-size:28px;font-weight:700;color:var(--text1)">${msToHM(remainingMs)}</div>
@@ -2278,9 +2673,378 @@ function rBabyTab(){
   </div>`:''}`;
 }
 
+/* ★ 부화 완료 후 공동 육아 펫 UI */
+function rHatchedBabyUI(baby, myNick){
+  const stats=baby.babyStats||{};
+  const statNames=['힘','마력','민첩','지능','매력'];
+  const rarityColors={일반:'#9E9E9E',희귀:'#2196F3',레어:'#9C27B0',에픽:'#FF5722',전설:'#FFD700'};
+  const rc=rarityColors[baby.rarity]||'#9E9E9E';
+  const babyLevel=baby.babyLevel||1;
+  const babyXp=baby.babyXp||0;
+  const xpPct=Math.min(100,Math.round((babyXp/XP_PER_LV)*100));
+  const partnerNick=baby.parent1Nick===myNick?baby.parent2Nick:baby.parent1Nick;
+  const myPoints=S.myPet?.points||0;
+
+  /* 최근 먹이 기록 */
+  const recentFeed=(baby.feedLog||[]).slice(-5).reverse();
+
+  /* 공동 육아 먹이 아이템 */
+  const BABY_FEED=[
+    {label:'아기 사료',emoji:'🍼',cost:100,xp:30},
+    {label:'영양 간식',emoji:'🧁',cost:300,xp:100},
+    {label:'특별식',  emoji:'🌟',cost:800,xp:300},
+  ];
+
+  return`
+  <!-- ★ 공동 육아 펫 카드 -->
+  <div style="background:linear-gradient(160deg,rgba(253,238,244,.98),rgba(240,230,255,.98));border:2px solid rgba(155,89,182,.3);border-radius:18px;padding:1.4rem;text-align:center;box-shadow:0 6px 28px rgba(155,89,182,.15);margin-bottom:12px">
+
+    <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(155,89,182,.1);border:1px solid rgba(155,89,182,.2);border-radius:99px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--lm-purple);margin-bottom:12px">
+      🍼 공동 육아 공간
+    </div>
+
+    <div style="font-size:72px;margin:6px 0 8px;animation:float 2.5s ease-in-out infinite">${baby.babyEmoji||'🐣'}</div>
+    <div style="font-size:20px;font-weight:700;color:var(--rose2);margin-bottom:6px">${esc(baby.babyName||'아기몬')}</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:10px">${esc(baby.babyDesc||'')}</div>
+
+    <!-- 희귀도 뱃지 -->
+    <div style="display:inline-block;background:${rc};color:white;padding:3px 16px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:14px">✨ ${baby.rarity||'일반'}</div>
+
+    <!-- 레벨 / XP -->
+    <div style="display:flex;justify-content:center;gap:24px;margin-bottom:12px">
+      <div style="text-align:center"><div style="font-size:26px;font-weight:700;color:var(--rose2)">${babyLevel}</div><div style="font-size:10.5px;color:var(--text3)">레벨</div></div>
+      <div style="text-align:center"><div style="font-size:26px;font-weight:700;color:var(--plum)">${babyXp}</div><div style="font-size:10.5px;color:var(--text3)">경험치</div></div>
+    </div>
+    <div style="margin:0 0 14px">
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text3);margin-bottom:4px">
+        <span>XP</span><span>${babyXp} / ${XP_PER_LV}</span>
+      </div>
+      <div class="lm-xp-bar"><div class="lm-xp-fill" style="width:${xpPct}%"></div></div>
+    </div>
+
+    <!-- 초기 랜덤 스탯 -->
+    <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding:10px;background:rgba(255,255,255,.6);border-radius:10px">
+      ${statNames.map(s=>`<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--text1)">${stats[s]||0}</div><div style="font-size:10px;color:var(--text3)">${s}</div></div>`).join('')}
+    </div>
+
+    <!-- 부모 정보 -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:10px;font-size:12px;padding:8px 14px;background:rgba(232,83,122,.06);border-radius:10px;border:1px solid var(--border)">
+      <span>${esc(baby.parent1Emoji||'🐾')} <b>${esc(baby.parent1Nick)}</b></span>
+      <span style="color:var(--rose);font-size:16px">💕</span>
+      <span>${esc(baby.parent2Emoji||'🐾')} <b>${esc(baby.parent2Nick)}</b></span>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:6px">👶 파트너 <b>${esc(partnerNick)}</b>와 함께 키우는 중</div>
+  </div>
+
+  <!-- ★ 공동 육아 먹이 주기 -->
+  <div class="card" style="margin-bottom:12px">
+    <p style="font-size:13.5px;font-weight:700;color:var(--rose2);margin:0 0 4px">🍼 아기 먹이 주기</p>
+    <p style="font-size:11.5px;color:var(--text3);margin:0 0 12px;line-height:1.6">부모 양쪽이 함께 먹이를 주며 아기를 키워요!<br>보유 포인트: <b style="color:var(--gold)">${myPoints.toLocaleString()}P</b></p>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      ${BABY_FEED.map(f=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;background:white">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:28px">${f.emoji}</span>
+            <div>
+              <div style="font-size:13px;font-weight:700">${esc(f.label)}</div>
+              <div style="font-size:11px;color:var(--mint);font-weight:600">XP +${f.xp}</div>
+            </div>
+          </div>
+          <button class="btn ${myPoints>=f.cost?'btn-primary':'btn-danger'}"
+            style="padding:7px 14px;font-size:12px;flex-shrink:0"
+            data-a="lm_feedBaby" data-id="${baby.id}" data-cost="${f.cost}" data-xp="${f.xp}"
+            ${myPoints<f.cost?'disabled':''}>
+            ${myPoints>=f.cost?`${f.cost.toLocaleString()}P`:'포인트 부족'}
+          </button>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+  <!-- 최근 먹이 기록 -->
+  ${recentFeed.length>0?`
+  <div class="card" style="margin-bottom:12px">
+    <p style="font-size:12px;font-weight:700;color:var(--text2);margin:0 0 8px">📋 최근 육아 기록</p>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      ${recentFeed.map(f=>{
+        const timeAgo=Math.round((Date.now()-f.time)/60000);
+        const timeStr=timeAgo<60?`${timeAgo}분 전`:`${Math.round(timeAgo/60)}시간 전`;
+        return`<div style="display:flex;align-items:center;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border)">
+          <span>🍼 <b>${esc(f.nick)}</b>님이 먹이 줌</span>
+          <span style="color:var(--mint);font-weight:600">+${f.xp}XP</span>
+          <span style="color:var(--text3);font-size:10.5px">${timeStr}</span>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`:''}`;
+}
+
 /* ═══════════════════════════════════════
-   ⚡ 초성 광장 탭
+   ⚔️ 던전 탭 렌더
 ═══════════════════════════════════════ */
+function rDungeonTab(){
+  const myPet=S.myPet;
+  if(!myPet){
+    return`<div class="card" style="text-align:center;padding:2rem">
+      <div style="font-size:48px;margin-bottom:12px">⚔️</div>
+      <p style="font-size:13px;color:var(--text2)">MBTI 검사 완료 후 이용 가능합니다.</p>
+    </div>`;
+  }
+  /* 배틀 중이면 배틀 UI 표시 */
+  if(S.dungeonState?.active)return rBattleUI();
+
+  const scaled=getScaledStats(myPet);
+  const hasDice=!!myPet.diceStats;
+  const myNick=S.myEntry?.nick;
+  const hatchedBaby=S.babyPets.find(b=>b.hatched&&(b.parent1Nick===myNick||b.parent2Nick===myNick));
+  const inv=myPet.inventory||{};
+  const curHp=myPet.currentHp??scaled.maxHp;
+  const curMp=myPet.currentMp??scaled.maxMp;
+  const curSp=myPet.currentSp??100;
+  const hpPct=Math.round((curHp/scaled.maxHp)*100);
+  const mpPct=Math.round((curMp/scaled.maxMp)*100);
+  const spPct=Math.round((curSp/100)*100);
+
+  return`
+  <!-- ★ 내 펫 전투 스탯 -->
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div style="font-size:44px">${myPet.petEmoji||'🐾'}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:15px">${esc(myPet.petName)} <span style="font-size:11px;color:var(--text3)">Lv.${myPet.level||1}</span></div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:6px">
+          ATK ${scaled.atk} · DEF ${scaled.def} · EVA ${scaled.eva}%
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:10.5px;color:#E53935;width:22px">HP</span>
+            <div class="hp-bar" style="flex:1"><div class="hp-fill" style="width:${hpPct}%"></div></div>
+            <span style="font-size:10.5px;color:var(--text2);width:52px">${curHp}/${scaled.maxHp}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:10.5px;color:#1E88E5;width:22px">MP</span>
+            <div class="mp-bar" style="flex:1"><div class="mp-fill" style="width:${mpPct}%"></div></div>
+            <span style="font-size:10.5px;color:var(--text2);width:52px">${curMp}/${scaled.maxMp}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:10.5px;color:#8E24AA;width:22px">SP</span>
+            <div class="sp-bar" style="flex:1"><div class="sp-fill" style="width:${spPct}%"></div></div>
+            <span style="font-size:10.5px;color:var(--text2);width:52px">${curSp}/100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    ${hatchedBaby?`<div style="display:flex;align-items:center;gap:8px;padding:8px;background:rgba(155,89,182,.07);border-radius:8px;border:1px solid rgba(155,89,182,.2);margin-bottom:10px">
+      <span style="font-size:24px">${hatchedBaby.babyEmoji||'🐣'}</span>
+      <div><div style="font-size:12px;font-weight:700">${esc(hatchedBaby.babyName||'아기몬')} Lv.${hatchedBaby.babyLevel||1}</div>
+      <div style="font-size:10.5px;color:var(--text3)">🍼 2세 지원 동반 가능 (전투 중 쿨다운 3턴)</div></div>
+    </div>`:''}
+
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${hasDice
+        ?`<button class="btn" style="padding:6px 12px;font-size:11.5px;border-color:var(--plum);color:var(--plum)" data-a="lm_rerollDice">🎲 재굴림 (1000P)</button>`
+        :''
+      }
+      <button class="btn btn-mint" style="padding:6px 12px;font-size:11.5px" data-a="lm_restoreHpMp">💊 완전회복 (500P)</button>
+    </div>
+  </div>
+
+  <!-- 주사위 미굴림 안내 -->
+  ${!hasDice?`
+  <div class="card card-gold" style="margin-bottom:12px;text-align:center;padding:1.5rem">
+    <div style="font-size:48px;margin-bottom:10px" class="float">🎲</div>
+    <p style="font-size:15px;font-weight:700;color:var(--text1);margin-bottom:6px">기본 스탯을 설정해주세요!</p>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.7">주사위를 굴려 HP·MP·ATK·DEF·EVA 기본값을 결정합니다<br>첫 번째 굴림은 무료예요! 🎁<br>재굴림은 1000P마다 가능합니다</p>
+    <button class="btn btn-gold" style="padding:12px 32px;font-size:14px" data-a="lm_rerollDice">🎲 주사위 굴리기 (무료)</button>
+  </div>`:''}
+
+  <!-- 기본 스탯 박스 -->
+  ${hasDice?`
+  <div class="card" style="margin-bottom:12px">
+    <p style="font-size:12.5px;font-weight:700;color:var(--text2);margin:0 0 10px">📊 기본 스탯 (Lv.${myPet.level||1} 기준)</p>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px">
+      <div class="dice-stat-box"><div class="val" style="color:#E53935">${scaled.maxHp}</div><div class="lbl">HP</div></div>
+      <div class="dice-stat-box"><div class="val" style="color:#1E88E5">${scaled.maxMp}</div><div class="lbl">MP</div></div>
+      <div class="dice-stat-box"><div class="val" style="color:var(--rose2)">${scaled.atk}</div><div class="lbl">ATK</div></div>
+      <div class="dice-stat-box"><div class="val" style="color:var(--plum)">${scaled.def}</div><div class="lbl">DEF</div></div>
+      <div class="dice-stat-box"><div class="val" style="color:var(--mint)">${scaled.eva}%</div><div class="lbl">EVA</div></div>
+    </div>
+    <p style="font-size:10.5px;color:var(--text3);margin:8px 0 0">🎲 기본값: HP ${myPet.diceStats.hp} · MP ${myPet.diceStats.mp} · ATK ${myPet.diceStats.atk} · DEF ${myPet.diceStats.def} · EVA ${myPet.diceStats.eva}%<br>📈 레벨당 HP+12 · MP+6 · ATK+3 · DEF+2 · EVA+0.5%</p>
+  </div>`:''}
+
+  <!-- 스킬 목록 -->
+  ${hasDice?`
+  <div class="card" style="margin-bottom:12px">
+    <p style="font-size:12.5px;font-weight:700;color:var(--text2);margin:0 0 10px">⚔️ 공격 스킬 / 🛡️ 방어 스킬</p>
+    <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
+      ${ATK_SKILLS.map(s=>`<div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:18px">${s.emoji}</span>
+        <span style="font-weight:600;flex:1">${s.name}</span>
+        <span style="color:${s.sp>0?'#8E24AA':'var(--text3)'};font-size:11px">${s.sp>0?`SP -${s.sp}`:'무료'}</span>
+        <span style="font-size:10.5px;color:var(--text3)">${s.desc.split('·')[0]}</span>
+      </div>`).join('')}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px">
+      ${DEF_SKILLS.map(s=>`<div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 0;border-bottom:1px solid var(--border)">
+        <span style="font-size:18px">${s.emoji}</span>
+        <span style="font-weight:600;flex:1">${s.name}</span>
+        <span style="color:#8E24AA;font-size:11px">SP -${s.sp}</span>
+        <span style="font-size:10.5px;color:var(--text3)">${s.desc.split('·')[0]}</span>
+      </div>`).join('')}
+    </div>
+  </div>`:''}
+
+  <!-- 보유 물약 -->
+  ${hasDice&&Object.values(inv).some(v=>v>0)?`
+  <div class="card" style="margin-bottom:12px">
+    <p style="font-size:12.5px;font-weight:700;color:var(--text2);margin:0 0 8px">🎒 보유 물약</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${POTION_ITEMS.filter(p=>(inv[p.id]||0)>0).map(p=>`
+        <div style="display:flex;align-items:center;gap:5px;background:var(--rose-lt);border:1px solid var(--border2);border-radius:8px;padding:4px 10px;font-size:12px">
+          ${p.emoji} ${p.name} <b style="color:var(--rose2)">×${inv[p.id]}</b>
+        </div>
+      `).join('')}
+    </div>
+  </div>`:''}
+
+  <!-- 던전 층 선택 -->
+  ${hasDice?`
+  <div class="card" style="margin-bottom:12px">
+    <p style="font-size:13.5px;font-weight:700;color:var(--rose2);margin:0 0 4px">⚔️ 던전 입장</p>
+    <p style="font-size:11.5px;color:var(--text3);margin:0 0 12px;line-height:1.6">층이 높을수록 강한 몹 · 더 많은 보상 · 최소 레벨 조건 있음</p>
+    <div class="dungeon-floor-grid">
+      ${DUNGEON_FLOORS.map((fl,fi)=>{
+        const locked=(myPet.level||1)<fl.reqLv;
+        return`<div class="dungeon-floor-card ${locked?'locked':''}" data-a="lm_selectFloor" data-floor="${fi}">
+          <div style="font-size:32px;margin-bottom:4px">${fl.emoji}</div>
+          <div style="font-size:13px;font-weight:700">${fl.floor}층</div>
+          <div style="font-size:12px;color:var(--text2);margin:2px 0">${esc(fl.name)}</div>
+          <div style="font-size:10.5px;color:${locked?'#C62828':'var(--mint)'};font-weight:600">${locked?`🔒 Lv.${fl.reqLv} 필요`:'✅ 입장 가능'}</div>
+          <div style="font-size:10px;color:var(--text3);margin-top:3px">XP ${fl.mobs.map(m=>m.xp).join('/')} · P ${fl.mobs.map(m=>m.pts).join('/')}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>
+
+  <!-- 물약 상점 -->
+  <div class="card" style="margin-bottom:12px">
+    <p style="font-size:13.5px;font-weight:700;color:var(--rose2);margin:0 0 10px">🏪 물약 상점</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${POTION_ITEMS.map(p=>`
+        <div style="border:1.5px solid var(--border);border-radius:10px;background:white;padding:10px;text-align:center;cursor:pointer" data-a="lm_buyPotion" data-id="${p.id}">
+          <div style="font-size:28px;margin-bottom:4px">${p.emoji}</div>
+          <div style="font-size:12px;font-weight:700;margin-bottom:2px">${esc(p.name)}</div>
+          <div style="font-size:10.5px;color:var(--mint);margin-bottom:4px">${p.desc}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--gold)">${p.cost.toLocaleString()}P</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`:''}`;
+}
+
+/* 던전 배틀 중 UI */
+function rBattleUI(){
+  const ds=S.dungeonState;
+  if(!ds)return'';
+  const myPet=S.myPet;
+  const scaled=getScaledStats(myPet);
+  const hpPct=Math.round((ds.playerHp/ds.playerMaxHp)*100);
+  const mpPct=Math.round((ds.playerMp/ds.playerMaxMp)*100);
+  const spPct=Math.round((ds.playerSp/100)*100);
+  const mobHpPct=Math.round((ds.mobCurrentHp/ds.mob.hp)*100);
+  const inv=ds.inventory||{};
+  const hasPotion=POTION_ITEMS.some(p=>(inv[p.id]||0)>0);
+
+  return`
+  <div class="card card-rose" style="margin-bottom:8px;padding:1rem">
+    <!-- 배틀 헤더 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span style="font-size:12px;font-weight:700;color:var(--rose2)">${ds.floorEmoji} ${ds.floorName} ${DUNGEON_FLOORS[ds.floorIdx].floor}층</span>
+      <span style="font-size:11px;color:var(--text3)">턴 ${ds.turn}</span>
+    </div>
+
+    <!-- 몹 정보 -->
+    <div style="text-align:center;margin-bottom:12px">
+      <div style="font-size:52px;margin-bottom:4px" class="${ds.mobCurrentHp<=0?'':'float'}">${ds.mob.emoji}</div>
+      <div style="font-weight:700;font-size:15px;color:var(--text1)">${esc(ds.mob.name)}</div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">ATK ${ds.mob.atk} · DEF ${ds.mob.def} · EVA ${ds.mob.eva}%</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:10.5px;color:#E53935;width:22px">HP</span>
+        <div class="hp-bar" style="flex:1"><div class="hp-fill" style="width:${mobHpPct}%"></div></div>
+        <span style="font-size:10.5px;width:52px">${ds.mobCurrentHp}/${ds.mob.hp}</span>
+      </div>
+    </div>
+
+    <!-- 플레이어 스탯 -->
+    <div style="background:rgba(255,255,255,.7);border-radius:10px;padding:8px;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px">${esc(myPet.petEmoji)} ${esc(myPet.petName)}</div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="font-size:10px;color:#E53935;width:20px">HP</span>
+          <div class="hp-bar" style="flex:1"><div class="hp-fill" style="width:${hpPct}%"></div></div>
+          <span style="font-size:10px;width:48px">${ds.playerHp}/${ds.playerMaxHp}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="font-size:10px;color:#1E88E5;width:20px">MP</span>
+          <div class="mp-bar" style="flex:1"><div class="mp-fill" style="width:${mpPct}%"></div></div>
+          <span style="font-size:10px;width:48px">${ds.playerMp}/${ds.playerMaxMp}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <span style="font-size:10px;color:#8E24AA;width:20px">SP</span>
+          <div class="sp-bar" style="flex:1"><div class="sp-fill" style="width:${spPct}%"></div></div>
+          <span style="font-size:10px;width:48px">${ds.playerSp}/100</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 배틀 로그 -->
+  <div class="card" style="margin-bottom:8px;padding:.8rem">
+    <p style="font-size:11px;font-weight:700;color:var(--text2);margin:0 0 5px">📜 전투 로그</p>
+    <div class="battle-log">${ds.log.slice(-8).map(l=>`<div>${l}</div>`).join('')}</div>
+  </div>
+
+  <!-- 행동 버튼 -->
+  ${ds.won||ds.lost?`
+  <div class="card" style="text-align:center;padding:1.5rem">
+    <div style="font-size:44px;margin-bottom:8px">${ds.won?'🏆':'💀'}</div>
+    <p style="font-size:15px;font-weight:700;color:${ds.won?'var(--mint)':'#C62828'}">${ds.won?'전투 승리!':'전투 패배...'}</p>
+    <p style="font-size:12px;color:var(--text3);margin:6px 0 14px">${ds.won?`XP +${ds.totalXp} · 포인트 +${ds.totalPts} 적립 중...`:'XP -100 · 포인트 -1000 패널티 적용 중...'}</p>
+    <div style="font-size:24px;animation:pulse 1s infinite">⏳</div>
+  </div>`:
+  `<div class="card" style="margin-bottom:8px">
+    <p style="font-size:11.5px;font-weight:700;color:var(--text2);margin:0 0 8px">⚔️ 공격 스킬</p>
+    <div class="skill-btn-grid" style="margin-bottom:10px">
+      ${ATK_SKILLS.map(s=>`
+        <button class="btn ${s.sp<=ds.playerSp?(s.id==='basic'?'btn-primary':'btn-plum'):'btn-danger'}"
+          style="padding:7px 6px;font-size:11.5px;flex-direction:column;gap:2px;text-align:center"
+          data-a="lm_dungeonAction" data-type="attack" data-skill="${s.id}">
+          <span>${s.emoji} ${s.name}</span>
+          <span style="font-size:10px;opacity:.8">${s.sp>0?`SP-${s.sp}`:'무료'}</span>
+        </button>
+      `).join('')}
+    </div>
+    <p style="font-size:11.5px;font-weight:700;color:var(--text2);margin:0 0 8px">🛡️ 방어 스킬</p>
+    <div class="skill-btn-grid" style="margin-bottom:10px">
+      ${DEF_SKILLS.map(s=>`
+        <button class="btn ${s.sp<=ds.playerSp?'btn-mint':'btn-danger'}"
+          style="padding:7px 6px;font-size:11.5px;flex-direction:column;gap:2px;text-align:center"
+          data-a="lm_dungeonAction" data-type="defense" data-skill="${s.id}">
+          <span>${s.emoji} ${s.name}</span>
+          <span style="font-size:10px;opacity:.8">SP-${s.sp}${s.mpCost?` MP-${s.mpCost}`:''}</span>
+        </button>
+      `).join('')}
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${hasPotion?`<button class="btn btn-gold" style="padding:7px 14px;font-size:12px;flex:1" data-a="lm_usePotionMenu">🧪 물약 사용</button>`:''}
+      ${ds.baby&&ds.babyCooldown===0?`<button class="btn btn-plum" style="padding:7px 14px;font-size:12px;flex:1" data-a="lm_dungeonAction" data-type="baby" data-skill="">🍼 2세 지원</button>`
+        :(ds.baby?`<span style="font-size:11px;color:var(--text3);align-self:center">🍼 쿨다운 ${ds.babyCooldown}턴</span>`:'')
+      }
+      <button class="btn btn-danger" style="padding:7px 14px;font-size:12px;flex:1" data-a="lm_dungeonAction" data-type="flee" data-skill="">🏃 도망</button>
+    </div>
+  </div>`}`;
+}
 function renderChatMessages(){
   if(S.chosungChat.length===0)return`<p style="font-size:12.5px;color:var(--text3);text-align:center;padding:1.5rem">아직 채팅이 없어요. 첫 번째로 정답을 맞춰보세요!</p>`;
   return S.chosungChat.map(m=>`<div class="lm-chat-msg ${m.isCorrect?'correct':''}">
@@ -2471,6 +3235,50 @@ function attachEvents(){
       else if(a==="lm_breedReq"){requestBreed(el.dataset.nick);}
       else if(a==="lm_breedAccept"){acceptBreed(el.dataset.id,el.dataset.from);}
       else if(a==="lm_submitAnswer"){submitChosungAnswer();}
+      /* ★ 2세 공동 육아 먹이 주기 */
+      else if(a==="lm_feedBaby"){
+        feedBaby(el.dataset.id, parseInt(el.dataset.cost), parseInt(el.dataset.xp));
+      }
+      /* ★ 던전 진입: 층 선택 */
+      else if(a==="lm_selectFloor"){
+        const fi=parseInt(el.dataset.floor);
+        const fl=DUNGEON_FLOORS[fi];
+        if(!fl)return;
+        if(fl.mobs.length===1){
+          startDungeon(fi,0);
+        }else{
+          const choice=fl.mobs.map((m,i)=>`${i+1}. ${m.emoji} ${m.name} (HP ${m.hp}·ATK ${m.atk}) → XP ${m.xp}·${m.pts}P`).join('\n');
+          const pick=prompt(`${fl.emoji} ${fl.name}\n사냥할 몬스터를 선택하세요:\n${choice}\n번호 입력:`,'1');
+          if(!pick)return;
+          const idx=parseInt(pick)-1;
+          if(idx<0||idx>=fl.mobs.length){alert("올바른 번호를 입력해주세요.");return;}
+          startDungeon(fi,idx);
+        }
+      }
+      /* ★ 던전 배틀 액션 */
+      else if(a==="lm_dungeonAction"){
+        dungeonAction(el.dataset.type, el.dataset.skill);
+      }
+      /* ★ 던전 물약 사용 메뉴 */
+      else if(a==="lm_usePotionMenu"){
+        const ds=S.dungeonState;
+        if(!ds)return;
+        const inv=ds.inventory||{};
+        const avail=POTION_ITEMS.filter(p=>(inv[p.id]||0)>0);
+        if(!avail.length){alert("보유한 물약이 없어요! 상점에서 구입하세요 🧪");return;}
+        const list=avail.map((p,i)=>`${i+1}. ${p.emoji} ${p.name} (${inv[p.id]}개) - ${p.desc}`).join('\n');
+        const pick=prompt(`🧪 사용할 물약 선택:\n${list}\n번호 입력:`,'1');
+        if(!pick)return;
+        const chosen=avail[parseInt(pick)-1];
+        if(!chosen)return;
+        dungeonAction('potion',chosen.id);
+      }
+      /* ★ 물약 구매 */
+      else if(a==="lm_buyPotion"){buyPotion(el.dataset.id);}
+      /* ★ 주사위 재굴림 */
+      else if(a==="lm_rerollDice"){rerollDice();}
+      /* ★ HP/MP 완전 회복 (500P) */
+      else if(a==="lm_restoreHpMp"){restoreHpMp();}
       /* ★ 2세 육아 케어 */
       else if(a==="lm_careForBaby"){
         careForBaby(el.dataset.id,parseInt(el.dataset.reduction),parseInt(el.dataset.cost));
