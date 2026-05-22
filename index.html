@@ -3391,6 +3391,8 @@ function initCatchmindCanvas(){
     if(rem===0&&!st.solvedBy){
       timerEl.textContent='⏰ 시간 초과!';
       clearInterval(window.__cmTimer);window.__cmTimer=null;
+      /* 시간 초과 시 상태를 reveal로 변경하여 다음 라운드 버튼이 나타나게 함 */
+      gameStateCol.doc("catchmind").update({status:'reveal', solvedBy:null});
     }
   },500);
 }
@@ -5447,7 +5449,7 @@ function attachEvents(){
         startQuizQuestion(el.dataset.v,null).catch(()=>{});render();
       }
       /* ★ 캐치마인드 핸들러 */
-      else if(a==="lm_cm_start"){startCatchmindRound(null);}
+      else if(a==="lm_cm_start"){startCatchmindRound(S.myEntry?.nick);}
       else if(a==="lm_cm_skip"){skipCMRound();}
       else if(a==="lm_cm_guess"){submitCMGuess();}
       else if(a==="lm_cm_color"){
