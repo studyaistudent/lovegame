@@ -5259,8 +5259,7 @@ function rPlazaTab(){
       return `<div class="lm-lb-row">
         <div class="lm-lb-rank">${rankEmoji}</div>
         <div class="lm-lb-pet">${getVisualEmoji(p)}</div>
-        <div class="lm-lb-nick">${esc(p.nick)} ${rebirthBadge} <span style="font-size:10px;color:var(--text3);font-weight:400">${esc(p.petName||'')}</span></div>
-        ${rightVal}
+<div class="lm-lb-nick">${esc(p.nick)} ${rebirthBadge} <span style="font-size:11px;color:${getRebirthColor(p.rebirthCount)};font-weight:700">${esc(p.petName||'')}</span></div>        ${rightVal}
       </div>`;
     }).join('');
 
