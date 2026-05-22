@@ -264,16 +264,434 @@ body::before{
 .grade-legend  { color:#F44336 !important; }
 .grade-god     { color:#FFD700 !important; }
 
-/* ── 하우스 3D 컨테이너 ── */
-.house-canvas-wrap { width:100%; height:360px; border-radius:14px; overflow:hidden; position:relative; background:#1a1a2e; }
-.house-canvas-wrap canvas { display:block; width:100% !important; height:100% !important; }
-.house-ctrl-hint { position:absolute; bottom:10px; right:10px; font-size:10px; color:rgba(255,255,255,.5); background:rgba(0,0,0,.3); padding:3px 8px; border-radius:99px; pointer-events:none; }
-.house-tier-card { border:1.5px solid var(--border); border-radius:10px; background:white; padding:10px; text-align:center; cursor:pointer; transition:all .15s; }
-.house-tier-card:hover { border-color:var(--rose); background:var(--rose-lt); transform:translateY(-2px); }
-.house-tier-card.current { border-color:var(--rose2); background:var(--rose-lt); }
-.furniture-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.furniture-item { border:1.5px solid var(--border); border-radius:10px; background:white; padding:10px 8px; text-align:center; cursor:pointer; transition:all .15s; }
-.furniture-item:hover { border-color:var(--rose); background:var(--rose-lt); transform:translateY(-2px); }
+/* ────────────────────────────────────────
+   🏠 하우스 — 인테리어 잡지 감성 UI
+   ──────────────────────────────────────── */
+ 
+/* 메인 3D 캔버스 — 깊이감 있는 프레임 */
+.house-stage {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at top, rgba(255,182,193,.15) 0%, transparent 60%),
+    linear-gradient(180deg, #1f1a2e 0%, #0d0a18 100%);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.08) inset,
+    0 24px 60px rgba(232,83,122,.18),
+    0 8px 24px rgba(0,0,0,.25);
+  border: 1px solid rgba(232,83,122,.2);
+}
+.house-stage::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(232,83,122,.12), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(124,63,126,.10), transparent 40%);
+  pointer-events: none; z-index: 1;
+}
+.house-canvas-wrap {
+  width: 100%;
+  height: 420px;
+  position: relative;
+  z-index: 2;
+}
+.house-canvas-wrap canvas { display: block; width: 100% !important; height: 100% !important; }
+ 
+/* 상단 오버레이 — 집 이름/등급/방문자 */
+.house-overlay-top {
+  position: absolute;
+  top: 14px; left: 14px; right: 14px;
+  z-index: 3;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  pointer-events: none;
+}
+.house-name-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(232,83,122,.25);
+  border-radius: 99px;
+  padding: 6px 14px 6px 10px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+}
+.house-name-badge .emoji { font-size: 18px; }
+.house-name-badge .name { font-size: 12.5px; font-weight: 700; color: var(--text1); letter-spacing: .2px; }
+.house-name-badge .meta { font-size: 10px; color: var(--text3); margin-left: 2px; }
+ 
+.house-visitor-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(0,0,0,.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.15);
+  color: #fff;
+  border-radius: 99px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.house-visitor-pill .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #4ADE80;
+  box-shadow: 0 0 8px #4ADE80;
+}
+ 
+/* 하단 컨트롤 힌트 */
+.house-ctrl-hint {
+  position: absolute; bottom: 12px; right: 14px;
+  z-index: 3;
+  font-size: 10.5px;
+  color: rgba(255,255,255,.65);
+  background: rgba(0,0,0,.4);
+  backdrop-filter: blur(6px);
+  padding: 4px 10px;
+  border-radius: 99px;
+  pointer-events: none;
+  letter-spacing: .3px;
+}
+ 
+/* 액션 바 (3D 캔버스 아래) */
+.house-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(253,238,244,.92));
+  border-top: 1px solid var(--border);
+}
+.house-action-bar .info { font-size: 11.5px; color: var(--text2); }
+.house-action-bar .info b { color: var(--text1); font-weight: 700; }
+.house-action-bar .actions { display: flex; gap: 6px; }
+ 
+/* 섹션 헤더 — 잡지 스타일 */
+.deco-section {
+  margin-bottom: 14px;
+}
+.deco-section-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  padding: 0 2px 10px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.deco-section-head .title {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--rose2);
+  letter-spacing: .3px;
+}
+.deco-section-head .sub {
+  font-size: 10.5px;
+  color: var(--text3);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+ 
+/* 등급 선택 — 가로 스크롤 카드 (큰 형태) */
+.tier-scroll {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+  margin: 0 -4px;
+}
+.tier-scroll::-webkit-scrollbar { display: none; }
+.tier-card-pro {
+  flex-shrink: 0;
+  width: 130px;
+  border-radius: 14px;
+  background: white;
+  border: 1.5px solid var(--border);
+  padding: 14px 10px 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.tier-card-pro:hover {
+  transform: translateY(-3px);
+  border-color: var(--rose);
+  box-shadow: 0 8px 20px rgba(232,83,122,.18);
+}
+.tier-card-pro.current {
+  background: linear-gradient(160deg, var(--rose-lt), white);
+  border-color: var(--rose2);
+  border-width: 2px;
+}
+.tier-card-pro.current::before {
+  content: 'NOW LIVING';
+  position: absolute; top: 8px; right: -22px;
+  background: var(--rose2); color: white;
+  font-size: 8.5px; font-weight: 700;
+  padding: 2px 24px;
+  transform: rotate(35deg);
+  letter-spacing: 1px;
+}
+.tier-card-pro.locked { opacity: .45; cursor: not-allowed; }
+.tier-card-pro .tier-emoji {
+  font-size: 38px;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 3px 6px rgba(232,83,122,.25));
+}
+.tier-card-pro .tier-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text1);
+  margin-bottom: 4px;
+}
+.tier-card-pro .tier-meta {
+  font-size: 10px;
+  color: var(--text3);
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.tier-card-pro .tier-cost {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--gold);
+  padding: 4px 10px;
+  background: rgba(212,168,83,.1);
+  border-radius: 99px;
+  display: inline-block;
+}
+.tier-card-pro.current .tier-cost {
+  background: var(--rose);
+  color: white;
+}
+ 
+/* 벽지/바닥 — 스워치 형태 */
+.swatch-row {
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+.swatch-card {
+  flex: 1; min-width: 88px;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all .2s;
+  background: white;
+}
+.swatch-card:hover { transform: translateY(-2px); }
+.swatch-card.active {
+  border-color: var(--rose2);
+  box-shadow: 0 6px 16px rgba(232,83,122,.25);
+}
+.swatch-preview {
+  height: 48px;
+  position: relative;
+}
+.swatch-preview::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.15), transparent 50%);
+}
+.swatch-info {
+  padding: 6px 8px;
+  text-align: center;
+}
+.swatch-info .name {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text1);
+  line-height: 1.2;
+}
+.swatch-info .price {
+  font-size: 10px;
+  color: var(--gold);
+  margin-top: 2px;
+  font-weight: 600;
+}
+.swatch-card.active .swatch-info .name { color: var(--rose2); }
+ 
+/* 가구 상점 — 잡지 카드 */
+.furn-grid-pro {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.furn-card-pro {
+  background: white;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  padding: 14px 10px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s cubic-bezier(.4,0,.2,1);
+  position: relative;
+  overflow: hidden;
+}
+.furn-card-pro:hover {
+  transform: translateY(-3px);
+  border-color: var(--rose);
+  box-shadow: 0 10px 22px rgba(232,83,122,.18);
+}
+.furn-card-pro .grade-tag {
+  position: absolute; top: 8px; left: 8px;
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.furn-card-pro .grade-tag.normal { background: #ECEFF1; color: #607D8B; }
+.furn-card-pro .grade-tag.rare   { background: #E3F2FD; color: #1976D2; }
+.furn-card-pro .grade-tag.epic   { background: #F3E5F5; color: #8E24AA; }
+.furn-card-pro .grade-tag.unique { background: #FFF3E0; color: #F4511E; }
+.furn-card-pro .grade-tag.legend { background: linear-gradient(135deg,#FFE082,#FFB74D); color: #E65100; }
+.furn-card-pro .furn-emoji {
+  font-size: 44px;
+  margin: 8px 0 6px;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,.12));
+  transition: transform .3s;
+}
+.furn-card-pro:hover .furn-emoji { transform: scale(1.1) rotate(-3deg); }
+.furn-card-pro .furn-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text1);
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+.furn-card-pro .furn-cost {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--gold);
+}
+ 
+/* 보관/배치 가구 칩 */
+.furn-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text1);
+  cursor: pointer;
+  transition: all .15s;
+}
+.furn-chip:hover { border-color: var(--rose); background: var(--rose-lt); }
+.furn-chip.placed {
+  background: linear-gradient(135deg, rgba(232,83,122,.08), rgba(155,89,182,.05));
+  border-color: var(--rose2);
+}
+.furn-chip .chip-emoji { font-size: 18px; }
+.furn-chip .chip-x { color: #C62828; font-size: 11px; margin-left: 2px; }
+ 
+/* 방명록 — 책 페이지 느낌 */
+.guestbook-list {
+  max-height: 240px;
+  overflow-y: auto;
+  background:
+    repeating-linear-gradient(180deg, transparent 0, transparent 31px, rgba(232,83,122,.08) 31px, rgba(232,83,122,.08) 32px),
+    linear-gradient(180deg, rgba(255,250,245,.6), rgba(255,255,255,0));
+  border-radius: 10px;
+  padding: 4px 12px;
+}
+.guestbook-entry {
+  padding: 8px 0 10px;
+  border-bottom: 1px dashed rgba(232,83,122,.18);
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.guestbook-entry:last-child { border-bottom: none; }
+.guestbook-entry .head {
+  display: flex; align-items: baseline; gap: 6px;
+  margin-bottom: 3px;
+}
+.guestbook-entry .head .nick {
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--rose2);
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+}
+.guestbook-entry .head .date {
+  font-size: 10px;
+  color: var(--text3);
+  margin-left: auto;
+}
+.guestbook-entry .msg {
+  font-size: 12.5px;
+  color: var(--text1);
+  line-height: 1.55;
+}
+ 
+/* 데코 탭 (등급/벽지/바닥/가구 전환) */
+.deco-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(232,83,122,.06);
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 14px;
+}
+.deco-tab {
+  flex: 1;
+  padding: 8px 6px;
+  border: none;
+  background: transparent;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+.deco-tab.active {
+  background: white;
+  color: var(--rose2);
+  box-shadow: 0 2px 8px rgba(232,83,122,.15);
+}
+ 
+/* 빈 상태 (가구 없음 등) */
+.empty-hint {
+  text-align: center;
+  padding: 24px 12px;
+  color: var(--text3);
+  font-size: 12.5px;
+  background: rgba(0,0,0,.02);
+  border-radius: 10px;
+  border: 1px dashed var(--border);
+}
+.empty-hint .emoji { font-size: 32px; display: block; margin-bottom: 6px; opacity: .6; }
+ 
+/* "집 없음" 초기 화면 */
+.house-onboarding {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(232,83,122,.08), transparent 60%),
+    linear-gradient(180deg, white, var(--rose-pale));
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.house-onboarding .hero-emoji {
+  font-size: 80px;
+  display: inline-block;
+  filter: drop-shadow(0 8px 16px rgba(232,83,122,.25));
+  margin-bottom: 14px;
+}
+.house-onboarding h2 {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--rose2);
+  margin-bottom: 8px;
+}
+.house-onboarding p {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.75;
+  margin-bottom: 20px;
+}
 
 /* ── 선물함 ── */
 .gift-card { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1.5px solid var(--border); border-radius:10px; background:white; margin-bottom:6px; }
@@ -3005,95 +3423,864 @@ const batch=db.batch();unread.forEach(g=>batch.update(giftsCol.doc(g.id),{read:t
 }
 
 /* ═══════════════════════════════════════
-   🏰 Three.js 하우스 3D 렌더러
+   🏰 Three.js 하우스 3D 렌더러 (고퀄리티 인테리어 ver.)
+   - 박스 대신 가구별 디테일 모델 (소파/침대/벽난로/책장/분수 등)
+   - 마룻바닥 패턴, 베이스보드, 창문, 액자
+   - 따뜻한 인테리어 조명 (3-point + 포인트 라이트)
+   - 카메라 자동 궤도 + 드래그 회전
 ═══════════════════════════════════════ */
-class HouseRenderer3D{
-  constructor(containerId,houseData,petEmoji){
-    this.container=document.getElementById(containerId);
-if(!this.container||!window.THREE){return;}
-    this.houseData=houseData;this.petEmoji=petEmoji||'🐾';
-    this.meshes=[];this.isAlive=true;this.theta=0.3;this.isDrag=false;this.lastX=0;
+class HouseRenderer3D {
+  constructor(containerId, houseData, petEmoji) {
+    this.container = document.getElementById(containerId);
+    if (!this.container || !window.THREE) return;
+    this.houseData = houseData;
+    this.petEmoji = petEmoji || '🐾';
+    this.meshes = [];
+    this.animated = []; // 애니메이션 대상
+    this.isAlive = true;
+    this.theta = 0.6;
+    this.targetTheta = 0.6;
+    this.isDrag = false;
+    this.lastX = 0;
+    this.autoRotate = true;
     this.init();
   }
-  emojiTexture(emoji,bg='#FDEEF4'){
-    const c=document.createElement('canvas');c.width=c.height=128;
-    const ctx=c.getContext('2d');
-    ctx.fillStyle=bg;ctx.beginPath();ctx.roundRect(0,0,128,128,16);ctx.fill();
-    ctx.font='72px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-ctx.fillText(emoji,64,68);
+ 
+  /* 이모지 → 텍스처 (라벨/액자/펫 얼굴 용) */
+  emojiTexture(emoji, bg = '#FDEEF4', size = 256) {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, size, size);
+    ctx.font = `${Math.round(size * 0.62)}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(emoji, size / 2, size * 0.56);
     return new THREE.CanvasTexture(c);
   }
-  init(){
-    const W=this.container.clientWidth||340,H=360;
-    this.scene=new THREE.Scene();
-    this.scene.background=new THREE.Color(0x1a1a2e);
-    this.camera=new THREE.PerspectiveCamera(55,W/H,0.1,200);
-    this.camera.position.set(0,7,14);this.camera.lookAt(0,1,0);
-this.renderer=new THREE.WebGLRenderer({antialias:true});
-    this.renderer.setSize(W,H);this.renderer.shadowMap.enabled=true;
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+ 
+  /* 마룻바닥 텍스처 — 나뭇결 패턴 */
+  woodFloorTexture(baseColor = '#D4A574', size = 512) {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = baseColor;
+    ctx.fillRect(0, 0, size, size);
+    const plankH = size / 8;
+    for (let i = 0; i < 8; i++) {
+      const y = i * plankH;
+      // 어두운 라인
+      ctx.fillStyle = 'rgba(60,40,20,.18)';
+      ctx.fillRect(0, y, size, 1);
+      // 나뭇결
+      for (let k = 0; k < 4; k++) {
+        ctx.strokeStyle = `rgba(${Math.random() > 0.5 ? '110,75,40' : '180,140,90'},.${Math.floor(Math.random() * 3) + 1}5)`;
+        ctx.lineWidth = 0.6;
+        ctx.beginPath();
+        const yk = y + Math.random() * plankH;
+        ctx.moveTo(0, yk);
+        ctx.bezierCurveTo(size * 0.3, yk - 3 + Math.random() * 6, size * 0.6, yk - 4 + Math.random() * 8, size, yk);
+        ctx.stroke();
+      }
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(2, 1.6);
+    return tex;
+  }
+ 
+  /* 대리석/잔디 등 단색 바닥 텍스처 */
+  flatFloorTexture(color, type) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 256;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 256, 256);
+    if (type === 'marble') {
+      // 대리석 무늬
+      for (let i = 0; i < 8; i++) {
+        ctx.strokeStyle = `rgba(180,180,180,.${Math.floor(Math.random() * 3) + 2}5)`;
+        ctx.lineWidth = Math.random() * 1.5;
+        ctx.beginPath();
+        ctx.moveTo(Math.random() * 256, 0);
+        ctx.bezierCurveTo(Math.random() * 256, 80, Math.random() * 256, 180, Math.random() * 256, 256);
+        ctx.stroke();
+      }
+    } else if (type === 'grass') {
+      for (let i = 0; i < 400; i++) {
+        ctx.fillStyle = `rgba(80,${130 + Math.random() * 40},80,.4)`;
+        ctx.fillRect(Math.random() * 256, Math.random() * 256, 2, 4);
+      }
+    } else if (type === 'dark') {
+      for (let i = 0; i < 200; i++) {
+        ctx.fillStyle = `rgba(255,255,255,.0${Math.floor(Math.random() * 3)})`;
+        ctx.fillRect(Math.random() * 256, Math.random() * 256, 1, 1);
+      }
+    }
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(3, 3);
+    return tex;
+  }
+ 
+  /* 벽지 텍스처 — 패턴 포함 */
+  wallTexture(baseColor, pattern) {
+    const c = document.createElement('canvas');
+    c.width = c.height = 512;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = baseColor;
+    ctx.fillRect(0, 0, 512, 512);
+    if (pattern === 'rose') {
+      // 작은 장미 점박이
+      for (let y = 32; y < 512; y += 64) {
+        for (let x = ((y / 64) % 2 === 0 ? 32 : 64); x < 512; x += 64) {
+          ctx.fillStyle = 'rgba(232,83,122,.08)';
+          ctx.beginPath();
+          ctx.arc(x, y, 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    } else if (pattern === 'night') {
+      // 별빛
+      for (let i = 0; i < 80; i++) {
+        const x = Math.random() * 512, y = Math.random() * 512;
+        const s = Math.random() * 1.8 + 0.3;
+        ctx.fillStyle = `rgba(255,255,200,${Math.random() * 0.6 + 0.2})`;
+        ctx.beginPath();
+        ctx.arc(x, y, s, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (pattern === 'forest') {
+      // 잎사귀 실루엣
+      for (let i = 0; i < 24; i++) {
+        ctx.fillStyle = `rgba(80,140,90,.${Math.floor(Math.random() * 3) + 1})`;
+        const x = Math.random() * 512, y = Math.random() * 512;
+        ctx.beginPath();
+        ctx.ellipse(x, y, 12, 6, Math.random() * Math.PI, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    } else if (pattern === 'gold') {
+      // 황금 다이아 패턴
+      ctx.strokeStyle = 'rgba(218,165,32,.18)';
+      ctx.lineWidth = 1;
+      for (let y = 0; y < 512; y += 48) {
+        for (let x = 0; x < 512; x += 48) {
+          ctx.beginPath();
+          ctx.moveTo(x + 24, y); ctx.lineTo(x + 48, y + 24);
+          ctx.lineTo(x + 24, y + 48); ctx.lineTo(x, y + 24); ctx.closePath();
+          ctx.stroke();
+        }
+      }
+    } else if (pattern === 'galaxy') {
+      // 우주 — 별 + 성운
+      const grad = ctx.createRadialGradient(256, 256, 30, 256, 256, 280);
+      grad.addColorStop(0, 'rgba(155,89,182,.35)');
+      grad.addColorStop(0.6, 'rgba(60,40,120,.2)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 512, 512);
+      for (let i = 0; i < 150; i++) {
+        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.8 + 0.2})`;
+        ctx.beginPath();
+        ctx.arc(Math.random() * 512, Math.random() * 512, Math.random() * 1.6, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    return new THREE.CanvasTexture(c);
+  }
+ 
+  init() {
+    const W = this.container.clientWidth || 340;
+    const H = 420;
+    this.scene = new THREE.Scene();
+ 
+    /* 분위기 안개 — 깊이감 */
+    const fogColor = (this.houseData?.wallpaper === 'galaxy' || this.houseData?.wallpaper === 'night')
+      ? 0x1a1638 : 0xfff0f5;
+    this.scene.fog = new THREE.Fog(fogColor, 14, 30);
+    this.scene.background = new THREE.Color(fogColor);
+ 
+    /* 카메라 — 살짝 위에서 내려다보는 이소메트릭 느낌 */
+    this.camera = new THREE.PerspectiveCamera(48, W / H, 0.1, 200);
+    this.cameraDist = 17;
+    this.cameraY = 8;
+    this.updateCamera();
+ 
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    this.renderer.setSize(W, H);
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.outputEncoding = THREE.sRGBEncoding || 3001;
     this.container.appendChild(this.renderer.domElement);
-    this.addLighting();this.buildRoom();this.placeFurniture3D();this.addPet3D();this.addOrbit();this.animate();
+ 
+    this.addLighting();
+    this.buildRoom();
+    this.placeFurniture3D();
+    this.addPet3D();
+    this.addOrbit();
+    this.animate();
+ 
+    /* 리사이즈 대응 */
+    this.resizeObserver = new ResizeObserver(() => this.handleResize());
+    this.resizeObserver.observe(this.container);
   }
-  addLighting(){
-    this.scene.add(new THREE.AmbientLight(0xfff0f5,0.9));
-    const dl=new THREE.DirectionalLight(0xffffff,0.8);
-    dl.position.set(8,12,8);dl.castShadow=true;
-    dl.shadow.mapSize.width=dl.shadow.mapSize.height=512;
-    this.scene.add(dl);
-const pl=new THREE.PointLight(0xFF9AA2,0.6,25);pl.position.set(0,5,0);this.scene.add(pl);
+ 
+  updateCamera() {
+    this.camera.position.x = this.cameraDist * Math.sin(this.theta);
+    this.camera.position.z = this.cameraDist * Math.cos(this.theta);
+    this.camera.position.y = this.cameraY;
+    this.camera.lookAt(0, 1.5, 0);
   }
-  buildRoom(){
-    const wp=WALLPAPERS[this.houseData?.wallpaper||'rose'];
-    const fl=FLOORS[this.houseData?.floor||'wood'];
-    const wc=wp?.threeColor||0xFDEEF4;const fc=fl?.threeColor||0xD4A574;
-    const wm=new THREE.MeshLambertMaterial({color:wc});
-const fm=new THREE.MeshLambertMaterial({color:fc});
-    /* 바닥 */const floor=new THREE.Mesh(new THREE.BoxGeometry(12,0.25,10),fm);floor.position.set(0,-0.12,0);floor.receiveShadow=true;this.scene.add(floor);
-    /* 뒷벽 */const bw=new THREE.Mesh(new THREE.BoxGeometry(12,6,0.25),wm);bw.position.set(0,3,-5);this.scene.add(bw);
-/* 왼벽 */const lw=new THREE.Mesh(new THREE.BoxGeometry(0.25,6,10),wm);lw.position.set(-6,3,0);this.scene.add(lw);
-    /* 천장 약간 */const ceil=new THREE.Mesh(new THREE.BoxGeometry(12,0.2,10),new THREE.MeshLambertMaterial({color:0xffffff}));ceil.position.set(0,6,0);this.scene.add(ceil);
-}
-  placeFurniture3D(){
-    const FH={sofa:[2,0.7,0.9,0xE8537A],bed:[2,0.8,1,0xF8BBD9],plant:[0.6,1,0.6,0x4CAF50],lamp:[0.3,1.5,0.3,0xFFD700],desk:[1,0.7,0.8,0x8D6E63],aquarium:[2,1,0.5,0x29B6F6],fireplace:[2,1.5,0.5,0xBF360C],library:[2,2,0.5,0x5D4037],fountain:[1.5,1.5,1.5,0x29B6F6],sofa2:[2,0.7,0.9,0xF06292],statue:[0.8,2,0.8,0x9E9E9E],frame:[0.8,1,0.15,0xBCAAA4],flag:[0.3,2,0.3,0xFF1744]};
-    const furniture=this.houseData?.furniture||[];
-    const cols=3;
-furniture.slice(0,9).forEach((item,i)=>{
-      const cfg=FH[item.type]||[1,1,1,0xCCCCCC];
-      const[w,h,d,col]=cfg;
-      const materials=[new THREE.MeshLambertMaterial({color:col}),new THREE.MeshLambertMaterial({color:col}),new THREE.MeshLambertMaterial({map:this.emojiTexture(item.emoji)}),new THREE.MeshLambertMaterial({color:col-0x111111}),new THREE.MeshLambertMaterial({color:col}),new THREE.MeshLambertMaterial({color:col-0x222222})];
-      const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),materials);
-      const px=(i%cols)*3.5-3.5;const pz=Math.floor(i/cols)*3-3;
-      mesh.position.set(px,h/2,pz);mesh.castShadow=true;mesh.receiveShadow=true;
-      this.scene.add(mesh);this.meshes.push(mesh);
+ 
+  handleResize() {
+    const W = this.container.clientWidth || 340;
+    const H = 420;
+    this.camera.aspect = W / H;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(W, H);
+  }
+ 
+  addLighting() {
+    /* 앰비언트 — 따뜻한 톤 */
+    const isDark = this.houseData?.wallpaper === 'galaxy' || this.houseData?.wallpaper === 'night';
+    this.scene.add(new THREE.AmbientLight(isDark ? 0x6a5a8a : 0xfff4e8, isDark ? 0.45 : 0.65));
+ 
+    /* 메인 디렉셔널 — 창문 햇빛 느낌 */
+    const sun = new THREE.DirectionalLight(isDark ? 0xb0a0ff : 0xffe4b5, isDark ? 0.6 : 0.95);
+    sun.position.set(8, 14, 6);
+    sun.castShadow = true;
+    sun.shadow.mapSize.width = sun.shadow.mapSize.height = 1024;
+    sun.shadow.camera.left = -12;
+    sun.shadow.camera.right = 12;
+    sun.shadow.camera.top = 12;
+    sun.shadow.camera.bottom = -12;
+    sun.shadow.camera.near = 0.5;
+    sun.shadow.camera.far = 30;
+    sun.shadow.bias = -0.0005;
+    this.scene.add(sun);
+ 
+    /* 보조 라이트 — 반대쪽 fill */
+    const fill = new THREE.DirectionalLight(0xffc8dc, 0.25);
+    fill.position.set(-6, 5, -4);
+    this.scene.add(fill);
+ 
+    /* 천장 포인트 라이트 — 따뜻한 분위기 */
+    const ceilLight = new THREE.PointLight(0xff9a6c, 0.6, 18, 1.5);
+    ceilLight.position.set(0, 5.5, 0);
+    this.scene.add(ceilLight);
+ 
+    /* 코너 무드 라이트 */
+    const moodLight = new THREE.PointLight(0xff6b9d, 0.4, 12, 2);
+    moodLight.position.set(-4, 1.5, 3);
+    this.scene.add(moodLight);
+  }
+ 
+  buildRoom() {
+    const wpKey = this.houseData?.wallpaper || 'rose';
+    const flKey = this.houseData?.floor || 'wood';
+ 
+    /* 바닥 */
+    const floorColors = { wood: '#D4A574', marble: '#F5F5F5', grass: '#81C784', dark: '#3a3a40' };
+    const floorTex = flKey === 'wood'
+      ? this.woodFloorTexture(floorColors.wood)
+      : this.flatFloorTexture(floorColors[flKey], flKey);
+    const floorMat = new THREE.MeshLambertMaterial({ map: floorTex });
+    const floor = new THREE.Mesh(new THREE.BoxGeometry(14, 0.3, 12), floorMat);
+    floor.position.set(0, -0.15, 0);
+    floor.receiveShadow = true;
+    this.scene.add(floor);
+ 
+    /* 벽 — 안쪽 면만 보이도록 */
+    const wallColors = { rose: '#FDEEF4', night: '#283593', forest: '#E8F5E9', gold: '#FFF8E1', galaxy: '#0D0D2B' };
+    const wallBase = wallColors[wpKey] || '#FDEEF4';
+    const wallTex = this.wallTexture(wallBase, wpKey);
+    const wallMat = new THREE.MeshLambertMaterial({ map: wallTex, side: THREE.FrontSide });
+    /* 뒷벽 */
+    const backWall = new THREE.Mesh(new THREE.BoxGeometry(14, 6.5, 0.3), wallMat);
+    backWall.position.set(0, 3.1, -6);
+    backWall.receiveShadow = true;
+    this.scene.add(backWall);
+    /* 좌측 벽 */
+    const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.3, 6.5, 12), wallMat);
+    leftWall.position.set(-7, 3.1, 0);
+    leftWall.receiveShadow = true;
+    this.scene.add(leftWall);
+ 
+    /* 베이스보드 (걸레받이) */
+    const skirtMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
+    const skirtBack = new THREE.Mesh(new THREE.BoxGeometry(14, 0.35, 0.08), skirtMat);
+    skirtBack.position.set(0, 0.17, -5.85);
+    this.scene.add(skirtBack);
+    const skirtLeft = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.35, 12), skirtMat);
+    skirtLeft.position.set(-6.85, 0.17, 0);
+    this.scene.add(skirtLeft);
+ 
+    /* 천장 (아주 살짝만) */
+    const ceil = new THREE.Mesh(
+      new THREE.BoxGeometry(14, 0.2, 12),
+      new THREE.MeshLambertMaterial({ color: 0xfffaf6 })
+    );
+    ceil.position.set(0, 6.4, 0);
+    this.scene.add(ceil);
+ 
+    /* 창문 (뒷벽) — 푸른 빛 + 프레임 */
+    const winFrame = new THREE.Mesh(
+      new THREE.BoxGeometry(3, 2.2, 0.15),
+      new THREE.MeshLambertMaterial({ color: 0xffffff })
+    );
+    winFrame.position.set(3.5, 3.5, -5.92);
+    this.scene.add(winFrame);
+    const winGlass = new THREE.Mesh(
+      new THREE.BoxGeometry(2.7, 1.9, 0.05),
+      new THREE.MeshBasicMaterial({ color: 0x87CEEB, transparent: true, opacity: 0.55 })
+    );
+    winGlass.position.set(3.5, 3.5, -5.85);
+    this.scene.add(winGlass);
+    /* 창틀 십자 */
+    const winCross1 = new THREE.Mesh(
+      new THREE.BoxGeometry(2.7, 0.06, 0.07),
+      new THREE.MeshLambertMaterial({ color: 0xffffff })
+    );
+    winCross1.position.set(3.5, 3.5, -5.83);
+    this.scene.add(winCross1);
+    const winCross2 = new THREE.Mesh(
+      new THREE.BoxGeometry(0.06, 1.9, 0.07),
+      new THREE.MeshLambertMaterial({ color: 0xffffff })
+    );
+    winCross2.position.set(3.5, 3.5, -5.83);
+    this.scene.add(winCross2);
+ 
+    /* 액자 (좌측 벽) */
+    const frameBg = new THREE.Mesh(
+      new THREE.BoxGeometry(0.1, 1.4, 1),
+      new THREE.MeshLambertMaterial({ color: 0xc8a878 })
+    );
+    frameBg.position.set(-6.83, 3.8, 1.5);
+    this.scene.add(frameBg);
+    const frameImg = new THREE.Mesh(
+      new THREE.BoxGeometry(0.05, 1.1, 0.75),
+      new THREE.MeshLambertMaterial({ map: this.emojiTexture('🌹', '#FFF') })
+    );
+    frameImg.position.set(-6.78, 3.8, 1.5);
+    this.scene.add(frameImg);
+ 
+    /* 러그 (중앙) — 등급에 따라 색상 */
+    const rugColor = wpKey === 'gold' ? 0xffd54f : wpKey === 'galaxy' ? 0x7e57c2 : 0xf48fb1;
+    const rug = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.5, 2.5, 0.05, 32),
+      new THREE.MeshLambertMaterial({ color: rugColor })
+    );
+    rug.position.set(0, 0.03, 0.5);
+    rug.receiveShadow = true;
+    this.scene.add(rug);
+    const rugInner = new THREE.Mesh(
+      new THREE.CylinderGeometry(2.0, 2.0, 0.06, 32),
+      new THREE.MeshLambertMaterial({ color: 0xffffff })
+    );
+    rugInner.position.set(0, 0.04, 0.5);
+    this.scene.add(rugInner);
+  }
+ 
+  /* ───────────────────────────────────────
+     가구별 디테일 3D 모델 빌더
+     ─────────────────────────────────────── */
+  buildFurniture(type, emoji, gradeColor) {
+    const group = new THREE.Group();
+    const M = (color) => new THREE.MeshLambertMaterial({ color });
+ 
+    switch (type) {
+      case 'sofa': {
+        // 베이스
+        const base = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.4, 0.85), M(gradeColor));
+        base.position.y = 0.2; base.castShadow = true;
+        group.add(base);
+        // 등받이
+        const back = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.7, 0.18), M(gradeColor));
+        back.position.set(0, 0.7, -0.35); back.castShadow = true;
+        group.add(back);
+        // 팔걸이 2개
+        [-0.85, 0.85].forEach(x => {
+          const arm = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.55, 0.85), M(gradeColor));
+          arm.position.set(x, 0.55, 0); arm.castShadow = true;
+          group.add(arm);
+        });
+        // 쿠션 2개
+        [-0.42, 0.42].forEach(x => {
+          const cushion = new THREE.Mesh(
+            new THREE.BoxGeometry(0.62, 0.22, 0.7),
+            new THREE.MeshLambertMaterial({ color: this.lighten(gradeColor, 30) })
+          );
+          cushion.position.set(x, 0.48, 0.05); cushion.castShadow = true;
+          group.add(cushion);
+        });
+        // 다리
+        [[-0.78, -0.35], [0.78, -0.35], [-0.78, 0.35], [0.78, 0.35]].forEach(([x, z]) => {
+          const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.15), M(0x3e2723));
+          leg.position.set(x, 0.075, z);
+          group.add(leg);
+        });
+        break;
+      }
+      case 'bed': {
+        // 프레임
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.35, 1.1), M(0x8d6e63));
+        frame.position.y = 0.18; frame.castShadow = true;
+        group.add(frame);
+        // 매트리스
+        const mattress = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.22, 1.0), M(0xffffff));
+        mattress.position.y = 0.47; mattress.castShadow = true;
+        group.add(mattress);
+        // 이불 (분홍)
+        const blanket = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.05, 0.7), M(gradeColor));
+        blanket.position.set(0, 0.6, 0.15); blanket.castShadow = true;
+        group.add(blanket);
+        // 베개 2개
+        [-0.4, 0.4].forEach(x => {
+          const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.12, 0.28), M(0xfff5f7));
+          pillow.position.set(x, 0.64, -0.32);
+          group.add(pillow);
+        });
+        // 헤드보드
+        const head = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.85, 0.1), M(0x6d4c41));
+        head.position.set(0, 0.55, -0.55); head.castShadow = true;
+        group.add(head);
+        break;
+      }
+      case 'plant': {
+        // 화분
+        const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.22, 0.4, 16), M(0xa0522d));
+        pot.position.y = 0.2; pot.castShadow = true;
+        group.add(pot);
+        // 흙
+        const soil = new THREE.Mesh(new THREE.CylinderGeometry(0.29, 0.29, 0.05, 16), M(0x3e2723));
+        soil.position.y = 0.42;
+        group.add(soil);
+        // 잎사귀 (구체 여러 개)
+        const leafMat = M(0x4caf50);
+        for (let i = 0; i < 5; i++) {
+          const leaf = new THREE.Mesh(new THREE.SphereGeometry(0.22 + Math.random() * 0.08, 8, 8), leafMat);
+          const a = (i / 5) * Math.PI * 2;
+          leaf.position.set(Math.cos(a) * 0.18, 0.65 + Math.random() * 0.2, Math.sin(a) * 0.18);
+          leaf.castShadow = true;
+          group.add(leaf);
+        }
+        // 꽃 한 송이
+        const flower = new THREE.Mesh(new THREE.SphereGeometry(0.1, 8, 8), M(0xe91e63));
+        flower.position.set(0, 0.95, 0); flower.castShadow = true;
+        group.add(flower);
+        break;
+      }
+      case 'lamp': {
+        // 받침
+        const base = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.28, 0.08, 16), M(0x424242));
+        base.position.y = 0.04;
+        group.add(base);
+        // 기둥
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1.2, 8), M(0x616161));
+        pole.position.y = 0.68;
+        group.add(pole);
+        // 갓
+        const shade = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.4, 12, 1, true), M(gradeColor));
+        shade.position.y = 1.45;
+        group.add(shade);
+        // 전구 (빛나는 효과)
+        const bulb = new THREE.Mesh(
+          new THREE.SphereGeometry(0.12, 12, 12),
+          new THREE.MeshBasicMaterial({ color: 0xfff9c4 })
+        );
+        bulb.position.y = 1.4;
+        group.add(bulb);
+        // 실제 라이트
+        const light = new THREE.PointLight(0xffd54f, 0.5, 5, 2);
+        light.position.y = 1.4;
+        group.add(light);
+        break;
+      }
+      case 'desk': {
+        // 상판
+        const top = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.08, 0.6), M(0x8d6e63));
+        top.position.y = 0.75; top.castShadow = true;
+        group.add(top);
+        // 다리
+        [[-0.5, -0.25], [0.5, -0.25], [-0.5, 0.25], [0.5, 0.25]].forEach(([x, z]) => {
+          const leg = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.75, 0.08), M(0x6d4c41));
+          leg.position.set(x, 0.375, z);
+          group.add(leg);
+        });
+        // 책 한 권
+        const book = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.05, 0.3), M(gradeColor));
+        book.position.set(-0.3, 0.82, 0); book.castShadow = true;
+        group.add(book);
+        // 수정구슬 (마법 책상이면)
+        const orb = new THREE.Mesh(
+          new THREE.SphereGeometry(0.12, 16, 16),
+          new THREE.MeshLambertMaterial({ color: 0x9c27b0, transparent: true, opacity: 0.8 })
+        );
+        orb.position.set(0.25, 0.88, 0);
+        group.add(orb);
+        break;
+      }
+      case 'aquarium': {
+        // 유리 박스
+        const glass = new THREE.Mesh(
+          new THREE.BoxGeometry(1.4, 0.9, 0.5),
+          new THREE.MeshLambertMaterial({ color: 0x29b6f6, transparent: true, opacity: 0.55 })
+        );
+        glass.position.y = 0.55; glass.castShadow = true;
+        group.add(glass);
+        // 받침대
+        const stand = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.15, 0.6), M(0x424242));
+        stand.position.y = 0.075;
+        group.add(stand);
+        // 물고기
+        for (let i = 0; i < 3; i++) {
+          const fish = new THREE.Mesh(
+            new THREE.SphereGeometry(0.07, 8, 8),
+            M([0xff7043, 0xffc107, 0x42a5f5][i])
+          );
+          fish.position.set(-0.5 + i * 0.5, 0.4 + Math.random() * 0.4, 0);
+          this.animated.push({ mesh: fish, type: 'fish', phase: Math.random() * 6.28, basePos: fish.position.clone() });
+          group.add(fish);
+        }
+        // 수초
+        for (let i = 0; i < 4; i++) {
+          const plant = new THREE.Mesh(
+            new THREE.ConeGeometry(0.04, 0.5, 6),
+            M(0x66bb6a)
+          );
+          plant.position.set(-0.6 + i * 0.4, 0.4, 0);
+          group.add(plant);
+        }
+        break;
+      }
+      case 'fireplace': {
+        // 본체 (벽돌)
+        const body = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.4, 0.5), M(0xbf360c));
+        body.position.y = 0.7; body.castShadow = true;
+        group.add(body);
+        // 입구 (까만 동굴)
+        const cavity = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.85, 0.35), M(0x1a0e08));
+        cavity.position.set(0, 0.55, 0.1);
+        group.add(cavity);
+        // 불꽃 (애니메이션)
+        const fire = new THREE.Mesh(
+          new THREE.ConeGeometry(0.35, 0.7, 8),
+          new THREE.MeshBasicMaterial({ color: 0xff6f00 })
+        );
+        fire.position.set(0, 0.55, 0.18);
+        this.animated.push({ mesh: fire, type: 'fire', phase: 0 });
+        group.add(fire);
+        // 빛
+        const fireLight = new THREE.PointLight(0xff6f00, 0.8, 6, 2);
+        fireLight.position.set(0, 0.6, 0.5);
+        group.add(fireLight);
+        // 맨틀
+        const mantel = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.12, 0.55), M(0x6d4c41));
+        mantel.position.y = 1.46;
+        group.add(mantel);
+        break;
+      }
+      case 'library':
+      case 'flag': {
+        if (type === 'library') {
+          // 책장 본체
+          const shelf = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.8, 0.4), M(0x5d4037));
+          shelf.position.y = 0.9; shelf.castShadow = true;
+          group.add(shelf);
+          // 책 (다양한 색)
+          const bookColors = [0xc62828, 0x1565c0, 0x2e7d32, 0xef6c00, 0x6a1b9a, 0x00838f];
+          for (let row = 0; row < 3; row++) {
+            for (let i = 0; i < 8; i++) {
+              const book = new THREE.Mesh(
+                new THREE.BoxGeometry(0.15, 0.4 + Math.random() * 0.1, 0.1),
+                M(bookColors[Math.floor(Math.random() * bookColors.length)])
+              );
+              book.position.set(-0.75 + i * 0.2, 0.4 + row * 0.55, 0.15);
+              group.add(book);
+            }
+          }
+        } else {
+          // 깃발
+          const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.8), M(0x424242));
+          pole.position.y = 0.9;
+          group.add(pole);
+          const flag = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.35, 0.02), M(gradeColor));
+          flag.position.set(0.3, 1.55, 0); flag.castShadow = true;
+          this.animated.push({ mesh: flag, type: 'flag', phase: 0 });
+          group.add(flag);
+        }
+        break;
+      }
+      case 'fountain': {
+        // 받침
+        const base = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.85, 0.25, 24), M(0xbdbdbd));
+        base.position.y = 0.125; base.castShadow = true;
+        group.add(base);
+        // 물 (반투명)
+        const water = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.6, 0.6, 0.04, 24),
+          new THREE.MeshLambertMaterial({ color: 0x29b6f6, transparent: true, opacity: 0.75 })
+        );
+        water.position.y = 0.27;
+        group.add(water);
+        // 중앙 기둥
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.15, 0.8, 12), M(0x9e9e9e));
+        pole.position.y = 0.65;
+        group.add(pole);
+        // 위 받침
+        const top = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 0.1, 16), M(0xbdbdbd));
+        top.position.y = 1.05;
+        group.add(top);
+        // 물줄기 (위로 솟는 작은 구체들)
+        for (let i = 0; i < 4; i++) {
+          const drop = new THREE.Mesh(
+            new THREE.SphereGeometry(0.05, 8, 8),
+            new THREE.MeshBasicMaterial({ color: 0x81d4fa })
+          );
+          drop.position.set(0, 1.15, 0);
+          this.animated.push({ mesh: drop, type: 'drop', phase: i * 1.5 });
+          group.add(drop);
+        }
+        break;
+      }
+      case 'statue': {
+        // 받침대
+        const base = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.3, 0.5), M(0x757575));
+        base.position.y = 0.15; base.castShadow = true;
+        group.add(base);
+        // 몸통
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.9, 12), M(gradeColor));
+        body.position.y = 0.75; body.castShadow = true;
+        group.add(body);
+        // 머리
+        const head = new THREE.Mesh(new THREE.SphereGeometry(0.22, 16, 16), M(gradeColor));
+        head.position.y = 1.42; head.castShadow = true;
+        group.add(head);
+        // 후광 (전설용)
+        const halo = new THREE.Mesh(
+          new THREE.TorusGeometry(0.3, 0.025, 8, 24),
+          new THREE.MeshBasicMaterial({ color: 0xffd700 })
+        );
+        halo.position.y = 1.72;
+        halo.rotation.x = Math.PI / 2;
+        this.animated.push({ mesh: halo, type: 'halo', phase: 0 });
+        group.add(halo);
+        break;
+      }
+      case 'frame': {
+        // 액자 프레임
+        const frame = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.9, 0.1), M(0xc8a878));
+        frame.position.y = 0.45; frame.castShadow = true;
+        group.add(frame);
+        // 사진 부분
+        const photo = new THREE.Mesh(
+          new THREE.BoxGeometry(0.55, 0.72, 0.05),
+          new THREE.MeshLambertMaterial({ map: this.emojiTexture('💑', '#FFE4EF') })
+        );
+        photo.position.set(0, 0.45, 0.04);
+        group.add(photo);
+        // 받침대
+        const stand = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.1), M(0x8d6e63));
+        stand.position.y = 0.025;
+        group.add(stand);
+        break;
+      }
+      default: {
+        // 폴백 — 단순 박스
+        const box = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 0.8), M(gradeColor));
+        box.position.y = 0.5; box.castShadow = true;
+        group.add(box);
+      }
+    }
+    return group;
+  }
+ 
+  /* 색상 밝게/어둡게 헬퍼 */
+  lighten(hex, amount = 30) {
+    const c = new THREE.Color(hex);
+    c.r = Math.min(1, c.r + amount / 100);
+    c.g = Math.min(1, c.g + amount / 100);
+    c.b = Math.min(1, c.b + amount / 100);
+    return c.getHex();
+  }
+ 
+  /* 등급별 색상 매핑 */
+  gradeToColor(grade) {
+    const map = {
+      normal: 0xe8b8a0,
+      rare:   0x42a5f5,
+      epic:   0xab47bc,
+      unique: 0xff7043,
+      legend: 0xffc107,
+    };
+    return map[grade] || 0xe8b8a0;
+  }
+ 
+  /* 가구 타입 매핑 (스키마에 type이 없으면 emoji로 추측) */
+  inferType(item) {
+    if (item.type) return item.type;
+    const e = item.emoji || '';
+    if (e.includes('🛋️') || e.includes('🌸')) return 'sofa';
+    if (e.includes('🛏️')) return 'bed';
+    if (e.includes('🌹') || e.includes('🌿')) return 'plant';
+    if (e.includes('💡') || e.includes('✨')) return 'lamp';
+    if (e.includes('🔮') || e.includes('📕')) return 'desk';
+    if (e.includes('🐠') || e.includes('🐟')) return 'aquarium';
+    if (e.includes('🐲') || e.includes('🔥')) return 'fireplace';
+    if (e.includes('📖')) return 'library';
+    if (e.includes('⛲')) return 'fountain';
+    if (e.includes('👑') || e.includes('🗿')) return 'statue';
+    if (e.includes('💑')) return 'frame';
+    if (e.includes('⚔️')) return 'flag';
+    return 'sofa';
+  }
+ 
+  placeFurniture3D() {
+    const furniture = this.houseData?.furniture || [];
+    /* 격자 배치 — 벽 가까이 정렬 */
+    const positions = [
+      { x: -4.5, z: -4.5, rot: 0 },     // 좌상
+      { x: 0,    z: -4.8, rot: 0 },     // 중앙뒤 (창문 아래)
+      { x: 4.5,  z: -4.5, rot: 0 },     // 우상
+      { x: -5.5, z: 0,    rot: Math.PI / 2 }, // 좌중
+      { x: 5.5,  z: 0,    rot: -Math.PI / 2 },// 우중
+      { x: -4,   z: 4,    rot: 0 },     // 좌하
+      { x: 4,    z: 4,    rot: 0 },     // 우하
+      { x: -2,   z: 3.5,  rot: 0 },     // 중하좌
+      { x: 2,    z: 3.5,  rot: 0 },     // 중하우
+      { x: -3,   z: -2,   rot: 0 },     // 추가
+      { x: 3,    z: -2,   rot: 0 },     // 추가
+      { x: 0,    z: 4.5,  rot: Math.PI },// 추가
+    ];
+ 
+    furniture.slice(0, positions.length).forEach((item, i) => {
+      const type = this.inferType(item);
+      const grade = item.grade || 'normal';
+      const color = this.gradeToColor(grade);
+      const fGroup = this.buildFurniture(type, item.emoji, color);
+      const pos = positions[i];
+      fGroup.position.set(pos.x, 0, pos.z);
+      fGroup.rotation.y = pos.rot;
+      this.scene.add(fGroup);
+      this.meshes.push(fGroup);
     });
+  }
+ 
+  addPet3D() {
+    /* 펫 — 둥근 몸통 + 이모지 얼굴 */
+    const body = new THREE.Mesh(
+      new THREE.SphereGeometry(0.55, 16, 16),
+      new THREE.MeshLambertMaterial({ color: 0xFFE4EF })
+    );
+    body.castShadow = true;
+    body.position.y = 0.55;
+ 
+    /* 얼굴 (이모지 텍스처를 작은 판으로) */
+    const face = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.85, 0.85),
+      new THREE.MeshBasicMaterial({ map: this.emojiTexture(this.petEmoji, '#FDEEF4'), transparent: true })
+    );
+    face.position.set(0, 0.55, 0.56);
+ 
+    this.pet = new THREE.Group();
+    this.pet.add(body);
+    this.pet.add(face);
+    this.pet.position.set(0, 0, 1);
+    /* 페이스를 카메라쪽으로 — billboard */
+    this.petFace = face;
+    this.scene.add(this.pet);
+  }
+ 
+  addOrbit() {
+    const c = this.renderer.domElement;
+    c.style.touchAction = 'none';
+    c.style.cursor = 'grab';
+ 
+    const onDown = (clientX) => {
+      this.isDrag = true;
+      this.autoRotate = false;
+      this.lastX = clientX;
+      c.style.cursor = 'grabbing';
+    };
+    const onMove = (clientX) => {
+      if (!this.isDrag) return;
+      this.targetTheta += (clientX - this.lastX) * 0.012;
+      this.lastX = clientX;
+    };
+    const onUp = () => {
+      this.isDrag = false;
+      c.style.cursor = 'grab';
+    };
+ 
+    c.addEventListener('mousedown', e => onDown(e.clientX));
+    window.addEventListener('mousemove', e => onMove(e.clientX));
+    window.addEventListener('mouseup', onUp);
+    c.addEventListener('touchstart', e => onDown(e.touches[0].clientX), { passive: true });
+    window.addEventListener('touchmove', e => onMove(e.touches[0].clientX), { passive: true });
+    window.addEventListener('touchend', onUp);
+  }
+ 
+  animate() {
+    if (!this.isAlive) return;
+    requestAnimationFrame(() => this.animate());
+    const t = Date.now() * 0.001;
+ 
+    /* 자동 회전 (드래그 안 할 때) */
+    if (this.autoRotate) {
+      this.targetTheta += 0.0015;
+    }
+    /* 카메라 부드럽게 보간 */
+    this.theta += (this.targetTheta - this.theta) * 0.08;
+    this.updateCamera();
+ 
+    /* 펫 떠다니기 */
+    if (this.pet) {
+      this.pet.position.y = Math.sin(t * 1.5) * 0.12;
+      this.pet.rotation.y += 0.003;
+    }
+    /* 펫 얼굴 빌보드 — 항상 카메라 향함 */
+    if (this.petFace) {
+      this.petFace.lookAt(this.camera.position);
+    }
+ 
+    /* 가구 애니메이션 */
+    this.animated.forEach(a => {
+      if (a.type === 'fish') {
+        a.mesh.position.x = a.basePos.x + Math.sin(t * 0.8 + a.phase) * 0.25;
+        a.mesh.position.y = a.basePos.y + Math.cos(t * 0.6 + a.phase) * 0.15;
+      } else if (a.type === 'fire') {
+        a.mesh.scale.y = 0.9 + Math.sin(t * 8) * 0.12;
+        a.mesh.scale.x = 0.95 + Math.cos(t * 6) * 0.08;
+      } else if (a.type === 'drop') {
+        const cycle = (t * 1.5 + a.phase) % 2;
+        a.mesh.position.y = 1.15 + (cycle < 1 ? cycle * 0.6 : (2 - cycle) * 0.6);
+        a.mesh.position.x = Math.sin(cycle * Math.PI) * 0.15 * Math.cos(a.phase * 2);
+      } else if (a.type === 'flag') {
+        a.mesh.rotation.y = Math.sin(t * 2) * 0.2;
+      } else if (a.type === 'halo') {
+        a.mesh.rotation.z += 0.015;
+        a.mesh.position.y = 1.72 + Math.sin(t * 2) * 0.05;
+      }
+    });
+ 
+    this.renderer.render(this.scene, this.camera);
+  }
+ 
+  destroy() {
+    this.isAlive = false;
+    if (this.resizeObserver) this.resizeObserver.disconnect();
+    if (this.renderer) {
+      this.renderer.dispose();
+      if (this.container) this.container.innerHTML = '';
+    }
+  }
 }
-  addPet3D(){
-    const tex=this.emojiTexture(this.petEmoji,'#FDEEF4');
-    const mats=[new THREE.MeshLambertMaterial({color:0xFDEEF4}),new THREE.MeshLambertMaterial({color:0xFDEEF4}),new THREE.MeshLambertMaterial({color:0xFDEEF4}),new THREE.MeshLambertMaterial({color:0xFDEEF4}),new THREE.MeshLambertMaterial({map:tex}),new THREE.MeshLambertMaterial({color:0xFDEEF4})];
-    this.pet=new THREE.Mesh(new THREE.BoxGeometry(1.2,1.2,1.2),mats);
-    this.pet.position.set(0,0.6,1);this.pet.castShadow=true;this.scene.add(this.pet);
-}
-  addOrbit(){
-    const c=this.renderer.domElement;const R=16;
-    c.addEventListener('mousedown',e=>{this.isDrag=true;this.lastX=e.clientX;});
-    c.addEventListener('mouseup',()=>{this.isDrag=false;});
-    c.addEventListener('mousemove',e=>{if(!this.isDrag)return;this.theta+=(e.clientX-this.lastX)*0.012;this.lastX=e.clientX;this.camera.position.x=R*Math.sin(this.theta);this.camera.position.z=R*Math.cos(this.theta);this.camera.lookAt(0,1,0);});
-    c.addEventListener('touchstart',e=>{this.isDrag=true;this.lastX=e.touches[0].clientX;});
-    c.addEventListener('touchend',()=>{this.isDrag=false;});
-    c.addEventListener('touchmove',e=>{if(!this.isDrag)return;this.theta+=(e.touches[0].clientX-this.lastX)*0.012;this.lastX=e.touches[0].clientX;this.camera.position.x=R*Math.sin(this.theta);this.camera.position.z=R*Math.cos(this.theta);this.camera.lookAt(0,1,0);});
-}
-  animate(){
-    if(!this.isAlive)return;
-    requestAnimationFrame(()=>this.animate());
-    if(this.pet){this.pet.position.y=0.6+Math.sin(Date.now()*0.002)*0.15;this.pet.rotation.y+=0.008;}
-    this.renderer.render(this.scene,this.camera);
-}
-  destroy(){this.isAlive=false;if(this.renderer){this.renderer.dispose();if(this.container)this.container.innerHTML='';}}
-}
-function initHouse3D(containerId,houseData,petEmoji){
-  if(window.__houseR){window.__houseR.destroy();window.__houseR=null;}
-  setTimeout(()=>{window.__houseR=new HouseRenderer3D(containerId,houseData,petEmoji);},50);
+ 
+function initHouse3D(containerId, houseData, petEmoji) {
+  if (window.__houseR) { window.__houseR.destroy(); window.__houseR = null; }
+  setTimeout(() => { window.__houseR = new HouseRenderer3D(containerId, houseData, petEmoji); }, 50);
 }
 
 /* ═══════════════════════════════════════
@@ -4583,122 +5770,264 @@ function rHatchedBabyUI(baby, myNick){
 }
 
 /* ═══════════════════════════════════════
-   🏠 하우스 탭
+   🏠 하우스 탭 — 인테리어 잡지 감성 ver.
 ═══════════════════════════════════════ */
 function rHouseTab(){
-  const myNick=S.myEntry?.nick;
-  const isVisiting=!!S.visitingHouse;
-  const targetNick=isVisiting?S.visitingHouse:myNick;
-  const houseData=isVisiting?S.houseEntries.find(h=>h.nick===targetNick):S.myHouse;
-  const tier=houseData?HOUSE_TIERS.find(t=>t.id===houseData.tier)||HOUSE_TIERS[0]:null;
-
-  if(!isVisiting&&!S.myHouse){
-    return `<div class="card" style="text-align:center;padding:2rem">
-      <div style="font-size:64px;margin-bottom:12px" class="float">🏚️</div>
-      <p style="font-size:16px;font-weight:700;margin-bottom:8px">아직 집이 없어요!</p>
-      <p style="font-size:12.5px;color:var(--text3);margin-bottom:16px;line-height:1.7">내 러브몬만의 집을 만들어봐요!<br>판잣집은 무료예요 🎁</p>
-      <button class="btn btn-primary" style="padding:12px 28px;font-size:14px" data-a="lm_initHouse">🏚️ 집 만들기 (무료)</button>
+  const myNick = S.myEntry?.nick;
+  const isVisiting = !!S.visitingHouse;
+  const targetNick = isVisiting ? S.visitingHouse : myNick;
+  const houseData = isVisiting ? S.houseEntries.find(h => h.nick === targetNick) : S.myHouse;
+  const tier = houseData ? (HOUSE_TIERS.find(t => t.id === houseData.tier) || HOUSE_TIERS[0]) : null;
+  const myPoints = S.myPet?.points || 0;
+ 
+  /* ── 집이 없을 때 ── */
+  if (!isVisiting && !S.myHouse) {
+    return `
+    <div class="house-onboarding">
+      <div class="hero-emoji float">🏚️</div>
+      <h2>아직 머무를 곳이 없어요</h2>
+      <p>내 러브몬을 위한 첫 보금자리를 만들어볼까요?<br>
+         <span style="color:var(--gold);font-size:12px">✨ 판잣집은 무료로 시작할 수 있어요</span></p>
+      <button class="btn btn-primary" style="padding:13px 30px;font-size:14px;letter-spacing:.5px" data-a="lm_initHouse">
+        🏚️ 집 만들기 (무료)
+      </button>
     </div>`;
   }
-  if(isVisiting&&!houseData){
-    return `<div class="card" style="text-align:center;padding:2rem">
+ 
+  /* ── 방문 중인데 상대방 집이 없을 때 ── */
+  if (isVisiting && !houseData) {
+    return `
+    <div class="card" style="text-align:center;padding:2rem">
       <div style="font-size:48px;margin-bottom:8px">🏚️</div>
-      <p style="font-size:13px;color:var(--text2)">${targetNick}님은 아직 집이 없어요.</p>
-      <button class="btn btn-mint" style="margin-top:12px;padding:8px 18px" data-a="lm_backFromHouse">← 돌아가기</button>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">
+        ${esc(targetNick)}님은 아직 집이 없어요.
+      </p>
+      <button class="btn btn-mint" style="padding:8px 22px" data-a="lm_backFromHouse">← 돌아가기</button>
     </div>`;
   }
-
-  const guestbook=houseData?.guestbook||[];
-  const furniture=houseData?.furniture||[];
-  const inventory=houseData?.inventory||[];
-  const myPoints=S.myPet?.points||0;
-  return `
-  ${isVisiting?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-    <button class="btn" style="padding:6px 12px;font-size:12px" data-a="lm_backFromHouse">← 돌아가기</button>
-    <span style="font-size:13px;font-weight:600">${esc(targetNick)}님의 집 방문 중</span>
-    <span style="font-size:11px;color:var(--text3)">👣 ${houseData?.visitors||0}명 방문</span>
-  </div>`:''}
-
-  <div class="card" style="padding:0;overflow:hidden;margin-bottom:10px;border-radius:16px">
-    <div class="house-canvas-wrap">
-      <div id="house3d-canvas" style="width:100%;height:360px"></div>
-      <div class="house-ctrl-hint">← 드래그로 회전 →</div>
-    </div>
-    <div style="padding:10px 14px;background:white">
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <span style="font-size:22px">${tier?.emoji||'🏚️'}</span>
-          <span style="font-size:14px;font-weight:700;margin-left:6px">${tier?.name||'판잣집'}</span>
-          <span style="font-size:11px;color:var(--text3);margin-left:6px">가구 ${furniture.length}/${tier?.maxSlots||3}개</span>
-        </div>
-        <div style="font-size:11px;color:var(--text3)">
-          🎨 ${WALLPAPERS[houseData?.wallpaper||'rose']?.name||'기본'} · ${FLOORS[houseData?.floor||'wood']?.name||'원목'}
-        </div>
+ 
+  const guestbook = houseData?.guestbook || [];
+  const furniture = houseData?.furniture || [];
+  const inventory = houseData?.inventory || [];
+  const decoTab = S._decoTab || 'tier';
+ 
+  /* ─────────────────────────────────────
+     1) 메인 3D 스테이지
+     ───────────────────────────────────── */
+  const stageHTML = `
+  <div class="house-stage" style="margin-bottom:14px">
+    ${isVisiting ? `
+      <div style="position:absolute;top:0;left:0;right:0;padding:10px 14px;z-index:4;display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,rgba(0,0,0,.45),transparent);pointer-events:auto">
+        <button class="btn" style="padding:5px 11px;font-size:11.5px;background:rgba(255,255,255,.95);border-color:transparent" data-a="lm_backFromHouse">← 돌아가기</button>
+        <span style="font-size:12px;color:white;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.4)">방문 중</span>
+      </div>` : ''}
+ 
+    <div class="house-overlay-top">
+      <div class="house-name-badge">
+        <span class="emoji">${tier?.emoji || '🏚️'}</span>
+        <span class="name">${esc(isVisiting ? `${targetNick}님의 ` : '')}${tier?.name || '판잣집'}</span>
+        <span class="meta">· ${furniture.length}/${tier?.maxSlots || 3}개 가구</span>
+      </div>
+      <div class="house-visitor-pill">
+        <span class="dot"></span>
+        👣 ${houseData?.visitors || 0}
       </div>
     </div>
-  </div>
-
-  ${!isVisiting?`
-  <div class="card" style="margin-bottom:10px">
-    <p style="font-size:13px;font-weight:700;color:var(--rose2);margin:0 0 10px">🎨 집 꾸미기</p>
-    <p style="font-size:11.5px;color:var(--text2);margin:0 0 6px;font-weight:600">집 등급 업그레이드</p>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
-      ${HOUSE_TIERS.map(t=>{
-        const isCurrent=t.id===houseData?.tier;
-        const canUpgrade=(S.myPet?.level||1)>=t.reqLv&&(t.cost===0||(myPoints>=t.cost));
-        return `<button class="house-tier-card ${isCurrent?'current':''}" style="min-width:80px" data-a="lm_upgradeHouse" data-tier="${t.id}" ${isCurrent?'disabled':''}>
-          <div style="font-size:20px">${t.emoji}</div>
-          <div style="font-size:11px;font-weight:600">${t.name}</div>
-          <div style="font-size:10px;color:${isCurrent?'var(--rose2)':canUpgrade?'var(--mint)':'#C62828'}">${isCurrent?'현재':`${t.cost===0?'무료':`${t.cost.toLocaleString()}P`} · Lv.${t.reqLv}+`}</div>
-        </button>`;
-      }).join('')}
+ 
+    <div class="house-canvas-wrap">
+      <div id="house3d-canvas" style="width:100%;height:420px"></div>
     </div>
-    <p style="font-size:11.5px;color:var(--text2);margin:0 0 6px;font-weight:600">🎨 벽지 / 바닥재</p>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px">
-      ${Object.entries(WALLPAPERS).map(([k,v])=>`<button class="btn ${houseData?.wallpaper===k?'btn-sel':''}" style="padding:5px 10px;font-size:11px" data-a="lm_setWallpaper" data-v="${k}">${v.name} ${v.cost>0?`(${v.cost}P)`:''}</button>`).join('')}
-    </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
-      ${Object.entries(FLOORS).map(([k,v])=>`<button class="btn ${houseData?.floor===k?'btn-sel':''}" style="padding:5px 10px;font-size:11px" data-a="lm_setFloor" data-v="${k}">${v.name} (${v.cost}P)</button>`).join('')}
-    </div>
-    ${furniture.length>0?`<p style="font-size:11.5px;color:var(--text2);margin:0 0 6px;font-weight:600">🛋️ 배치된 가구 (클릭 시 제거)</p>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-      ${furniture.map(f=>`<button class="btn btn-danger" style="padding:5px 10px;font-size:12px" data-a="lm_removeFurniture" data-id="${f.id}">${f.emoji} ${esc(f.name)} ×</button>`).join('')}
-    </div>`:''}
-    ${inventory.length>0?`<p style="font-size:11.5px;color:var(--text2);margin:0 0 6px;font-weight:600">📦 보관 중인 가구 (클릭 시 배치)</p>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-      ${inventory.map(f=>`<button class="btn btn-mint" style="padding:5px 10px;font-size:12px" data-a="lm_placeFurniture" data-id="${f.id}">${f.emoji} ${esc(f.name)}</button>`).join('')}
-    </div>`:''}
-  </div>
-
-  <div class="card" style="margin-bottom:10px">
-    <p style="font-size:13px;font-weight:700;color:var(--rose2);margin:0 0 10px">🛋️ 가구 상점</p>
-    <div class="furniture-grid">
-      ${FURNITURE_SHOP.map(f=>`
-        <div class="furniture-item" data-a="lm_buyFurniture" data-id="${f.id}">
-          <div style="font-size:32px;margin-bottom:4px">${f.emoji}</div>
-          <div style="font-size:12px;font-weight:700" class="grade-${f.grade}">${esc(f.name)}</div>
-          <div style="font-size:10px;color:var(--text3);margin:2px 0">${esc(f.grade)}</div>
-          <div style="font-size:12px;font-weight:700;color:var(--gold)">${f.cost===0?'무료':f.cost.toLocaleString()+'P'}</div>
-        </div>
-      `).join('')}
-    </div>
-  </div>`:''}
-
-  <div class="card" style="margin-bottom:10px">
-    <p style="font-size:13px;font-weight:700;color:var(--rose2);margin:0 0 10px">💬 방명록 (${guestbook.length}개)</p>
-    ${isVisiting&&myNick?`<div style="display:flex;gap:6px;margin-bottom:10px">
-      <input id="guestbookInput" class="inp" placeholder="방명록 한 마디..." style="flex:1">
-      <button class="btn btn-primary" style="padding:0 14px;flex-shrink:0" data-a="lm_leaveGuestbook" data-nick="${esc(targetNick)}">남기기</button>
-    </div>`:''}
-    ${guestbook.length===0?`<p style="font-size:12px;color:var(--text3);text-align:center;padding:1rem">아직 방명록이 없어요. 첫 번째 방문자가 되어보세요! 💕</p>`:''}
-    <div style="max-height:200px;overflow-y:auto">
-      ${[...guestbook].reverse().map(g=>`<div style="padding:7px 0;border-bottom:1px solid var(--border);font-size:12.5px">
-        <span style="font-weight:700;color:var(--rose2)">${esc(g.nick)}</span>
-        <span style="font-size:10.5px;color:var(--text3);margin-left:6px">${g.date||''}</span>
-        <div style="color:var(--text1);margin-top:2px">${esc(g.msg)}</div>
-      </div>`).join('')}
+ 
+    <div class="house-ctrl-hint">← 드래그하여 둘러보기 →</div>
+ 
+    <div class="house-action-bar">
+      <div class="info">
+        🎨 <b>${esc(WALLPAPERS[houseData?.wallpaper || 'rose']?.name || '기본 벽지')}</b>
+        · <b>${esc(FLOORS[houseData?.floor || 'wood']?.name || '원목 바닥')}</b>
+      </div>
+      ${!isVisiting ? `<div class="info" style="color:var(--gold);font-weight:700">💰 ${myPoints.toLocaleString()}P</div>` : ''}
     </div>
   </div>`;
+ 
+  /* ─────────────────────────────────────
+     2) 본인 집 — 인테리어 데코 패널 (탭형)
+     ───────────────────────────────────── */
+  let decoHTML = '';
+  if (!isVisiting) {
+    /* 탭 헤더 */
+    const tabs = [
+      { id: 'tier',  label: '🏛️ 등급' },
+      { id: 'wall',  label: '🎨 벽/바닥' },
+      { id: 'furn',  label: '🛋️ 가구' },
+      { id: 'mine',  label: '📦 인벤' },
+    ];
+ 
+    /* 탭별 컨텐츠 */
+    let panelContent = '';
+    if (decoTab === 'tier') {
+      panelContent = `
+      <div class="tier-scroll">
+        ${HOUSE_TIERS.map(t => {
+          const isCurrent = t.id === houseData?.tier;
+          const lvOk = (S.myPet?.level || 1) >= t.reqLv;
+          const costOk = t.cost === 0 || myPoints >= t.cost;
+          const locked = !lvOk || (!costOk && !isCurrent);
+          return `
+          <div class="tier-card-pro ${isCurrent ? 'current' : ''} ${locked ? 'locked' : ''}"
+               ${!isCurrent && !locked ? `data-a="lm_upgradeHouse" data-tier="${t.id}"` : ''}>
+            <div class="tier-emoji">${t.emoji}</div>
+            <div class="tier-name">${t.name}</div>
+            <div class="tier-meta">
+              슬롯 ${t.maxSlots}개<br>
+              ${!lvOk ? `<span style="color:#C62828">Lv.${t.reqLv} 필요</span>` : `Lv.${t.reqLv}+`}
+            </div>
+            <div class="tier-cost">
+              ${isCurrent ? '거주중' : t.cost === 0 ? '무료' : `${t.cost.toLocaleString()}P`}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    } else if (decoTab === 'wall') {
+      panelContent = `
+      <div style="margin-bottom:14px">
+        <p style="font-size:11px;color:var(--text3);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase">🎨 Wallpaper</p>
+        <div class="swatch-row">
+          ${Object.entries(WALLPAPERS).map(([k, v]) => `
+            <div class="swatch-card ${houseData?.wallpaper === k ? 'active' : ''}"
+                 data-a="lm_setWallpaper" data-v="${k}">
+              <div class="swatch-preview" style="background:${v.hex}"></div>
+              <div class="swatch-info">
+                <div class="name">${esc(v.name)}</div>
+                <div class="price">${v.cost > 0 ? v.cost.toLocaleString() + 'P' : '기본'}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <p style="font-size:11px;color:var(--text3);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase">🪵 Flooring</p>
+        <div class="swatch-row">
+          ${Object.entries(FLOORS).map(([k, v]) => {
+            const colorHex = '#' + v.threeColor.toString(16).padStart(6, '0');
+            return `
+            <div class="swatch-card ${houseData?.floor === k ? 'active' : ''}"
+                 data-a="lm_setFloor" data-v="${k}">
+              <div class="swatch-preview" style="background:${colorHex}"></div>
+              <div class="swatch-info">
+                <div class="name">${esc(v.name)}</div>
+                <div class="price">${v.cost.toLocaleString()}P</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    } else if (decoTab === 'furn') {
+      panelContent = `
+      <p style="font-size:11px;color:var(--text3);letter-spacing:1px;margin-bottom:10px;text-transform:uppercase">
+        🛍️ Furniture Atelier
+      </p>
+      <div class="furn-grid-pro">
+        ${FURNITURE_SHOP.map(f => `
+          <div class="furn-card-pro" data-a="lm_buyFurniture" data-id="${f.id}">
+            <div class="grade-tag ${f.grade}">${f.grade}</div>
+            <div class="furn-emoji">${f.emoji}</div>
+            <div class="furn-name">${esc(f.name)}</div>
+            <div class="furn-cost">${f.cost === 0 ? '무료' : f.cost.toLocaleString() + 'P'}</div>
+          </div>
+        `).join('')}
+      </div>`;
+    } else if (decoTab === 'mine') {
+      panelContent = `
+      ${furniture.length > 0 ? `
+        <p style="font-size:11px;color:var(--text3);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase">
+          🏠 Placed (${furniture.length}/${tier?.maxSlots || 3})
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+          ${furniture.map(f => `
+            <div class="furn-chip placed" data-a="lm_removeFurniture" data-id="${f.id}" title="제거">
+              <span class="chip-emoji">${f.emoji}</span>
+              <span>${esc(f.name)}</span>
+              <span class="chip-x">✕</span>
+            </div>
+          `).join('')}
+        </div>` : ''}
+ 
+      ${inventory.length > 0 ? `
+        <p style="font-size:11px;color:var(--text3);letter-spacing:1px;margin-bottom:8px;text-transform:uppercase">
+          📦 Storage (${inventory.length})
+        </p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px">
+          ${inventory.map(f => `
+            <div class="furn-chip" data-a="lm_placeFurniture" data-id="${f.id}" title="배치">
+              <span class="chip-emoji">${f.emoji}</span>
+              <span>${esc(f.name)}</span>
+              <span style="font-size:11px;color:var(--mint)">→</span>
+            </div>
+          `).join('')}
+        </div>` : ''}
+ 
+      ${furniture.length === 0 && inventory.length === 0 ? `
+        <div class="empty-hint">
+          <span class="emoji">🪴</span>
+          아직 가구가 없어요. <b>가구 탭</b>에서 첫 가구를 사보세요!
+        </div>` : ''}`;
+    }
+ 
+    decoHTML = `
+    <div class="card" style="margin-bottom:14px;padding:16px">
+      <div class="deco-section-head">
+        <span class="title">Interior Studio</span>
+        <span class="sub">${decoTab === 'tier' ? 'Upgrade' : decoTab === 'wall' ? 'Materials' : decoTab === 'furn' ? 'Shop' : 'My Pieces'}</span>
+      </div>
+      <div class="deco-tabs">
+        ${tabs.map(t => `
+          <button class="deco-tab ${decoTab === t.id ? 'active' : ''}" data-a="lm_setDecoTab" data-v="${t.id}">
+            ${t.label}
+          </button>
+        `).join('')}
+      </div>
+      ${panelContent}
+    </div>`;
+  }
+ 
+  /* ─────────────────────────────────────
+     3) 방명록
+     ───────────────────────────────────── */
+  const guestbookHTML = `
+  <div class="card" style="padding:16px">
+    <div class="deco-section-head">
+      <span class="title">Guestbook</span>
+      <span class="sub">${guestbook.length} entries</span>
+    </div>
+ 
+    ${isVisiting && myNick ? `
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <input id="guestbookInput" class="inp" placeholder="따뜻한 한 마디를 남겨주세요...">
+        <button class="btn btn-primary" style="padding:0 16px;flex-shrink:0;font-size:12px" data-a="lm_leaveGuestbook" data-nick="${esc(targetNick)}">
+          ✍️ 남기기
+        </button>
+      </div>` : ''}
+ 
+    ${guestbook.length === 0 ? `
+      <div class="empty-hint">
+        <span class="emoji">📝</span>
+        ${isVisiting ? '첫 방명록을 남겨보세요!' : '아직 방명록이 없어요.'}
+      </div>
+    ` : `
+      <div class="guestbook-list">
+        ${[...guestbook].reverse().map(g => `
+          <div class="guestbook-entry">
+            <div class="head">
+              <span class="nick">${esc(g.nick)}</span>
+              <span class="date">${g.date || ''}</span>
+            </div>
+            <div class="msg">${esc(g.msg)}</div>
+          </div>
+        `).join('')}
+      </div>
+    `}
+  </div>`;
+ 
+  return stageHTML + decoHTML + guestbookHTML;
 }
 
 /* ═══════════════════════════════════════
@@ -5376,6 +6705,7 @@ function attachEvents(){
       else if(a==="giveRose"){if(S.myEntry)giveRose(S.myEntry.nick,S.myEntry.gender,el.dataset.recv,el.dataset.rg);}
       else if(a==="login")login();
       else if(a==="logout"){S.isAdmin=false;S.pwErr="";render();}
+      else if(a==="lm_setDecoTab"){ S._decoTab = el.dataset.v; render(); }
       else if(a==="adminResetLevel"){adminResetPetLevel(el.dataset.nick);}
       else if(a==="adminCapAll"){adminCapAllLevels();}
       /* ★ 환생 */
