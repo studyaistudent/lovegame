@@ -2990,36 +2990,24 @@ async function sendGiftNotification(toNick,type,itemName,itemEmoji,extra){
   catch(e){console.error("sendGiftNotification 실패:",e);}
 }
 
-/* ★ 선물함 리스너 [수정본] */
-const myNickNow = S.myEntry?.nick;
-
-if(myNickNow){
-
-  giftsCol
-    .where("to", "==", myNickNow)
-    .limit(50)
-    .onSnapshot(
-      snap => {
-
-        S.myGifts = snap.docs
-          .map(d => ({ id:d.id, ...d.data() }))
-          .sort((a,b)=>{
-            const at = a.timestamp?.toMillis?.() || 0;
-            const bt = b.timestamp?.toMillis?.() || 0;
-            return bt - at;
-          });
-
-        S.unreadGifts = S.myGifts.filter(g=>!g.read).length;
-
-        if(S.screen==="board"){
-          render();
-        }
-      },
-
-      err => {
-        console.error("선물함 리스너 오류:", err);
-      }
-    );
+/* ★ 선물함 onSnapshot 리스너 (동적 재구독 가능) */
+function subscribeGifts(){
+  const myNickNow=S.myEntry?.nick;
+  if(!myNickNow)return;                       // 닉 없으면 대기
+  if(window.__giftsUnsub){                    // 닉이 바뀐 경우 기존 리스너 해제
+    if(window.__giftsForNick===myNickNow)return; // 이미 같은 닉으로 구독 중
+    try{window.__giftsUnsub();}catch(e){}
+    window.__giftsUnsub=null;
+  }
+  window.__giftsForNick=myNickNow;
+  window.__giftsUnsub=giftsCol
+    .where("to","==",myNickNow)
+    .orderBy("timestamp","desc").limit(50)
+    .onSnapshot(snap=>{
+      S.myGifts=snap.docs.map(d=>({id:d.id,...d.data()}));
+      S.unreadGifts=S.myGifts.filter(g=>!g.read).length;
+      if(S.screen==="board")render();
+    },err=>{console.error("선물함 리스너 오류:",err);});
 }
 async function markGiftsRead(){
   const unread=S.myGifts.filter(g=>!g.read);if(!unread.length)return;
