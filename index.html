@@ -4238,6 +4238,103 @@ window.buildFullBodyPet3D = function(opts){
   group.userData = ud;
   return group;
 };
+/* ═══════════════════════════════════════
+   ✨ 3D 펫 종별 쇼케이스 렌더링 (Three.js)
+   buildFullBodyPet3D를 활용한 씬 설정 및 애니메이션
+═══════════════════════════════════════ */
+let petShowcaseScene, petShowcaseCamera, petShowcaseRenderer, currentPetMesh;
+let showcaseAnimationId;
+
+function initPet3DShowcase(containerId, petEmoji) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  // 기존 캔버스 초기화
+  container.innerHTML = '';
+  if (showcaseAnimationId) cancelAnimationFrame(showcaseAnimationId);
+
+  // 1. Scene, Camera, Renderer 초기화
+  petShowcaseScene = new THREE.Scene();
+  
+  // 카메라 위치 조정 (펫의 높이가 Y: 0.85 ~ 1.45 정도이므로 중앙을 바라보게 세팅)
+  petShowcaseCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+  petShowcaseCamera.position.set(0, 1.2, 4.5); 
+  
+  petShowcaseRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  petShowcaseRenderer.setSize(container.clientWidth, container.clientHeight);
+  petShowcaseRenderer.setPixelRatio(window.devicePixelRatio);
+  // 그림자 활성화
+  petShowcaseRenderer.shadowMap.enabled = true;
+  petShowcaseRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(petShowcaseRenderer.domElement);
+
+  // 2. 조명 설정 (MeshLambertMaterial의 색감을 살리기 위한 필수 세팅)
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+  petShowcaseScene.add(ambientLight);
+
+  const mainLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  mainLight.position.set(5, 10, 7);
+  mainLight.castShadow = true;
+  mainLight.shadow.mapSize.width = 1024;
+  mainLight.shadow.mapSize.height = 1024;
+  mainLight.shadow.camera.near = 0.5;
+  mainLight.shadow.camera.far = 50;
+  petShowcaseScene.add(mainLight);
+
+  const fillLight = new THREE.DirectionalLight(0xebebeb, 0.3);
+  fillLight.position.set(-5, 3, -5);
+  petShowcaseScene.add(fillLight);
+
+  // 3. 펫 모델 생성 및 씬 추가 (testmob의 완벽한 디자인 함수 호출)
+  // opts 객체에 petEmoji 전달 
+  currentPetMesh = window.buildFullBodyPet3D({ petEmoji: petEmoji }); 
+  
+  // 쇼케이스 중앙 정렬을 위한 위치 미세 조정
+  currentPetMesh.position.set(0, -0.5, 0); 
+  petShowcaseScene.add(currentPetMesh);
+
+  // 4. 애니메이션 루프 (userData를 활용한 생동감 부여)
+  const clock = new THREE.Clock();
+
+  function animate() {
+    showcaseAnimationId = requestAnimationFrame(animate);
+    const time = clock.getElapsedTime();
+
+    if (currentPetMesh) {
+      // 캐릭터 전체의 부드러운 회전 (쇼케이스 효과)
+      currentPetMesh.rotation.y = Math.sin(time * 0.5) * 0.3;
+
+      // 생동감을 위한 호흡 및 파츠 애니메이션 (userData 활용)
+      const ud = currentPetMesh.userData; 
+      
+      // 숨쉬기 효과 (몸 전체 위아래 이동)
+      currentPetMesh.position.y = -0.5 + Math.sin(time * 2) * 0.03;
+
+      // 팔(또는 날개) 애니메이션
+      if (ud.armL) ud.armL.rotation.z = 0.25 + Math.sin(time * 3) * 0.05; 
+      if (ud.armR) ud.armR.rotation.z = -0.25 - Math.sin(time * 3) * 0.05; 
+      
+      // 꼬리 살랑살랑 흔들기
+      if (ud.tail) { 
+        ud.tail.rotation.z = Math.sin(time * 5) * 0.15;
+      }
+    }
+
+    petShowcaseRenderer.render(petShowcaseScene, petShowcaseCamera);
+  }
+  
+  animate();
+}
+
+// 브라우저 리사이즈 대응
+window.addEventListener('resize', () => {
+  const container = document.querySelector('.pet3d-mini-canvas'); // 캔버스 컨테이너 클래스명
+  if (container && petShowcaseCamera && petShowcaseRenderer) {
+    petShowcaseCamera.aspect = container.clientWidth / container.clientHeight;
+    petShowcaseCamera.updateProjectionMatrix();
+    petShowcaseRenderer.setSize(container.clientWidth, container.clientHeight);
+  }
+});
 /* 슬롯별 장비 메쉬 빌드 — 외부 헬퍼 */
 function buildEquipMesh3DNew(slot, item) {
   const grade = item.grade || 'normal';
