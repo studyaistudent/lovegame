@@ -6475,10 +6475,1287 @@ function initMiniPet3D(containerId, petData) {
     };
   }, 50);
 }
-
 /* ═══════════════════════════════════════
-   ⚔️ 미니 3D 던전 몹 캔버스
+   🎭 던전 몹 16종 전용 3D 빌더
+   각 몹 이름에 어울리는 독자적 모델링
+   - emoji를 키로 사용 (DUNGEON_FLOORS와 일치)
 ═══════════════════════════════════════ */
+window.buildMobCharacter3D = function(mobData) {
+  const group = new THREE.Group();
+  const emoji = mobData?.emoji || '👾';
+  const hp = mobData?.hp || 100;
+  const M = (color, opts) => {
+    opts = opts || {};
+    return new THREE.MeshLambertMaterial({
+      color,
+      emissive: opts.emissive || 0x000000,
+      emissiveIntensity: opts.emissiveIntensity || 0
+    });
+  };
+  const BM = (color) => new THREE.MeshBasicMaterial({ color });
+  const blackMat = M(0x1A1A1A);
+  const whiteMat = M(0xFFFFFF);
+  /* ── 공통: 발광 점 (위협적인 빨간 눈 등) ── */
+  function glowEye(color, size) {
+    return new THREE.Mesh(
+      new THREE.SphereGeometry(size || 0.06, 8, 8),
+      new THREE.MeshBasicMaterial({ color })
+    );
+  }
+  /* ═══════════════════ 1층: 풀 슬라임 🟢 ═══════════════════ */
+  if (emoji === '🟢') {
+    const bodyMat = new THREE.MeshLambertMaterial({
+      color: 0x66BB6A, transparent: true, opacity: 0.9,
+      emissive: 0x2E7D32, emissiveIntensity: 0.15
+    });
+    /* 슬라임 본체 - 물방울 형태 */
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 24, 24), bodyMat);
+    body.scale.set(1.2, 0.85, 1.2);
+    body.position.y = 0.5;
+    body.castShadow = true;
+    group.add(body);
+    /* 머리 위 작은 방울 */
+    const topDrop = new THREE.Mesh(new THREE.SphereGeometry(0.18, 14, 14), bodyMat);
+    topDrop.position.y = 1.05;
+    group.add(topDrop);
+    /* 흰 하이라이트 (광택) */
+    const glossL = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 10),
+      new THREE.MeshBasicMaterial({ color: 0xC8E6C9, transparent: true, opacity: 0.65 }));
+    glossL.position.set(-0.2, 0.7, 0.45);
+    glossL.scale.set(1, 1.5, 0.4);
+    group.add(glossL);
+    /* 큰 까만 눈 2개 */
+    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 12), blackMat);
+    eyeL.position.set(-0.18, 0.55, 0.52);
+    group.add(eyeL);
+    const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 12), blackMat);
+    eyeR.position.set(0.18, 0.55, 0.52);
+    group.add(eyeR);
+    /* 눈 하이라이트 */
+    const hlL = new THREE.Mesh(new THREE.SphereGeometry(0.022, 6, 6), whiteMat);
+    hlL.position.set(-0.16, 0.59, 0.59);
+    group.add(hlL);
+    const hlR = new THREE.Mesh(new THREE.SphereGeometry(0.022, 6, 6), whiteMat);
+    hlR.position.set(0.2, 0.59, 0.59);
+    group.add(hlR);
+    /* 작은 입 (분홍) */
+    const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.04, 0.012, 6, 12, Math.PI),
+      new THREE.MeshLambertMaterial({ color: 0xC2185B }));
+    mouth.position.set(0, 0.38, 0.55);
+    mouth.rotation.z = Math.PI;
+    group.add(mouth);
+  }
+  /* ═══════════════════ 1층: 버섯 몬스터 🍄 ═══════════════════ */
+  else if (emoji === '🍄') {
+    /* 줄기 (흰 살색) */
+    const stem = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.22, 0.28, 0.6, 14),
+      M(0xFFF8E1)
+    );
+    stem.position.y = 0.35;
+    stem.castShadow = true;
+    group.add(stem);
+    /* 빨간 갓 */
+    const capMat = M(0xD32F2F, { emissive: 0x4A0000, emissiveIntensity: 0.1 });
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.48, 20, 20, 0, Math.PI * 2, 0, Math.PI / 2), capMat);
+    cap.position.y = 0.7;
+    cap.scale.set(1.1, 0.7, 1.1);
+    cap.castShadow = true;
+    group.add(cap);
+    /* 흰 점들 (5개) */
+    for (let i = 0; i < 7; i++) {
+      const a = (i / 7) * Math.PI * 2;
+      const r = 0.2 + Math.random() * 0.15;
+      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10), whiteMat);
+      dot.position.set(Math.cos(a) * r, 0.78, Math.sin(a) * r);
+      dot.scale.set(1, 0.5, 1);
+      group.add(dot);
+    }
+    /* 줄기에 눈 */
+    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 10), blackMat);
+    eyeL.position.set(-0.1, 0.38, 0.23);
+    group.add(eyeL);
+    const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 10), blackMat);
+    eyeR.position.set(0.1, 0.38, 0.23);
+    group.add(eyeR);
+    /* 작은 발 */
+    const footMat = M(0xF5E6C8);
+    const footL = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), footMat);
+    footL.position.set(-0.18, 0.08, 0.05);
+    footL.scale.set(1, 0.5, 1.3);
+    group.add(footL);
+    const footR = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), footMat);
+    footR.position.set(0.18, 0.08, 0.05);
+    footR.scale.set(1, 0.5, 1.3);
+    group.add(footR);
+  }
+  /* ═══════════════════ 2층: 박쥐 귀신 🦇 ═══════════════════ */
+  else if (emoji === '🦇') {
+    const bodyMat = M(0x4A148C, { emissive: 0x1A0033, emissiveIntensity: 0.2 });
+    /* 둥근 몸통 */
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), bodyMat);
+    body.position.y = 1.0;
+    body.castShadow = true;
+    group.add(body);
+    /* 큰 박쥐 귀 (뾰족) */
+    const earL = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.3, 6), bodyMat);
+    earL.position.set(-0.2, 1.35, 0);
+    earL.rotation.z = 0.25;
+    group.add(earL);
+    const earR = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.3, 6), bodyMat);
+    earR.position.set(0.2, 1.35, 0);
+    earR.rotation.z = -0.25;
+    group.add(earR);
+    /* 큰 박쥐 날개 (양쪽) */
+    const wingMat = new THREE.MeshLambertMaterial({
+      color: 0x6A1B9A, side: THREE.DoubleSide, transparent: true, opacity: 0.92
+    });
+    function buildBatWing(side) {
+      const wing = new THREE.Group();
+      /* 날개 본체 — 부채꼴 형태 */
+      const shape = new THREE.Shape();
+      shape.moveTo(0, 0);
+      shape.quadraticCurveTo(side * 0.3, 0.2, side * 0.7, 0.1);
+      shape.quadraticCurveTo(side * 0.65, -0.05, side * 0.55, -0.15);
+      shape.quadraticCurveTo(side * 0.45, -0.1, side * 0.35, -0.2);
+      shape.quadraticCurveTo(side * 0.25, -0.15, side * 0.15, -0.25);
+      shape.quadraticCurveTo(side * 0.08, -0.1, 0, 0);
+      const geo = new THREE.ShapeGeometry(shape);
+      const mesh = new THREE.Mesh(geo, wingMat);
+      wing.add(mesh);
+      return wing;
+    }
+    const wingL = buildBatWing(-1);
+    wingL.position.set(-0.25, 1.0, 0);
+    group.add(wingL);
+    const wingR = buildBatWing(1);
+    wingR.position.set(0.25, 1.0, 0);
+    group.add(wingR);
+    /* 빨간 빛나는 눈 */
+    const eyeL = glowEye(0xFF1744, 0.05);
+    eyeL.position.set(-0.1, 1.02, 0.32);
+    group.add(eyeL);
+    const eyeR = glowEye(0xFF1744, 0.05);
+    eyeR.position.set(0.1, 1.02, 0.32);
+    group.add(eyeR);
+    /* 송곳니 */
+    const fangMat = whiteMat;
+    const fangL = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.08, 4), fangMat);
+    fangL.position.set(-0.05, 0.88, 0.3);
+    fangL.rotation.x = Math.PI;
+    group.add(fangL);
+    const fangR = new THREE.Mesh(new THREE.ConeGeometry(0.025, 0.08, 4), fangMat);
+    fangR.position.set(0.05, 0.88, 0.3);
+    fangR.rotation.x = Math.PI;
+    group.add(fangR);
+    /* 발광 효과 */
+    const ghostLight = new THREE.PointLight(0xAA00FF, 0.6, 3, 2);
+    ghostLight.position.y = 1.0;
+    group.add(ghostLight);
+  }
+  /* ═══════════════════ 2층: 돌 골렘 🪨 ═══════════════════ */
+  else if (emoji === '🪨') {
+    const rockMat = M(0x5D4037);
+    const rockDark = M(0x3E2723);
+    /* 거대 몸통 (각진 바위) */
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.85, 0.7), rockMat);
+    body.position.y = 0.75;
+    body.castShadow = true;
+    group.add(body);
+    /* 머리 (작은 바위) */
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.5, 0.5), rockMat);
+    head.position.y = 1.45;
+    head.castShadow = true;
+    group.add(head);
+    /* 균열 표시 (어두운 라인) */
+    [[-0.4, 0.75, 0.35, 0.6, 0.05, 0.02], [0.3, 0.85, 0.35, 0.4, 0.05, 0.02]].forEach(([x, y, z, w, h, d]) => {
+      const crack = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), rockDark);
+      crack.position.set(x, y, z);
+      group.add(crack);
+    });
+    /* 빛나는 노란 눈 (균열 사이로) */
+    const eyeL = glowEye(0xFFD600, 0.07);
+    eyeL.position.set(-0.13, 1.5, 0.27);
+    group.add(eyeL);
+    const eyeR = glowEye(0xFFD600, 0.07);
+    eyeR.position.set(0.13, 1.5, 0.27);
+    group.add(eyeR);
+    /* 거대한 팔 (양쪽) */
+    const armL = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.8, 0.32), rockMat);
+    armL.position.set(-0.65, 0.75, 0);
+    armL.castShadow = true;
+    group.add(armL);
+    const armR = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.8, 0.32), rockMat);
+    armR.position.set(0.65, 0.75, 0);
+    armR.castShadow = true;
+    group.add(armR);
+    /* 큰 주먹 */
+    const fistL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.35, 0.4), rockMat);
+    fistL.position.set(-0.65, 0.2, 0);
+    fistL.castShadow = true;
+    group.add(fistL);
+    const fistR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.35, 0.4), rockMat);
+    fistR.position.set(0.65, 0.2, 0);
+    fistR.castShadow = true;
+    group.add(fistR);
+    /* 다리 */
+    const legL = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.4, 0.3), rockMat);
+    legL.position.set(-0.22, 0.2, 0);
+    group.add(legL);
+    const legR = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.4, 0.3), rockMat);
+    legR.position.set(0.22, 0.2, 0);
+    group.add(legR);
+  }
+  /* ═══════════════════ 3층: 화염 도마뱀 🦎 ═══════════════════ */
+  else if (emoji === '🦎') {
+    const bodyMat = M(0xD84315, { emissive: 0xBF360C, emissiveIntensity: 0.3 });
+    const bellyMat = M(0xFFAB40);
+    /* 긴 몸통 */
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.32, 18, 18), bodyMat);
+    body.scale.set(1.3, 0.85, 1.5);
+    body.position.set(0, 0.45, 0);
+    body.castShadow = true;
+    group.add(body);
+    /* 배 (밝은 색) */
+    const belly = new THREE.Mesh(new THREE.SphereGeometry(0.25, 14, 14), bellyMat);
+    belly.scale.set(1.1, 0.5, 1.4);
+    belly.position.set(0, 0.32, 0);
+    group.add(belly);
+    /* 머리 (앞쪽) */
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 16), bodyMat);
+    head.scale.set(1.2, 0.95, 1.4);
+    head.position.set(0, 0.48, 0.55);
+    head.castShadow = true;
+    group.add(head);
+    /* 등에서 솟는 화염 (4개) */
+    const fireMat = new THREE.MeshBasicMaterial({ color: 0xFF6F00 });
+    for (let i = 0; i < 5; i++) {
+      const fire = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.22, 6), fireMat);
+      fire.position.set(0, 0.7 + Math.random() * 0.05, -0.3 + i * 0.15);
+      fire.scale.y = 0.7 + Math.random() * 0.5;
+      group.add(fire);
+    }
+    /* 노란 눈 (도마뱀 특유의 슬릿) */
+    const eyeMat = new THREE.MeshBasicMaterial({ color: 0xFFEB3B });
+    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), eyeMat);
+    eyeL.position.set(-0.13, 0.55, 0.72);
+    eyeL.scale.set(1, 1.3, 0.5);
+    group.add(eyeL);
+    const eyeR = new THREE.Mesh(new THREE.SphereGeometry(0.06, 12, 12), eyeMat);
+    eyeR.position.set(0.13, 0.55, 0.72);
+    eyeR.scale.set(1, 1.3, 0.5);
+    group.add(eyeR);
+    /* 검은 슬릿 동공 */
+    const pupilL = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.06, 0.005), blackMat);
+    pupilL.position.set(-0.13, 0.55, 0.76);
+    group.add(pupilL);
+    const pupilR = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.06, 0.005), blackMat);
+    pupilR.position.set(0.13, 0.55, 0.76);
+    group.add(pupilR);
+    /* 4개 다리 */
+    const legMat = bodyMat;
+    [[-0.3, -0.1, 0.3], [0.3, -0.1, 0.3], [-0.3, -0.1, -0.2], [0.3, -0.1, -0.2]].forEach(([x, y, z]) => {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.3, 6), legMat);
+      leg.position.set(x, 0.22, z);
+      leg.castShadow = true;
+      group.add(leg);
+    });
+    /* 꼬리 */
+    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.6, 8), bodyMat);
+    tail.position.set(0, 0.45, -0.5);
+    tail.rotation.x = -Math.PI / 2;
+    tail.castShadow = true;
+    group.add(tail);
+    /* 발광 */
+    const fireLight = new THREE.PointLight(0xFF5722, 0.8, 3, 2);
+    fireLight.position.set(0, 0.7, 0);
+    group.add(fireLight);
+  }
+  /* ═══════════════════ 3층: 불꽃 오크 👹 ═══════════════════ */
+  else if (emoji === '👹') {
+    const bodyMat = M(0xC62828, { emissive: 0x6A0000, emissiveIntensity: 0.15 });
+    const skinMat = M(0xD32F2F);
+    /* 거대 몸통 */
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.45, 18, 18), bodyMat);
+    body.scale.set(1.2, 1.3, 1.0);
+    body.position.y = 0.8;
+    body.castShadow = true;
+    group.add(body);
+    /* 머리 (각진) */
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.38, 16, 16), skinMat);
+    head.scale.set(1.1, 1.0, 1.0);
+    head.position.y = 1.55;
+    head.castShadow = true;
+    group.add(head);
+    /* 뿔 2개 (위로 솟음) */
+    const hornMat = M(0xFFE0B2);
+    const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.35, 6), hornMat);
+    hornL.position.set(-0.2, 1.95, 0);
+    hornL.rotation.z = 0.2;
+    group.add(hornL);
+    const hornR = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.35, 6), hornMat);
+    hornR.position.set(0.2, 1.95, 0);
+    hornR.rotation.z = -0.2;
+    group.add(hornR);
+    /* 분노한 눈 (빨간 글로우) */
+    const eyeL = glowEye(0xFFEB3B, 0.07);
+    eyeL.position.set(-0.13, 1.6, 0.32);
+    group.add(eyeL);
+    const eyeR = glowEye(0xFFEB3B, 0.07);
+    eyeR.position.set(0.13, 1.6, 0.32);
+    group.add(eyeR);
+    /* 큰 송곳니 (아래로) */
+    const fangL = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.18, 4), whiteMat);
+    fangL.position.set(-0.08, 1.32, 0.32);
+    fangL.rotation.x = Math.PI;
+    group.add(fangL);
+    const fangR = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.18, 4), whiteMat);
+    fangR.position.set(0.08, 1.32, 0.32);
+    fangR.rotation.x = Math.PI;
+    group.add(fangR);
+    /* 거대 팔 */
+    const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.7, 12), bodyMat);
+    armL.position.set(-0.55, 0.85, 0);
+    armL.rotation.z = 0.25;
+    armL.castShadow = true;
+    group.add(armL);
+    const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.14, 0.7, 12), bodyMat);
+    armR.position.set(0.55, 0.85, 0);
+    armR.rotation.z = -0.25;
+    armR.castShadow = true;
+    group.add(armR);
+    /* 주먹 */
+    const fistL = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), bodyMat);
+    fistL.position.set(-0.7, 0.5, 0);
+    group.add(fistL);
+    const fistR = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), bodyMat);
+    fistR.position.set(0.7, 0.5, 0);
+    group.add(fistR);
+    /* 다리 */
+    const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.13, 0.5, 12), bodyMat);
+    legL.position.set(-0.22, 0.25, 0);
+    group.add(legL);
+    const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.13, 0.5, 12), bodyMat);
+    legR.position.set(0.22, 0.25, 0);
+    group.add(legR);
+    /* 불꽃 오라 */
+    const fireLight = new THREE.PointLight(0xFF6F00, 0.9, 4, 2);
+    fireLight.position.y = 1.2;
+    group.add(fireLight);
+  }
+  /* ═══════════════════ 4층: 언데드 기사 💀 (소형 - 4층) ═══════════════════ */
+  else if (emoji === '💀' && hp < 1000) {
+    const boneMat = M(0xECEFF1);
+    const armorMat = M(0x37474F, { emissive: 0x000000 });
+    /* 두개골 */
+    const skull = new THREE.Mesh(new THREE.SphereGeometry(0.32, 18, 18), boneMat);
+    skull.position.y = 1.5;
+    skull.scale.set(1, 1.1, 1.1);
+    skull.castShadow = true;
+    group.add(skull);
+    /* 두개골 빈 눈구멍 (검은 글로우) */
+    const eyeSocketL = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10), blackMat);
+    eyeSocketL.position.set(-0.1, 1.52, 0.27);
+    group.add(eyeSocketL);
+    const eyeSocketR = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 10), blackMat);
+    eyeSocketR.position.set(0.1, 1.52, 0.27);
+    group.add(eyeSocketR);
+    /* 푸른 영혼 빛 */
+    const soulL = glowEye(0x00B0FF, 0.04);
+    soulL.position.set(-0.1, 1.52, 0.31);
+    group.add(soulL);
+    const soulR = glowEye(0x00B0FF, 0.04);
+    soulR.position.set(0.1, 1.52, 0.31);
+    group.add(soulR);
+    /* 턱 (이빨 라인) */
+    for (let i = -3; i <= 3; i++) {
+      const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.06, 0.02), boneMat);
+      tooth.position.set(i * 0.05, 1.32, 0.3);
+      group.add(tooth);
+    }
+    /* 갑옷 몸통 */
+    const chest = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.6, 0.35), armorMat);
+    chest.position.y = 0.95;
+    chest.castShadow = true;
+    group.add(chest);
+    /* 가슴 X 표시 (해골 문장) */
+    const xMat = M(0xFFFFFF);
+    const xL = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.02), xMat);
+    xL.position.set(0, 0.95, 0.19);
+    xL.rotation.z = Math.PI / 4;
+    group.add(xL);
+    const xR = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.05, 0.02), xMat);
+    xR.position.set(0, 0.95, 0.19);
+    xR.rotation.z = -Math.PI / 4;
+    group.add(xR);
+    /* 어깨 갑옷 */
+    const pauldronL = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), armorMat);
+    pauldronL.position.set(-0.38, 1.18, 0);
+    pauldronL.scale.set(1, 0.8, 1);
+    group.add(pauldronL);
+    const pauldronR = new THREE.Mesh(new THREE.SphereGeometry(0.18, 12, 12), armorMat);
+    pauldronR.position.set(0.38, 1.18, 0);
+    pauldronR.scale.set(1, 0.8, 1);
+    group.add(pauldronR);
+    /* 뼈 팔 */
+    const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.6, 8), boneMat);
+    armL.position.set(-0.4, 0.85, 0);
+    armL.rotation.z = 0.15;
+    group.add(armL);
+    const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.05, 0.6, 8), boneMat);
+    armR.position.set(0.4, 0.85, 0);
+    armR.rotation.z = -0.15;
+    group.add(armR);
+    /* 검 (오른손) */
+    const sword = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.7, 0.03), M(0xB0BEC5));
+    sword.position.set(0.5, 0.35, 0.15);
+    sword.castShadow = true;
+    group.add(sword);
+    const swordGuard = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.05, 0.06), M(0xFFB300));
+    swordGuard.position.set(0.5, 0.05, 0.15);
+    group.add(swordGuard);
+    /* 다리 */
+    const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.55, 10), armorMat);
+    legL.position.set(-0.15, 0.35, 0);
+    group.add(legL);
+    const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.07, 0.55, 10), armorMat);
+    legR.position.set(0.15, 0.35, 0);
+    group.add(legR);
+  }
+  /* ═══════════════════ 4층: 다크 위저드 🧙 ═══════════════════ */
+  else if (emoji === '🧙') {
+    /* 검은 로브 (원뿔) */
+    const robeMat = M(0x311B92, { emissive: 0x1A0033, emissiveIntensity: 0.2 });
+    const robe = new THREE.Mesh(new THREE.ConeGeometry(0.55, 1.5, 12), robeMat);
+    robe.position.y = 0.75;
+    robe.castShadow = true;
+    group.add(robe);
+    /* 후드 (얼굴 가리는 짙은 음영) */
+    const hood = new THREE.Mesh(new THREE.SphereGeometry(0.32, 14, 14, 0, Math.PI * 2, 0, Math.PI / 1.8), robeMat);
+    hood.position.y = 1.55;
+    hood.castShadow = true;
+    group.add(hood);
+    /* 후드 안 어둠 */
+    const innerShadow = new THREE.Mesh(new THREE.SphereGeometry(0.25, 12, 12), blackMat);
+    innerShadow.position.set(0, 1.4, 0.08);
+    group.add(innerShadow);
+    /* 빛나는 보라색 눈 */
+    const eyeL = glowEye(0xE040FB, 0.05);
+    eyeL.position.set(-0.08, 1.45, 0.28);
+    group.add(eyeL);
+    const eyeR = glowEye(0xE040FB, 0.05);
+    eyeR.position.set(0.08, 1.45, 0.28);
+    group.add(eyeR);
+    /* 흰 수염 */
+    const beardMat = M(0xECEFF1);
+    const beard = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.3, 8), beardMat);
+    beard.position.set(0, 1.2, 0.25);
+    beard.rotation.x = Math.PI;
+    group.add(beard);
+    /* 마법 지팡이 */
+    const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.5, 8), M(0x3E2723));
+    staff.position.set(0.45, 0.9, 0.1);
+    staff.rotation.z = -0.15;
+    group.add(staff);
+    /* 지팡이 끝 마법 구슬 (발광) */
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.13, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xE040FB }));
+    orb.position.set(0.55, 1.7, 0.1);
+    group.add(orb);
+    const orbLight = new THREE.PointLight(0xE040FB, 1.2, 5, 2);
+    orbLight.position.set(0.55, 1.7, 0.1);
+    group.add(orbLight);
+    /* 별이 박힌 모자 (뾰족) */
+    const hat = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.55, 8), robeMat);
+    hat.position.y = 2.05;
+    group.add(hat);
+    /* 모자 챙 */
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.04, 16), robeMat);
+    brim.position.y = 1.78;
+    group.add(brim);
+    /* 모자 별 */
+    const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.05, 0),
+      new THREE.MeshBasicMaterial({ color: 0xFFEB3B }));
+    star.position.set(0, 2.05, 0.3);
+    group.add(star);
+  }
+  /* ═══════════════════ 5층: 카오스 드래곤 🐲 (보스) ═══════════════════ */
+  else if (emoji === '🐲') {
+    const dragonMat = M(0x4A148C, { emissive: 0x2E0050, emissiveIntensity: 0.25 });
+    const accentMat = M(0xAA00FF, { emissive: 0x6A1B9A, emissiveIntensity: 0.3 });
+    /* 거대 몸통 */
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 20, 20), dragonMat);
+    body.scale.set(1.4, 1.1, 1.3);
+    body.position.y = 1.0;
+    body.castShadow = true;
+    group.add(body);
+    /* 긴 목 */
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 0.6, 12), dragonMat);
+    neck.position.set(0, 1.4, 0.5);
+    neck.rotation.x = -0.5;
+    group.add(neck);
+    /* 드래곤 머리 */
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), dragonMat);
+    head.scale.set(1.1, 0.95, 1.4);
+    head.position.set(0, 1.7, 0.85);
+    head.castShadow = true;
+    group.add(head);
+    /* 큰 뿔 4개 */
+    [[-0.15, 0.3, -0.2], [0.15, 0.3, -0.2], [-0.22, 0.15, -0.05], [0.22, 0.15, -0.05]].forEach(([x, y, z], i) => {
+      const horn = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.32, 6), accentMat);
+      horn.position.set(x, 1.7 + y, 0.85 + z);
+      horn.rotation.z = i % 2 === 0 ? 0.3 : -0.3;
+      horn.rotation.x = -0.4;
+      group.add(horn);
+    });
+    /* 빨간 빛나는 눈 */
+    const eyeL = glowEye(0xFF1744, 0.07);
+    eyeL.position.set(-0.13, 1.72, 1.15);
+    group.add(eyeL);
+    const eyeR = glowEye(0xFF1744, 0.07);
+    eyeR.position.set(0.13, 1.72, 1.15);
+    group.add(eyeR);
+    /* 입에서 나오는 불꽃 */
+    const fireMat = new THREE.MeshBasicMaterial({ color: 0xFF6F00 });
+    for (let i = 0; i < 3; i++) {
+      const flame = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 6), fireMat);
+      flame.position.set(-0.08 + i * 0.08, 1.5, 1.25);
+      flame.rotation.x = -Math.PI / 2;
+      group.add(flame);
+    }
+    /* 거대한 박쥐 날개 (양쪽) */
+    const wingMat = new THREE.MeshLambertMaterial({
+      color: 0x6A1B9A, side: THREE.DoubleSide, transparent: true, opacity: 0.92
+    });
+    function buildDragonWing(side) {
+      const wing = new THREE.Group();
+      /* 메인 멤브레인 */
+      const mainGeo = new THREE.PlaneGeometry(1.2, 0.9);
+      const main = new THREE.Mesh(mainGeo, wingMat);
+      main.position.set(side * 0.6, 0, 0);
+      wing.add(main);
+      /* 뼈 (4개) */
+      const boneMat = M(0x4A148C);
+      for (let i = 0; i < 4; i++) {
+        const bone = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.015, 0.6, 6), boneMat);
+        bone.position.set(side * (0.3 + i * 0.25), -0.15, 0.01);
+        bone.rotation.z = side * (-0.3 + i * 0.15);
+        wing.add(bone);
+      }
+      return wing;
+    }
+    const wingL = buildDragonWing(-1);
+    wingL.position.set(-0.3, 1.4, 0);
+    wingL.rotation.y = -0.3;
+    group.add(wingL);
+    const wingR = buildDragonWing(1);
+    wingR.position.set(0.3, 1.4, 0);
+    wingR.rotation.y = 0.3;
+    group.add(wingR);
+    /* 등 가시 (5개) */
+    for (let i = 0; i < 5; i++) {
+      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 6), accentMat);
+      spike.position.set(0, 1.4, -0.4 + i * 0.18);
+      group.add(spike);
+    }
+    /* 4개 다리 */
+    [[-0.4, 0.4], [0.4, 0.4], [-0.45, -0.3], [0.45, -0.3]].forEach(([x, z]) => {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.5, 10), dragonMat);
+      leg.position.set(x, 0.35, z);
+      leg.castShadow = true;
+      group.add(leg);
+      /* 발톱 */
+      const claw = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 10), dragonMat);
+      claw.position.set(x, 0.05, z + 0.08);
+      claw.scale.set(1, 0.5, 1.3);
+      group.add(claw);
+    });
+    /* 긴 꼬리 (4개 분절) */
+    for (let i = 0; i < 5; i++) {
+      const seg = new THREE.Mesh(
+        new THREE.SphereGeometry(0.17 - i * 0.025, 12, 12),
+        dragonMat
+      );
+      seg.position.set(0, 0.85 - i * 0.05, -0.65 - i * 0.22);
+      group.add(seg);
+    }
+    /* 보스 발광 */
+    const bossLight = new THREE.PointLight(0xAA00FF, 1.2, 6, 2);
+    bossLight.position.y = 1.5;
+    group.add(bossLight);
+    const fireLight = new THREE.PointLight(0xFF6F00, 0.8, 3, 2);
+    fireLight.position.set(0, 1.5, 1.3);
+    group.add(fireLight);
+  }
+  /* ═══════════════════ 6층: 미로 수호자 🗿 ═══════════════════ */
+  else if (emoji === '🗿') {
+    const stoneMat = M(0x607D8B);
+    const stoneDark = M(0x37474F);
+    /* 모아이 머리 (큰 직사각형 머리) */
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.0, 0.6), stoneMat);
+    head.position.y = 1.3;
+    head.castShadow = true;
+    group.add(head);
+    /* 큰 코 (앞으로 돌출) */
+    const nose = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.5, 0.25), stoneMat);
+    nose.position.set(0, 1.25, 0.4);
+    group.add(nose);
+    /* 깊게 패인 눈 */
+    const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.05), stoneDark);
+    eyeL.position.set(-0.18, 1.55, 0.31);
+    group.add(eyeL);
+    const eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.12, 0.05), stoneDark);
+    eyeR.position.set(0.18, 1.55, 0.31);
+    group.add(eyeR);
+    /* 눈 안의 푸른 빛 */
+    const glowL = glowEye(0x00BCD4, 0.04);
+    glowL.position.set(-0.18, 1.55, 0.34);
+    group.add(glowL);
+    const glowR = glowEye(0x00BCD4, 0.04);
+    glowR.position.set(0.18, 1.55, 0.34);
+    group.add(glowR);
+    /* 굳게 다문 입 (가로 라인) */
+    const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.02), stoneDark);
+    mouth.position.set(0, 1.0, 0.31);
+    group.add(mouth);
+    /* 몸통 (각진 거석) */
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.65), stoneMat);
+    body.position.y = 0.45;
+    body.castShadow = true;
+    group.add(body);
+    /* 룬 문자 (몸통에 새겨진 신비한 기호) */
+    for (let i = 0; i < 3; i++) {
+      const rune = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.01), new THREE.MeshBasicMaterial({ color: 0x4DD0E1 }));
+      rune.position.set(-0.18 + i * 0.18, 0.5, 0.33);
+      group.add(rune);
+    }
+    /* 룬 빛 */
+    const runeLight = new THREE.PointLight(0x00ACC1, 0.6, 3, 2);
+    runeLight.position.set(0, 0.5, 0.5);
+    group.add(runeLight);
+  }
+  /* ═══════════════════ 6층: 심연 마귀 😈 ═══════════════════ */
+  else if (emoji === '😈') {
+    const demonMat = M(0xB71C1C, { emissive: 0x4A0000, emissiveIntensity: 0.25 });
+    const skinMat = M(0xD32F2F);
+    /* 머리 */
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.38, 18, 18), skinMat);
+    head.position.y = 1.5;
+    head.castShadow = true;
+    group.add(head);
+    /* 악마 뿔 (큰 곡선 뿔 2개) */
+    const hornMat = M(0x424242);
+    const hornL = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.4, 6), hornMat);
+    hornL.position.set(-0.22, 1.85, -0.05);
+    hornL.rotation.z = 0.35;
+    hornL.rotation.x = -0.2;
+    group.add(hornL);
+    const hornR = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.4, 6), hornMat);
+    hornR.position.set(0.22, 1.85, -0.05);
+    hornR.rotation.z = -0.35;
+    hornR.rotation.x = -0.2;
+    group.add(hornR);
+    /* 노란 사악한 눈 */
+    const eyeL = glowEye(0xFFEB3B, 0.06);
+    eyeL.position.set(-0.12, 1.55, 0.33);
+    group.add(eyeL);
+    const eyeR = glowEye(0xFFEB3B, 0.06);
+    eyeR.position.set(0.12, 1.55, 0.33);
+    group.add(eyeR);
+    /* 사악한 미소 (큰 입) */
+    const mouthArc = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.025, 6, 16, Math.PI), M(0x1A0000));
+    mouthArc.position.set(0, 1.4, 0.32);
+    mouthArc.rotation.z = Math.PI;
+    group.add(mouthArc);
+    /* 송곳니 */
+    [-0.07, 0.07].forEach(x => {
+      const fang = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.1, 4), whiteMat);
+      fang.position.set(x, 1.35, 0.33);
+      fang.rotation.x = Math.PI;
+      group.add(fang);
+    });
+    /* 몸통 */
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.42, 18, 18), demonMat);
+    body.scale.set(1.2, 1.2, 1);
+    body.position.y = 0.85;
+    body.castShadow = true;
+    group.add(body);
+    /* 박쥐 날개 */
+    const wingMat = new THREE.MeshLambertMaterial({
+      color: 0x6A0000, side: THREE.DoubleSide
+    });
+    const wingL = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.6), wingMat);
+    wingL.position.set(-0.5, 1.0, -0.15);
+    wingL.rotation.set(0, 0.8, 0.2);
+    group.add(wingL);
+    const wingR = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.6), wingMat);
+    wingR.position.set(0.5, 1.0, -0.15);
+    wingR.rotation.set(0, -0.8, -0.2);
+    group.add(wingR);
+    /* 화살촉 꼬리 */
+    const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.03, 0.6, 6), demonMat);
+    tail.position.set(0, 0.7, -0.45);
+    tail.rotation.x = 0.6;
+    group.add(tail);
+    const tailTip = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.2, 4), demonMat);
+    tailTip.position.set(0, 0.4, -0.65);
+    tailTip.rotation.z = Math.PI / 4;
+    group.add(tailTip);
+    /* 다리 */
+    const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.08, 0.55, 10), demonMat);
+    legL.position.set(-0.18, 0.3, 0);
+    group.add(legL);
+    const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.08, 0.55, 10), demonMat);
+    legR.position.set(0.18, 0.3, 0);
+    group.add(legR);
+    /* 발광 */
+    const evilLight = new THREE.PointLight(0xFF1744, 0.8, 4, 2);
+    evilLight.position.y = 1.2;
+    group.add(evilLight);
+  }
+  /* ═══════════════════ 7층: 빙하 골렘 🧊 ═══════════════════ */
+  else if (emoji === '🧊') {
+    const iceMat = new THREE.MeshLambertMaterial({
+      color: 0x81D4FA, transparent: true, opacity: 0.85,
+      emissive: 0x0277BD, emissiveIntensity: 0.2
+    });
+    const iceCore = new THREE.MeshLambertMaterial({
+      color: 0xE1F5FE, transparent: true, opacity: 0.7
+    });
+    /* 거대 얼음 몸통 (각진 얼음) */
+    const body = new THREE.Mesh(new THREE.OctahedronGeometry(0.55, 0), iceMat);
+    body.scale.set(1.2, 1.2, 1.0);
+    body.position.y = 0.95;
+    body.castShadow = true;
+    group.add(body);
+    /* 머리 얼음 큐브 */
+    const head = new THREE.Mesh(new THREE.OctahedronGeometry(0.32, 0), iceMat);
+    head.position.y = 1.7;
+    head.rotation.y = Math.PI / 4;
+    head.castShadow = true;
+    group.add(head);
+    /* 얼음 결정 안 빛나는 코어 */
+    const core = new THREE.Mesh(new THREE.SphereGeometry(0.2, 14, 14),
+      new THREE.MeshBasicMaterial({ color: 0x40C4FF }));
+    core.position.set(0, 0.95, 0);
+    group.add(core);
+    /* 푸른 빛나는 눈 */
+    const eyeL = glowEye(0x18FFFF, 0.06);
+    eyeL.position.set(-0.1, 1.72, 0.3);
+    group.add(eyeL);
+    const eyeR = glowEye(0x18FFFF, 0.06);
+    eyeR.position.set(0.1, 1.72, 0.3);
+    group.add(eyeR);
+    /* 거대 얼음 팔 */
+    const armL = new THREE.Mesh(new THREE.OctahedronGeometry(0.2, 0), iceMat);
+    armL.position.set(-0.55, 0.95, 0);
+    armL.scale.set(1, 2, 1);
+    group.add(armL);
+    const armR = new THREE.Mesh(new THREE.OctahedronGeometry(0.2, 0), iceMat);
+    armR.position.set(0.55, 0.95, 0);
+    armR.scale.set(1, 2, 1);
+    group.add(armR);
+    /* 얼음 가시 (머리 위) */
+    for (let i = 0; i < 5; i++) {
+      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.25, 4), iceCore);
+      const a = (i / 5) * Math.PI * 2;
+      spike.position.set(Math.cos(a) * 0.2, 2.0, Math.sin(a) * 0.2);
+      spike.rotation.z = Math.cos(a) * 0.3;
+      spike.rotation.x = Math.sin(a) * 0.3;
+      group.add(spike);
+    }
+    /* 다리 */
+    const legL = new THREE.Mesh(new THREE.OctahedronGeometry(0.18, 0), iceMat);
+    legL.position.set(-0.2, 0.3, 0);
+    legL.scale.set(1, 1.8, 1);
+    group.add(legL);
+    const legR = new THREE.Mesh(new THREE.OctahedronGeometry(0.18, 0), iceMat);
+    legR.position.set(0.2, 0.3, 0);
+    legR.scale.set(1, 1.8, 1);
+    group.add(legR);
+    /* 얼음 빛 */
+    const iceLight = new THREE.PointLight(0x40C4FF, 1.2, 5, 2);
+    iceLight.position.y = 1.2;
+    group.add(iceLight);
+  }
+  /* ═══════════════════ 7층: 눈보라 마녀 🧙‍♀️ ═══════════════════ */
+  else if (emoji === '🧙‍♀️') {
+    /* 푸른 로브 */
+    const robeMat = M(0x1565C0, { emissive: 0x0D47A1, emissiveIntensity: 0.15 });
+    const robe = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.4, 12), robeMat);
+    robe.position.y = 0.7;
+    robe.castShadow = true;
+    group.add(robe);
+    /* 얼굴 (밝은 살색) */
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.25, 14, 14), M(0xFFE0B2));
+    head.position.y = 1.5;
+    head.castShadow = true;
+    group.add(head);
+    /* 긴 푸른 머리카락 (양쪽으로) */
+    const hairMat = M(0x42A5F5);
+    const hairL = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.04, 0.45, 8), hairMat);
+    hairL.position.set(-0.18, 1.3, 0);
+    group.add(hairL);
+    const hairR = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.04, 0.45, 8), hairMat);
+    hairR.position.set(0.18, 1.3, 0);
+    group.add(hairR);
+    /* 푸른 눈 */
+    const eyeL = glowEye(0x18FFFF, 0.04);
+    eyeL.position.set(-0.08, 1.5, 0.23);
+    group.add(eyeL);
+    const eyeR = glowEye(0x18FFFF, 0.04);
+    eyeR.position.set(0.08, 1.5, 0.23);
+    group.add(eyeR);
+    /* 뾰족한 마녀 모자 */
+    const hat = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.55, 8), robeMat);
+    hat.position.y = 2.0;
+    group.add(hat);
+    const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.04, 16), robeMat);
+    brim.position.y = 1.73;
+    group.add(brim);
+    /* 모자 별 모양 장식 */
+    const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.06, 0),
+      new THREE.MeshBasicMaterial({ color: 0xE1F5FE }));
+    star.position.set(0, 1.92, 0.3);
+    group.add(star);
+    /* 빗자루 (오른쪽) */
+    const broomStick = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 1.3, 8), M(0x6D4C41));
+    broomStick.position.set(0.45, 0.85, 0.1);
+    broomStick.rotation.z = -0.2;
+    group.add(broomStick);
+    const broomBristle = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.35, 8), M(0xFFB74D));
+    broomBristle.position.set(0.6, 0.2, 0.1);
+    broomBristle.rotation.x = Math.PI;
+    group.add(broomBristle);
+    /* 마법 눈송이 (주위에) */
+    const snowMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      const snow = new THREE.Mesh(new THREE.OctahedronGeometry(0.04, 0), snowMat);
+      snow.position.set(Math.cos(a) * 0.65, 1.2 + Math.sin(a) * 0.3, Math.sin(a) * 0.65);
+      group.add(snow);
+    }
+    /* 마법 빛 */
+    const magicLight = new THREE.PointLight(0x40C4FF, 0.8, 4, 2);
+    magicLight.position.y = 1.3;
+    group.add(magicLight);
+  }
+  /* ═══════════════════ 8층: 번개 골렘 ⚡ ═══════════════════ */
+  else if (emoji === '⚡') {
+    const lightMat = M(0xFFD600, { emissive: 0xFFAB00, emissiveIntensity: 0.5 });
+    const darkMat = M(0x424242);
+    /* 번개 모양 몸통 (각진 충격파 형태) */
+    const body = new THREE.Mesh(new THREE.OctahedronGeometry(0.5, 0), darkMat);
+    body.scale.set(1.1, 1.3, 0.9);
+    body.position.y = 1.0;
+    body.castShadow = true;
+    group.add(body);
+    /* 머리 */
+    const head = new THREE.Mesh(new THREE.OctahedronGeometry(0.3, 0), darkMat);
+    head.position.y = 1.7;
+    head.castShadow = true;
+    group.add(head);
+    /* 번개 무늬 (몸통에) */
+    for (let i = 0; i < 4; i++) {
+      const bolt = new THREE.Mesh(new THREE.OctahedronGeometry(0.07, 0), lightMat);
+      bolt.position.set(-0.2 + i * 0.15, 1.0, 0.4);
+      bolt.scale.set(0.5, 2, 0.3);
+      group.add(bolt);
+    }
+    /* 빛나는 눈 (큰 번개) */
+    const eyeL = glowEye(0xFFEB3B, 0.07);
+    eyeL.position.set(-0.12, 1.72, 0.27);
+    group.add(eyeL);
+    const eyeR = glowEye(0xFFEB3B, 0.07);
+    eyeR.position.set(0.12, 1.72, 0.27);
+    group.add(eyeR);
+    /* 번개 가시 (등에) */
+    for (let i = 0; i < 5; i++) {
+      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.3, 4), lightMat);
+      spike.position.set(0, 1.5, -0.3 - i * 0.05);
+      spike.rotation.x = -0.3 + i * 0.15;
+      group.add(spike);
+    }
+    /* 팔 */
+    const armL = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.08, 0.7, 8), darkMat);
+    armL.position.set(-0.5, 0.95, 0);
+    armL.rotation.z = 0.2;
+    group.add(armL);
+    const armR = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.08, 0.7, 8), darkMat);
+    armR.position.set(0.5, 0.95, 0);
+    armR.rotation.z = -0.2;
+    group.add(armR);
+    /* 손에 번개 구슬 */
+    const orbL = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 12),
+      new THREE.MeshBasicMaterial({ color: 0xFFEB3B }));
+    orbL.position.set(-0.6, 0.55, 0);
+    group.add(orbL);
+    const orbR = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 12),
+      new THREE.MeshBasicMaterial({ color: 0xFFEB3B }));
+    orbR.position.set(0.6, 0.55, 0);
+    group.add(orbR);
+    /* 다리 */
+    const legL = new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), darkMat);
+    legL.position.set(-0.2, 0.35, 0);
+    legL.scale.set(1, 1.5, 1);
+    group.add(legL);
+    const legR = new THREE.Mesh(new THREE.OctahedronGeometry(0.16, 0), darkMat);
+    legR.position.set(0.2, 0.35, 0);
+    legR.scale.set(1, 1.5, 1);
+    group.add(legR);
+    /* 번개 빛 */
+    const boltLight1 = new THREE.PointLight(0xFFEB3B, 1.5, 5, 2);
+    boltLight1.position.set(-0.6, 0.55, 0);
+    group.add(boltLight1);
+    const boltLight2 = new THREE.PointLight(0xFFEB3B, 1.5, 5, 2);
+    boltLight2.position.set(0.6, 0.55, 0);
+    group.add(boltLight2);
+  }
+  /* ═══════════════════ 8층: 폭풍 황제 🌪️ ═══════════════════ */
+  else if (emoji === '🌪️') {
+    const stormMat = new THREE.MeshLambertMaterial({
+      color: 0x546E7A, transparent: true, opacity: 0.85,
+      emissive: 0x37474F, emissiveIntensity: 0.2
+    });
+    const stormLight = M(0xB0BEC5);
+    /* 회오리 본체 (3개 원뿔) */
+    const t1 = new THREE.Mesh(new THREE.ConeGeometry(0.6, 0.6, 24), stormMat);
+    t1.position.y = 0.4;
+    group.add(t1);
+    const t2 = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.5, 24), stormMat);
+    t2.position.y = 0.9;
+    t2.rotation.y = 0.3;
+    group.add(t2);
+    const t3 = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.45, 20), stormLight);
+    t3.position.y = 1.35;
+    t3.rotation.y = -0.3;
+    group.add(t3);
+    /* 머리 (구름) */
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 16), stormLight);
+    head.position.y = 1.85;
+    head.castShadow = true;
+    group.add(head);
+    /* 분노한 눈 (노란 번개) */
+    const eyeL = glowEye(0xFFEB3B, 0.07);
+    eyeL.position.set(-0.13, 1.85, 0.3);
+    group.add(eyeL);
+    const eyeR = glowEye(0xFFEB3B, 0.07);
+    eyeR.position.set(0.13, 1.85, 0.3);
+    group.add(eyeR);
+    /* 화난 입 */
+    const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.018, 6, 16, Math.PI), blackMat);
+    mouth.position.set(0, 1.7, 0.3);
+    group.add(mouth);
+    /* 번개 (회오리 주변) */
+    const boltMat = new THREE.MeshBasicMaterial({ color: 0xFFEB3B });
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2;
+      const bolt = new THREE.Mesh(new THREE.OctahedronGeometry(0.08, 0), boltMat);
+      bolt.position.set(Math.cos(a) * 0.7, 0.5 + Math.sin(a) * 0.3, Math.sin(a) * 0.7);
+      bolt.scale.set(0.4, 1.5, 0.3);
+      group.add(bolt);
+    }
+    /* 잔해물 (떠다니는 돌) */
+    const debrisMat = M(0x424242);
+    for (let i = 0; i < 6; i++) {
+      const a = (i / 6) * Math.PI * 2;
+      const debris = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), debrisMat);
+      debris.position.set(Math.cos(a) * 0.55, 0.8 + Math.sin(a * 1.5) * 0.2, Math.sin(a) * 0.55);
+      debris.rotation.set(a, a * 0.5, a);
+      group.add(debris);
+    }
+    /* 폭풍 빛 */
+    const stormGlow = new THREE.PointLight(0xFFEB3B, 1.0, 5, 2);
+    stormGlow.position.y = 1.0;
+    group.add(stormGlow);
+  }
+  /* ═══════════════════ 9층: 지옥 감시자 👿 ═══════════════════ */
+  else if (emoji === '👿') {
+    const hellMat = M(0x880E4F, { emissive: 0x4A0000, emissiveIntensity: 0.3 });
+    const fireMat = M(0xFF6F00, { emissive: 0xBF360C, emissiveIntensity: 0.5 });
+    /* 큰 머리 */
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.45, 18, 18), hellMat);
+    head.scale.set(1.2, 1.1, 1.1);
+    head.position.y = 1.6;
+    head.castShadow = true;
+    group.add(head);
+    /* 거대한 뿔 (4개) */
+    [[-0.25, 0.35, -0.1], [0.25, 0.35, -0.1], [-0.35, 0.15, -0.2], [0.35, 0.15, -0.2]].forEach(([x, y, z], i) => {
+      const horn = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.45, 6), M(0x1A1A1A));
+      horn.position.set(x, 1.6 + y, z);
+      horn.rotation.z = i % 2 === 0 ? 0.35 : -0.35;
+      horn.rotation.x = -0.3;
+      group.add(horn);
+    });
+    /* 불타는 눈 (큰 발광) */
+    const eyeL = glowEye(0xFF6F00, 0.1);
+    eyeL.position.set(-0.16, 1.62, 0.4);
+    group.add(eyeL);
+    const eyeR = glowEye(0xFF6F00, 0.1);
+    eyeR.position.set(0.16, 1.62, 0.4);
+    group.add(eyeR);
+    /* 송곳니 (4개) */
+    [-0.12, -0.04, 0.04, 0.12].forEach(x => {
+      const fang = new THREE.Mesh(new THREE.ConeGeometry(0.035, 0.14, 4), whiteMat);
+      fang.position.set(x, 1.38, 0.4);
+      fang.rotation.x = Math.PI;
+      group.add(fang);
+    });
+    /* 몸통 */
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 18, 18), hellMat);
+    body.scale.set(1.3, 1.2, 1.1);
+    body.position.y = 0.85;
+    body.castShadow = true;
+    group.add(body);
+    /* 가슴 화염 문장 */
+    const flameMark = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.3, 6), fireMat);
+    flameMark.position.set(0, 0.85, 0.45);
+    group.add(flameMark);
+    /* 거대 박쥐 날개 */
+    const wingMat = new THREE.MeshLambertMaterial({
+      color: 0x4A0000, side: THREE.DoubleSide
+    });
+    const wingL = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.8), wingMat);
+    wingL.position.set(-0.6, 1.0, -0.2);
+    wingL.rotation.set(0, 0.7, 0.25);
+    group.add(wingL);
+    const wingR = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.8), wingMat);
+    wingR.position.set(0.6, 1.0, -0.2);
+    wingR.rotation.set(0, -0.7, -0.25);
+    group.add(wingR);
+    /* 화염 (어깨 위) */
+    [-0.4, 0.4].forEach(x => {
+      const fire = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 6), fireMat);
+      fire.position.set(x, 1.35, 0);
+      group.add(fire);
+    });
+    /* 다리 (염소처럼 굽은) */
+    const legL = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.55, 10), hellMat);
+    legL.position.set(-0.22, 0.3, 0);
+    group.add(legL);
+    const legR = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.1, 0.55, 10), hellMat);
+    legR.position.set(0.22, 0.3, 0);
+    group.add(legR);
+    /* 발굽 */
+    [-0.22, 0.22].forEach(x => {
+      const hoof = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.08, 8), M(0x1A1A1A));
+      hoof.position.set(x, 0.02, 0);
+      group.add(hoof);
+    });
+    /* 지옥 빛 */
+    const hellLight = new THREE.PointLight(0xFF1744, 1.3, 5, 2);
+    hellLight.position.y = 1.3;
+    group.add(hellLight);
+  }
+  /* ═══════════════════ 9층: 마왕의 분신 💀 (대형 - 9층) ═══════════════════ */
+  else if (emoji === '💀' && hp >= 1000) {
+    const boneMat = M(0xFAFAFA, { emissive: 0x4A0000, emissiveIntensity: 0.1 });
+    const cloakMat = M(0x1A1A1A);
+    /* 검은 망토 */
+    const cloak = new THREE.Mesh(new THREE.ConeGeometry(0.7, 1.6, 12), cloakMat);
+    cloak.position.y = 0.8;
+    cloak.castShadow = true;
+    group.add(cloak);
+    /* 거대한 두개골 */
+    const skull = new THREE.Mesh(new THREE.SphereGeometry(0.45, 20, 20), boneMat);
+    skull.position.y = 1.7;
+    skull.scale.set(1.1, 1.2, 1.15);
+    skull.castShadow = true;
+    group.add(skull);
+    /* 두개골 균열 */
+    const crack = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.4, 0.04), M(0x4A0000));
+    crack.position.set(0.05, 1.8, 0.43);
+    crack.rotation.z = 0.3;
+    group.add(crack);
+    /* 거대한 검은 눈구멍 */
+    const eyeSocketL = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), blackMat);
+    eyeSocketL.position.set(-0.15, 1.72, 0.38);
+    group.add(eyeSocketL);
+    const eyeSocketR = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), blackMat);
+    eyeSocketR.position.set(0.15, 1.72, 0.38);
+    group.add(eyeSocketR);
+    /* 빛나는 빨간 영혼 */
+    const soulL = glowEye(0xFF1744, 0.07);
+    soulL.position.set(-0.15, 1.72, 0.46);
+    group.add(soulL);
+    const soulR = glowEye(0xFF1744, 0.07);
+    soulR.position.set(0.15, 1.72, 0.46);
+    group.add(soulR);
+    /* 이빨 (위아래) */
+    for (let i = -4; i <= 4; i++) {
+      const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.08, 0.04), boneMat);
+      tooth.position.set(i * 0.06, 1.45, 0.45);
+      group.add(tooth);
+    }
+    /* 거대 낫 */
+    const scytheStaff = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.2, 8), M(0x3E2723));
+    scytheStaff.position.set(0.55, 1.1, 0.2);
+    scytheStaff.rotation.z = -0.15;
+    group.add(scytheStaff);
+    /* 낫 날 */
+    const scytheBlade = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.04, 6, 16, Math.PI / 1.2),
+      M(0xB0BEC5));
+    scytheBlade.position.set(0.5, 2.2, 0.2);
+    scytheBlade.rotation.set(Math.PI / 2, 0, -Math.PI / 4);
+    group.add(scytheBlade);
+    /* 낫 끝 마법 구슬 */
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 12),
+      new THREE.MeshBasicMaterial({ color: 0xFF1744 }));
+    orb.position.set(0.55, 2.2, 0.2);
+    group.add(orb);
+    /* 검은 후드 (머리 위) */
+    const hood = new THREE.Mesh(new THREE.SphereGeometry(0.5, 14, 14, 0, Math.PI * 2, 0, Math.PI / 1.5), cloakMat);
+    hood.position.y = 1.8;
+    group.add(hood);
+    /* 마왕 발광 */
+    const evilGlow = new THREE.PointLight(0xFF1744, 1.5, 6, 2);
+    evilGlow.position.y = 1.5;
+    group.add(evilGlow);
+  }
+  /* ═══════════════════ 10층: 신의 수호자 👼 (최종 보스) ═══════════════════ */
+  else if (emoji === '👼') {
+    const holyMat = M(0xFFF8E1, { emissive: 0xFFD700, emissiveIntensity: 0.35 });
+    const goldMat = M(0xFFD700, { emissive: 0xFFA000, emissiveIntensity: 0.4 });
+    /* 흰 로브 (긴) */
+    const robe = new THREE.Mesh(new THREE.ConeGeometry(0.6, 1.6, 12), holyMat);
+    robe.position.y = 0.85;
+    robe.castShadow = true;
+    group.add(robe);
+    /* 머리 */
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.32, 18, 18), M(0xFFE0B2));
+    head.position.y = 1.85;
+    head.castShadow = true;
+    group.add(head);
+    /* 황금 후광 (머리 위) */
+    const halo = new THREE.Mesh(
+      new THREE.TorusGeometry(0.32, 0.04, 8, 32),
+      new THREE.MeshBasicMaterial({ color: 0xFFD700 })
+    );
+    halo.position.y = 2.3;
+    halo.rotation.x = Math.PI / 2;
+    group.add(halo);
+    /* 후광 내부 빛 */
+    const haloLight = new THREE.PointLight(0xFFD700, 2.0, 6, 2);
+    haloLight.position.y = 2.3;
+    group.add(haloLight);
+    /* 부드러운 눈 */
+    const eyeL = glowEye(0x40C4FF, 0.04);
+    eyeL.position.set(-0.1, 1.88, 0.28);
+    group.add(eyeL);
+    const eyeR = glowEye(0x40C4FF, 0.04);
+    eyeR.position.set(0.1, 1.88, 0.28);
+    group.add(eyeR);
+    /* 부드러운 미소 */
+    const smile = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.012, 6, 12, Math.PI),
+      M(0xD4A574));
+    smile.position.set(0, 1.75, 0.3);
+    smile.rotation.z = Math.PI;
+    group.add(smile);
+    /* 거대한 황금 천사 날개 (양쪽) */
+    const wingMat = new THREE.MeshLambertMaterial({
+      color: 0xFFFFFF, side: THREE.DoubleSide, transparent: true, opacity: 0.95,
+      emissive: 0xFFD700, emissiveIntensity: 0.15
+    });
+    function buildAngelWing(side) {
+      const wing = new THREE.Group();
+      /* 4단 깃털 */
+      for (let i = 0; i < 5; i++) {
+        const feather = new THREE.Mesh(
+          new THREE.PlaneGeometry(0.18, 0.8 - i * 0.08),
+          wingMat
+        );
+        feather.position.set(side * (0.1 + i * 0.13), 0.1 - i * 0.04, 0);
+        feather.rotation.z = side * (0.15 + i * 0.1);
+        wing.add(feather);
+      }
+      return wing;
+    }
+    const wingL = buildAngelWing(-1);
+    wingL.position.set(-0.3, 1.3, -0.1);
+    group.add(wingL);
+    const wingR = buildAngelWing(1);
+    wingR.position.set(0.3, 1.3, -0.1);
+    group.add(wingR);
+    /* 황금 갑옷 가슴 */
+    const breastplate = new THREE.Mesh(
+      new THREE.SphereGeometry(0.4, 16, 16, 0, Math.PI),
+      goldMat
+    );
+    breastplate.rotation.x = Math.PI / 2;
+    breastplate.scale.set(1, 0.6, 1);
+    breastplate.position.set(0, 1.05, 0.25);
+    group.add(breastplate);
+    /* 가슴 십자 보석 */
+    const cross = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.18, 0.03), goldMat);
+    cross.position.set(0, 1.1, 0.4);
+    group.add(cross);
+    const cross2 = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.06, 0.03), goldMat);
+    cross2.position.set(0, 1.1, 0.4);
+    group.add(cross2);
+    /* 황금 검 (오른손) */
+    const swordBlade = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.95, 0.03), goldMat);
+    swordBlade.position.set(0.55, 1.1, 0.2);
+    swordBlade.castShadow = true;
+    group.add(swordBlade);
+    const swordTip = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.15, 4), goldMat);
+    swordTip.position.set(0.55, 1.65, 0.2);
+    group.add(swordTip);
+    const swordGuard = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.06, 0.06), goldMat);
+    swordGuard.position.set(0.55, 0.62, 0.2);
+    group.add(swordGuard);
+    const swordHilt = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.15, 8), M(0xFFFFFF));
+    swordHilt.position.set(0.55, 0.5, 0.2);
+    group.add(swordHilt);
+    /* 검 빛 (성스러운 빛) */
+    const swordLight = new THREE.PointLight(0xFFEB3B, 1.5, 4, 2);
+    swordLight.position.set(0.55, 1.2, 0.2);
+    group.add(swordLight);
+    /* 떠다니는 작은 별/빛 입자 */
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      const star = new THREE.Mesh(
+        new THREE.OctahedronGeometry(0.05, 0),
+        new THREE.MeshBasicMaterial({ color: 0xFFEB3B })
+      );
+      star.position.set(Math.cos(a) * 0.85, 1.2 + Math.sin(a * 1.3) * 0.3, Math.sin(a) * 0.85);
+      group.add(star);
+    }
+    /* 신성한 빛 (전체) */
+    const holyLight = new THREE.PointLight(0xFFFFFF, 1.5, 8, 2);
+    holyLight.position.y = 1.5;
+    group.add(holyLight);
+  }
+  /* ═══════════════════ 폴백: 기본 몹 (정의되지 않은 emoji) ═══════════════════ */
+  else {
+    /* 큐브형 기본 몹 */
+    const baseMat = M(hp >= 1000 ? 0x6A1B9A : hp >= 500 ? 0xB71C1C : 0x4A148C,
+      { emissive: 0x1A0000, emissiveIntensity: 0.2 });
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.45, 18, 18), baseMat);
+    body.scale.set(1.1, 1.2, 1);
+    body.position.y = 0.9;
+    body.castShadow = true;
+    group.add(body);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 14, 14), baseMat);
+    head.position.y = 1.55;
+    head.castShadow = true;
+    group.add(head);
+    const eyeL = glowEye(0xFF1744, 0.06);
+    eyeL.position.set(-0.1, 1.58, 0.27);
+    group.add(eyeL);
+    const eyeR = glowEye(0xFF1744, 0.06);
+    eyeR.position.set(0.1, 1.58, 0.27);
+    group.add(eyeR);
+  }
+  /* 모든 몹 공통: 발 그림자 */
+  const shadow = new THREE.Mesh(
+    new THREE.CircleGeometry(0.5, 24),
+    new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3 })
+  );
+  shadow.rotation.x = -Math.PI / 2;
+  shadow.position.y = 0.01;
+  group.add(shadow);
+  return group;
+};
 function initMiniMob3D(containerId, mobData) {
   if (!window.THREE) return;
   if (window.__miniRenderers[containerId]) {
@@ -6491,7 +7768,26 @@ function initMiniMob3D(containerId, mobData) {
     const W = container.clientWidth || 340;
     const H = container.clientHeight || 240;
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x2a1f3d, 5, 12);
+    /* 몹별 분위기에 맞춘 배경 */
+    const hp = mobData?.hp || 100;
+    const emoji = mobData?.emoji || '';
+    let bgColor = 0x2a1f3d;
+    let ambColor = 0x4a3a5d;
+    let ambIntensity = 0.5;
+    let moodColor = 0xc62828;
+    /* 층별 배경 톤 매핑 */
+    if (['🟢','🍄'].includes(emoji)) { bgColor=0x1B5E20; ambColor=0x2E7D32; moodColor=0x66BB6A; }
+    else if (['🦇','🪨'].includes(emoji)) { bgColor=0x1A237E; ambColor=0x283593; moodColor=0xAA00FF; }
+    else if (['🦎','👹'].includes(emoji)) { bgColor=0x3E2723; ambColor=0x5D4037; moodColor=0xFF6F00; }
+    else if (['💀','🧙'].includes(emoji)) { bgColor=0x0D0D2B; ambColor=0x1A237E; moodColor=0x7C4DFF; }
+    else if (emoji === '🐲') { bgColor=0x4A148C; ambColor=0x6A1B9A; moodColor=0xFF1744; ambIntensity=0.7; }
+    else if (['🗿','😈'].includes(emoji)) { bgColor=0x1A0033; ambColor=0x311B92; moodColor=0xE040FB; }
+    else if (['🧊','🧙‍♀️'].includes(emoji)) { bgColor=0x0D47A1; ambColor=0x1565C0; moodColor=0x40C4FF; }
+    else if (['⚡','🌪️'].includes(emoji)) { bgColor=0x263238; ambColor=0x37474F; moodColor=0xFFEB3B; }
+    else if (['👿'].includes(emoji)) { bgColor=0x4A0000; ambColor=0x880E4F; moodColor=0xFF6F00; }
+    else if (emoji === '👼') { bgColor=0xFFF8E1; ambColor=0xFFE082; moodColor=0xFFD700; ambIntensity=0.9; }
+    scene.fog = new THREE.Fog(bgColor, 5, 12);
+    scene.background = new THREE.Color(bgColor);
     const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 100);
     let theta = 0.3;
     const dist = 5, camY = 1.5;
@@ -6501,36 +7797,37 @@ function initMiniMob3D(containerId, mobData) {
     renderer.setSize(W, H);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
-    /* 어두운 분위기 */
-    scene.add(new THREE.AmbientLight(0x4a3a5d, 0.5));
-    const sun = new THREE.DirectionalLight(0xff6b6b, 0.7);
+    /* 분위기 조명 */
+    scene.add(new THREE.AmbientLight(ambColor, ambIntensity));
+    const sun = new THREE.DirectionalLight(0xffffff, 0.6);
     sun.position.set(3, 5, 2);
     sun.castShadow = true;
+    sun.shadow.mapSize.width = sun.shadow.mapSize.height = 512;
     scene.add(sun);
-    const evilLight = new THREE.PointLight(0xc62828, 0.7, 6, 1.8);
-    evilLight.position.set(-2, 2, 2);
-    scene.add(evilLight);
-    /* 바닥 (석재) */
+    const moodLight = new THREE.PointLight(moodColor, 0.8, 6, 1.8);
+    moodLight.position.set(-2, 2, 2);
+    scene.add(moodLight);
+    /* 바닥 (분위기에 맞는 색) */
+    let floorColor = 0x3E2D4A;
+    if (emoji === '👼') floorColor = 0xFFF8E1;
+    else if (['🟢','🍄'].includes(emoji)) floorColor = 0x2E4A2E;
+    else if (['🧊','🧙‍♀️'].includes(emoji)) floorColor = 0x1A3A5A;
+    else if (['🦎','👹'].includes(emoji)) floorColor = 0x4A2818;
     const floor = new THREE.Mesh(
       new THREE.CylinderGeometry(2.2, 2.2, 0.1, 32),
-      new THREE.MeshLambertMaterial({ color: 0x3E2D4A })
+      new THREE.MeshLambertMaterial({ color: floorColor })
     );
     floor.position.y = -0.05;
     floor.receiveShadow = true;
     scene.add(floor);
-    /* 몹 — 풀바디 빌더 사용 (몹용 색상) */
-    const isStrong = (mobData.hp || 0) >= 500;
-    const isBoss = (mobData.hp || 0) >= 1000;
-    const mob = window.buildFullBodyPet3D({
-      petEmoji: mobData.emoji || '👹',
-      equipment: {},
-      bodyColor: isBoss ? 0x6A1B9A : isStrong ? 0xB71C1C : 0x4A148C,
-      accentColor: isBoss ? 0x8E24AA : isStrong ? 0xD32F2F : 0x6A1B9A
-    });
-    /* 몹은 더 크게 */
-    mob.scale.set(1.1, 1.1, 1.1);
-    if (isBoss) mob.scale.set(1.3, 1.3, 1.3);
+    /* 몹 — 새 빌더 사용 (각 몹마다 고유 디자인) */
+    const mob = window.buildMobCharacter3D(mobData);
+    /* 보스급은 더 크게 */
+    if (hp >= 3000) mob.scale.set(1.4, 1.4, 1.4);
+    else if (hp >= 1500) mob.scale.set(1.25, 1.25, 1.25);
+    else if (hp >= 500) mob.scale.set(1.15, 1.15, 1.15);
     scene.add(mob);
     let alive = true;
     function animate() {
@@ -6541,12 +7838,15 @@ function initMiniMob3D(containerId, mobData) {
       camera.position.x = dist * Math.sin(theta);
       camera.position.z = dist * Math.cos(theta);
       camera.lookAt(0, 1.1, 0);
+      /* 몹 호흡 애니메이션 */
       mob.position.y = Math.sin(t * 1.2) * 0.1;
-      const ud = mob.userData;
-      if (ud.armL) ud.armL.rotation.x = Math.sin(t * 1.5) * 0.2;
-      if (ud.armR) ud.armR.rotation.x = -Math.sin(t * 1.5) * 0.2;
-      if (ud.tail) ud.tail.rotation.y = Math.sin(t * 3) * 0.4;
-      if (ud.face) ud.face.lookAt(camera.position);
+      /* 회오리/슬라임은 회전 */
+      if (emoji === '🌪️') mob.rotation.y = t * 2;
+      /* 슬라임은 좌우로 흔들기 */
+      if (emoji === '🟢') {
+        mob.scale.x = 1 + Math.sin(t * 3) * 0.08;
+        mob.scale.z = 1 + Math.sin(t * 3) * 0.08;
+      }
       renderer.render(scene, camera);
     }
     animate();
