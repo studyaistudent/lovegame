@@ -74,12 +74,22 @@ body::before{
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--rose),var(--rose2));border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1);}
 .prog-mint{background:linear-gradient(90deg,var(--mint),#1A9E95);}
 /* ── Tabs ── */
-.tabs{display:flex;background:white;border:1px solid var(--border);border-radius:var(--r-sm);overflow-x:auto;margin-bottom:14px;scrollbar-width:none;}
+.tabs{display:flex;background:white;border:1px solid var(--border);border-radius:var(--r-sm);overflow-x:auto;margin-bottom:14px;scrollbar-width:none;position:relative;}
 .tabs::-webkit-scrollbar{display:none;}
 .tab{flex-shrink:0;min-width:58px;padding:9px 6px;font-size:11px;font-family:'Noto Sans KR',sans-serif;background:transparent;border:none;border-right:1px solid var(--border);cursor:pointer;color:var(--text2);transition:all .15s;line-height:1.3;white-space:pre-line;text-align:center;}
 .tab:last-child{border-right:none;}
 .tab.on{background:linear-gradient(135deg,var(--rose),var(--rose2));color:white;font-weight:500;}
 .tab.on-mint{background:linear-gradient(135deg,var(--mint),#1A9E95);color:white;font-weight:500;}
+/* ★ 데스크탑/태블릿(≥480px): 탭이 많아도 줄바꿈으로 한눈에 보이게 */
+@media (min-width:480px){
+  .tabs{flex-wrap:wrap;overflow-x:visible;}
+  .tab{flex:1 0 auto;min-width:70px;border-bottom:1px solid var(--border);}
+  .tab:last-child{border-right:none;border-bottom:none;}
+}
+/* ★ 모바일(<480px): 가로 스크롤 + 우측에 스크롤 가능 힌트 그라데이션 */
+@media (max-width:479px){
+  .tabs::after{content:'›';position:sticky;right:0;display:flex;align-items:center;justify-content:center;width:22px;background:linear-gradient(to right,transparent,white 50%);color:var(--rose);font-size:18px;font-weight:700;pointer-events:none;flex-shrink:0;margin-left:-22px;animation:livePulse 1.6s infinite;}
+}
 /* ── Answer buttons ── */
 .ans{width:100%;padding:15px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:white;color:var(--text1);cursor:pointer;font-size:14px;font-family:'Noto Sans KR',sans-serif;text-align:center;transition:all .15s;}
 .ans:hover{background:var(--rose-lt);border-color:var(--rose);transform:translateY(-1px);}
@@ -1064,6 +1074,163 @@ body::before{
 .lb-mode-btn.active{background:linear-gradient(135deg,var(--rose),var(--rose2));color:white;border-color:transparent;font-weight:600;}
 /* ── 대기중 카드 ── */
 .pending-card{background:linear-gradient(135deg,rgba(255,248,230,.98),rgba(255,252,240,.98));border:1.5px dashed var(--gold);border-radius:var(--r);padding:1.1rem;margin-bottom:8px;display:flex;align-items:center;gap:12px;}
+
+/* ═══════════════════════════════════════
+   🎰 GACHA / 박스 시스템
+═══════════════════════════════════════ */
+.gacha-stage{position:relative;background:linear-gradient(160deg,#1a0e2e 0%,#3a1854 60%,#5a1f7a 100%);border-radius:20px;padding:2rem 1.2rem;text-align:center;overflow:hidden;box-shadow:0 8px 32px rgba(80,30,150,.35);min-height:240px;}
+.gacha-stage::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,rgba(255,200,100,.18) 0%,transparent 55%),radial-gradient(circle at 80% 80%,rgba(232,83,122,.18) 0%,transparent 55%);pointer-events:none;}
+.gacha-stage::after{content:'✨ ⭐ ✨ ⭐ ✨ ⭐ ✨ ⭐';position:absolute;top:0;left:0;width:100%;font-size:14px;color:rgba(255,215,100,.18);letter-spacing:24px;pointer-events:none;line-height:34px;animation:starDrift 14s linear infinite;}
+@keyframes starDrift{0%{transform:translateX(0)}100%{transform:translateX(-50px)}}
+.gacha-box{font-size:96px;display:inline-block;filter:drop-shadow(0 12px 24px rgba(255,200,100,.45));position:relative;z-index:2;}
+.gacha-box.shake{animation:gachaShake .8s cubic-bezier(.4,0,.2,1);}
+@keyframes gachaShake{0%,100%{transform:rotate(0)}10%,30%,50%,70%,90%{transform:rotate(-12deg) translateY(-4px)}20%,40%,60%,80%{transform:rotate(12deg) translateY(-4px)}}
+.gacha-box.burst{animation:gachaBurst .6s ease-out;}
+@keyframes gachaBurst{0%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(255,255,200,0))}50%{transform:scale(1.4);filter:drop-shadow(0 0 40px rgba(255,255,200,1))}100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(255,255,200,0))}}
+.gacha-title{position:relative;z-index:2;font-family:'Playfair Display',serif;font-style:italic;font-size:24px;font-weight:700;color:#FFE082;margin:10px 0 4px;letter-spacing:.5px;text-shadow:0 2px 8px rgba(0,0,0,.4);}
+.gacha-sub{position:relative;z-index:2;font-size:12px;color:rgba(255,255,255,.7);margin-bottom:18px;}
+.gacha-buttons{position:relative;z-index:2;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.gacha-btn{padding:12px 22px;border:none;border-radius:99px;font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px rgba(0,0,0,.25);}
+.gacha-btn.single{background:linear-gradient(135deg,#FF6B9D,#C73B65);color:white;}
+.gacha-btn.ten{background:linear-gradient(135deg,#FFD700,#FF8C00);color:white;}
+.gacha-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 22px rgba(0,0,0,.35);}
+.gacha-btn:disabled{opacity:.5;cursor:not-allowed;}
+.gacha-result-card{background:white;border-radius:16px;padding:20px 16px;text-align:center;animation:fadeIn .5s ease;position:relative;overflow:hidden;}
+.gacha-result-card .reward-emoji{font-size:64px;margin-bottom:6px;display:block;animation:pulse 1.6s ease-in-out infinite;}
+.gacha-result-card.normal{border:2px solid #9E9E9E;}
+.gacha-result-card.rare{border:2px solid #2196F3;box-shadow:0 0 20px rgba(33,150,243,.3);}
+.gacha-result-card.epic{border:2px solid #FF5722;box-shadow:0 0 28px rgba(255,87,34,.35);}
+.gacha-result-card.unique{border:2px solid #E91E63;box-shadow:0 0 32px rgba(233,30,99,.4);}
+.gacha-result-card.legend{border:2px solid #FFD700;box-shadow:0 0 40px rgba(255,215,0,.55);background:linear-gradient(135deg,#FFFDE7,#FFF8E1);}
+.gacha-result-card.legend::before{content:'';position:absolute;inset:-50%;background:conic-gradient(from 0deg,transparent,rgba(255,215,0,.4),transparent 30%);animation:legendSpin 3s linear infinite;pointer-events:none;}
+@keyframes legendSpin{to{transform:rotate(360deg)}}
+.gacha-result-card>*{position:relative;z-index:1;}
+.grade-chip{display:inline-block;padding:3px 12px;border-radius:99px;font-size:10.5px;font-weight:700;color:white;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px;}
+.grade-chip.normal{background:#9E9E9E;}
+.grade-chip.rare{background:#2196F3;}
+.grade-chip.epic{background:#FF5722;}
+.grade-chip.unique{background:#E91E63;}
+.grade-chip.legend{background:linear-gradient(135deg,#FFD700,#FF8C00);box-shadow:0 0 8px rgba(255,215,0,.5);}
+.gacha-history{margin-top:14px;}
+.gacha-history-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:white;border:1px solid var(--border);border-radius:8px;margin-bottom:5px;font-size:12.5px;}
+
+/* ═══════════════════════════════════════
+   👶 2세 네비게이션
+═══════════════════════════════════════ */
+.baby-nav{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,rgba(155,89,182,.08),rgba(232,83,122,.06));border:1px solid rgba(155,89,182,.2);border-radius:12px;padding:8px 12px;margin-bottom:10px;}
+.baby-nav-btn{background:white;border:1.5px solid var(--border2);border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--rose2);transition:all .15s;}
+.baby-nav-btn:hover:not(:disabled){background:var(--rose-lt);transform:scale(1.08);}
+.baby-nav-btn:disabled{opacity:.3;cursor:not-allowed;}
+.baby-nav-info{font-size:13px;font-weight:600;color:var(--plum);text-align:center;}
+.baby-dots{display:flex;gap:5px;justify-content:center;margin-top:5px;}
+.baby-dot{width:7px;height:7px;border-radius:50%;background:rgba(155,89,182,.2);transition:all .2s;}
+.baby-dot.active{background:var(--plum);width:18px;border-radius:99px;}
+
+/* ═══════════════════════════════════════
+   📝 일일 퀘스트
+═══════════════════════════════════════ */
+.quest-card{background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(253,238,244,.7));border:1.5px solid var(--border);border-radius:14px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:12px;transition:all .15s;}
+.quest-card.done{border-color:var(--mint);background:linear-gradient(135deg,rgba(232,248,247,.9),rgba(240,253,252,.9));}
+.quest-card.claimed{opacity:.55;border-style:dashed;}
+.quest-icon{font-size:30px;flex-shrink:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;background:rgba(232,83,122,.08);border-radius:12px;}
+.quest-card.done .quest-icon{background:rgba(46,196,182,.15);}
+.quest-body{flex:1;min-width:0;}
+.quest-title{font-size:13.5px;font-weight:700;color:var(--text1);margin-bottom:4px;}
+.quest-progress-bar{height:5px;background:rgba(0,0,0,.06);border-radius:99px;overflow:hidden;}
+.quest-progress-fill{height:100%;background:linear-gradient(90deg,var(--rose),var(--rose2));border-radius:99px;transition:width .4s ease;}
+.quest-card.done .quest-progress-fill{background:linear-gradient(90deg,var(--mint),#1A9E95);}
+.quest-progress-text{font-size:10.5px;color:var(--text3);margin-top:3px;}
+.quest-claim-btn{padding:7px 14px;font-size:12px;font-weight:700;border:none;border-radius:8px;cursor:pointer;background:linear-gradient(135deg,var(--gold),#B8860B);color:white;flex-shrink:0;box-shadow:0 2px 8px rgba(212,168,83,.35);}
+.quest-claim-btn:hover{opacity:.9;transform:scale(1.04);}
+.quest-claim-btn:disabled{background:#ccc;cursor:not-allowed;box-shadow:none;}
+.quest-header{background:linear-gradient(135deg,rgba(232,83,122,.08),rgba(124,63,126,.06));border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;text-align:center;}
+
+/* ═══════════════════════════════════════
+   💰 되팔기 버튼
+═══════════════════════════════════════ */
+.sell-btn{padding:4px 8px;font-size:10.5px;border:1px solid #FFB74D;background:linear-gradient(135deg,#FFE082,#FFCA28);color:#5D4037;border-radius:6px;cursor:pointer;font-weight:700;margin-left:4px;}
+.sell-btn:hover{background:linear-gradient(135deg,#FFD54F,#FFA000);}
+
+/* ═══════════════════════════════════════
+   🎴 펫 카드 스킨
+═══════════════════════════════════════ */
+.lm-pet-card[data-skin="mint"]{background:linear-gradient(160deg,rgba(232,248,247,.98),rgba(200,230,225,.95));border-color:rgba(46,196,182,.4);}
+.lm-pet-card[data-skin="ocean"]{background:linear-gradient(160deg,#E3F2FD,#BBDEFB);border:2px solid #2196F3;}
+.lm-pet-card[data-skin="sunset"]{background:linear-gradient(160deg,#FFCCBC,#FFAB91,#FF8A65);border:2px solid #FF7043;color:#5D4037;}
+.lm-pet-card[data-skin="forest"]{background:linear-gradient(160deg,#C8E6C9,#A5D6A7,#81C784);border:2px solid #43A047;}
+.lm-pet-card[data-skin="fire"]{background:linear-gradient(160deg,#FFCDD2,#FF8A80,#FF5252);border:2px solid #D32F2F;color:white;position:relative;overflow:hidden;}
+.lm-pet-card[data-skin="fire"]::before{content:'🔥 🔥 🔥 🔥 🔥';position:absolute;top:0;left:0;width:100%;font-size:18px;letter-spacing:30px;opacity:.18;line-height:30px;animation:fireFlicker 2s ease-in-out infinite;}
+@keyframes fireFlicker{0%,100%{opacity:.15}50%{opacity:.28}}
+.lm-pet-card[data-skin="galaxy"]{background:linear-gradient(160deg,#0D0D2B,#311B92,#5E35B1);border:2px solid #7E57C2;color:white;position:relative;overflow:hidden;}
+.lm-pet-card[data-skin="galaxy"]::before{content:'✨ ⭐ ✨ ⭐ ✨ ⭐';position:absolute;top:0;left:0;width:100%;font-size:11px;letter-spacing:26px;color:rgba(255,255,255,.35);line-height:28px;animation:starDrift 12s linear infinite;}
+.lm-pet-card[data-skin="galaxy"] .lm-stat .lbl,.lm-pet-card[data-skin="galaxy"] .pet-evolution-stage{color:rgba(255,255,255,.7) !important;}
+.lm-pet-card[data-skin="royal"]{background:linear-gradient(160deg,#FFF8E1,#FFE082,#FFD54F);border:3px solid #FFD700;box-shadow:0 8px 32px rgba(255,215,0,.35);}
+.lm-pet-card[data-skin="rainbow"]{background:linear-gradient(135deg,#FFCDD2 0%,#FFE0B2 16%,#FFF9C4 33%,#C8E6C9 50%,#B3E5FC 66%,#D1C4E9 83%,#F8BBD0 100%);background-size:300% 300%;border:2px solid white;animation:rainbowShift 8s ease infinite;}
+@keyframes rainbowShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.lm-pet-card[data-skin="phantom"]{background:linear-gradient(160deg,#1a0e2e,#2d1b4e,#3a1854);border:2px solid #BA68C8;color:#E1BEE7;box-shadow:0 0 30px rgba(186,104,200,.35);position:relative;overflow:hidden;}
+.lm-pet-card[data-skin="phantom"]::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(186,104,200,.15) 0%,transparent 50%);pointer-events:none;}
+.lm-pet-card[data-skin="phantom"] .lm-stat .lbl,.lm-pet-card[data-skin="phantom"] .pet-evolution-stage{color:rgba(225,190,231,.7) !important;}
+.skin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;}
+.skin-mini{aspect-ratio:1;border-radius:12px;border:2px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2);text-align:center;padding:4px;position:relative;transition:all .15s;overflow:hidden;}
+.skin-mini.active{border-color:var(--rose);box-shadow:0 0 0 3px rgba(232,83,122,.18);}
+.skin-mini.locked{opacity:.4;cursor:not-allowed;}
+.skin-mini .lock-icon{position:absolute;top:4px;right:4px;font-size:11px;}
+
+/* 칭호 */
+.title-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:700;letter-spacing:.5px;background:linear-gradient(135deg,#FFD700,#FF8C00);color:white;box-shadow:0 2px 8px rgba(255,140,0,.3);}
+.title-chip.normal{background:#9E9E9E;}
+.title-chip.rare{background:linear-gradient(135deg,#42A5F5,#1976D2);}
+.title-chip.epic{background:linear-gradient(135deg,#FF7043,#E64A19);}
+.title-chip.unique{background:linear-gradient(135deg,#EC407A,#C2185B);}
+.title-chip.legend{background:linear-gradient(135deg,#FFD700,#FF6F00);box-shadow:0 0 12px rgba(255,215,0,.55);}
+
+/* ═══════════════════════════════════════
+   🃏 원카드 게임
+═══════════════════════════════════════ */
+.onecard-stage{background:linear-gradient(180deg,#0d4d2c 0%,#1a6b3e 100%);border-radius:18px;padding:16px;position:relative;overflow:hidden;box-shadow:inset 0 4px 20px rgba(0,0,0,.4);}
+.onecard-stage::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,255,255,.06) 0%,transparent 70%);pointer-events:none;}
+.onecard-cpu,.onecard-me{position:relative;z-index:1;text-align:center;margin:6px 0;}
+.onecard-label{font-size:11.5px;color:rgba(255,255,255,.75);margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase;font-weight:600;}
+.onecard-hand{display:flex;justify-content:center;gap:-12px;flex-wrap:wrap;min-height:80px;padding:0 8px;}
+.oc-card{width:54px;height:78px;background:white;border-radius:7px;border:1.5px solid #333;box-shadow:0 3px 8px rgba(0,0,0,.45);display:inline-flex;flex-direction:column;justify-content:space-between;padding:5px 6px;font-weight:700;cursor:pointer;transition:transform .15s,margin-top .15s;margin-left:-16px;position:relative;font-family:Georgia,serif;}
+.oc-card:first-child{margin-left:0;}
+.oc-card.red{color:#D32F2F;}
+.oc-card.black{color:#212121;}
+.oc-card:hover.playable{transform:translateY(-8px);box-shadow:0 6px 14px rgba(0,0,0,.5);}
+.oc-card.playable{border-color:#FFD700;box-shadow:0 3px 8px rgba(0,0,0,.45),0 0 0 1.5px rgba(255,215,0,.5);}
+.oc-card:not(.playable){opacity:.72;cursor:not-allowed;}
+.oc-card .rank-top{font-size:14px;line-height:1;}
+.oc-card .suit-big{font-size:22px;text-align:center;}
+.oc-card .rank-bot{font-size:14px;line-height:1;transform:rotate(180deg);align-self:flex-end;}
+.oc-back{width:54px;height:78px;background:repeating-linear-gradient(45deg,#7B1FA2 0,#7B1FA2 6px,#4A148C 6px,#4A148C 12px);border-radius:7px;border:1.5px solid #311B92;box-shadow:0 3px 8px rgba(0,0,0,.45);margin-left:-16px;display:inline-block;position:relative;}
+.oc-back:first-child{margin-left:0;}
+.oc-back::after{content:'♥';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#FFD700;font-size:20px;text-shadow:0 0 4px rgba(0,0,0,.5);}
+.onecard-center{display:flex;justify-content:center;align-items:center;gap:18px;padding:14px 0;position:relative;z-index:1;}
+.oc-deck{width:60px;height:84px;background:repeating-linear-gradient(45deg,#3949AB 0,#3949AB 6px,#1A237E 6px,#1A237E 12px);border-radius:8px;border:2px solid #283593;cursor:pointer;display:flex;align-items:center;justify-content:center;color:white;font-size:22px;transition:transform .15s;box-shadow:0 4px 12px rgba(0,0,0,.45);}
+.oc-deck:hover{transform:scale(1.05);}
+.oc-deck.disabled{opacity:.55;cursor:not-allowed;}
+.oc-top{width:60px;height:84px;background:white;border-radius:8px;border:2px solid #333;display:flex;flex-direction:column;justify-content:space-between;padding:6px 8px;box-shadow:0 4px 12px rgba(0,0,0,.45);font-family:Georgia,serif;font-weight:700;}
+.oc-top.red{color:#D32F2F;}
+.oc-top.black{color:#212121;}
+.oc-top .rank-top{font-size:16px;line-height:1;}
+.oc-top .suit-big{font-size:28px;text-align:center;}
+.oc-top .rank-bot{font-size:16px;line-height:1;transform:rotate(180deg);align-self:flex-end;}
+.onecard-info{display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.25);border-radius:8px;padding:7px 12px;margin-top:10px;font-size:11.5px;color:white;position:relative;z-index:1;}
+.suit-picker{display:flex;gap:10px;justify-content:center;margin-top:10px;}
+.suit-pick-btn{width:48px;height:48px;border-radius:10px;background:white;border:2px solid var(--border);font-size:26px;cursor:pointer;transition:all .15s;}
+.suit-pick-btn:hover{transform:scale(1.1);border-color:var(--rose);}
+.suit-pick-btn.red{color:#D32F2F;}
+.suit-pick-btn.black{color:#212121;}
+.onecard-log{max-height:120px;overflow-y:auto;background:rgba(0,0,0,.35);border-radius:8px;padding:8px 10px;font-size:11.5px;color:rgba(255,255,255,.85);line-height:1.6;margin-top:10px;position:relative;z-index:1;}
+.onecard-log::-webkit-scrollbar{width:3px;}
+.onecard-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:99px;}
+.bet-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
+.bet-btn{padding:14px;border-radius:12px;border:2px solid var(--border);background:white;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:14px;color:var(--text1);transition:all .15s;}
+.bet-btn:hover{border-color:var(--rose);transform:translateY(-2px);box-shadow:0 4px 12px rgba(232,83,122,.18);}
+.bet-btn:disabled{opacity:.4;cursor:not-allowed;}
+.onecard-result{text-align:center;padding:20px;background:white;border-radius:14px;animation:fadeIn .5s ease;}
+.onecard-result.win{background:linear-gradient(135deg,#FFF9C4,#FFE082);border:2px solid #FFD700;}
+.onecard-result.lose{background:linear-gradient(135deg,#FFCDD2,#EF9A9A);border:2px solid #E53935;}
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -1094,7 +1261,7 @@ body::before{
 <body>
 <div id="app"></div>
 
-<script src="app3.js"></script>
+<script src="app4.js"></script>
 
 </body>
 </html>
