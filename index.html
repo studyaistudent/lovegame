@@ -2530,11 +2530,11 @@ if(pct>=50)return"반반이에요! 다른 점이 매력포인트 🌸";
   if(pct>=30)return"조금 달라요... 노력이 필요해 💪";
   return"정반대예요! 신기한 인연 😅";
 }
-function determinePet(mbti,balAnswers){
-  let spicy=0;
-if(balAnswers){if(balAnswers[8]==="A")spicy++;if(balAnswers[16]==="B")spicy++;if(balAnswers[3]==="B")spicy++;}
-  if(spicy>=2)return{e:'😈',n:'악동몬',d:'매운맛 유전자! 뿔 달린 악동 몬스터 계열'};
-  return PET_BY_MBTI[mbti]||{e:'🐾',n:'러브몬',d:'신비로운 인연의 펫'};
+function determinePet(mbti, balAnswers) {
+  // spicy 계산 로직과 악동몬 반환 조건문을 모두 제거했습니다.
+  // 이렇게 하면 항상 MBTI에 따른 펫만 반환됩니다.
+  
+  return PET_BY_MBTI[mbti] || {e:'🐾', n:'러브몬', d:'신비로운 인연의 펫'};
 }
 function getPetEvolution(level, isBred, iconOverride) {
   if (isBred && iconOverride) return { stage: "전설의 훈련사", icon: iconOverride };
