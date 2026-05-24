@@ -57,10 +57,11 @@ body::before{
 .card-gold{background:linear-gradient(135deg,rgba(253,248,230,.95),rgba(255,252,240,.95));border-color:rgba(212,168,83,.3);}
 /* ── Buttons ── */
 .btn{border:1.5px solid var(--border2);border-radius:var(--r-sm);padding:10px 16px;cursor:pointer;font-size:13.5px;font-family:'Noto Sans KR',sans-serif;background:white;color:var(--text1);transition:all .15s;display:inline-flex;align-items:center;justify-content:center;gap:5px;}
-.btn:hover{background:var(--rose-lt);}
-.btn:active{transform:scale(.97);}
+.btn:hover:not(:disabled){background:var(--rose-lt);}
+.btn:active:not(:disabled){transform:scale(.97);}
+.btn:disabled{opacity:0.5;cursor:not-allowed;}
 .btn-primary{background:linear-gradient(135deg,var(--rose),var(--rose2)) !important;color:white !important;border:none !important;font-weight:500;box-shadow:0 3px 12px rgba(232,83,122,.35);}
-.btn-primary:hover{opacity:.88;box-shadow:0 5px 18px rgba(232,83,122,.45);}
+.btn-primary:hover:not(:disabled){opacity:.88;box-shadow:0 5px 18px rgba(232,83,122,.45);}
 .btn-sel{background:linear-gradient(135deg,var(--rose),var(--rose2)) !important;color:white !important;border-color:transparent !important;}
 .btn-plum{background:linear-gradient(135deg,var(--plum),#9C27B0) !important;color:white !important;border:none !important;box-shadow:0 3px 12px rgba(124,63,126,.3);}
 .btn-mint{background:linear-gradient(135deg,var(--mint),#1A9E95) !important;color:white !important;border:none !important;box-shadow:0 3px 12px rgba(46,196,182,.3);}
@@ -335,7 +336,8 @@ body::before{
 .stat-item-row .nm { flex: 1; font-weight: 600; min-width: 0; }
 .stat-item-row .bn { color: var(--mint); font-weight: 700; white-space: nowrap; font-size: 11px; }
 .stat-item-row .enh-badge {
-  display:inline-block; padding:1px 6px; border-radius:99px;
+  display:inline-block;
+  padding:1px 6px; border-radius:99px;
   background:linear-gradient(135deg,var(--rose),var(--rose2));
   color:white; font-size:9.5px; font-weight:700; margin-left:4px;
 }
@@ -996,7 +998,8 @@ body::before{
   font-size: 10px; color: var(--text3); margin-left: auto;
 }
 .guestbook-entry .msg {
-  font-size: 12.5px; color: var(--text1); line-height: 1.55;
+  font-size: 12.5px;
+  color: var(--text1); line-height: 1.55;
 }
 /* ── 선물함 ── */
 .gift-card { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1.5px solid var(--border); border-radius:10px; background:white; margin-bottom:6px; }
@@ -1760,8 +1763,7 @@ body::before{
 .onecard-log::-webkit-scrollbar-thumb{background:rgba(255,255,255,.3);border-radius:99px;}
 .bet-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;}
 .bet-btn{padding:14px;border-radius:12px;border:2px solid var(--border);background:white;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:14px;color:var(--text1);transition:all .15s;}
-.bet-btn:hover{border-color:var(--rose);transform:translateY(-2px);box-shadow:0 4px 12px rgba(232,83,122,.18);}
-.bet-btn:disabled{opacity:.4;cursor:not-allowed;}
+.bet-btn:hover:not(:disabled){border-color:var(--rose);transform:translateY(-2px);box-shadow:0 4px 12px rgba(232,83,122,.18);}
 .onecard-result{text-align:center;padding:20px;background:white;border-radius:14px;animation:fadeIn .5s ease;}
 .onecard-result.win{background:linear-gradient(135deg,#FFF9C4,#FFE082);border:2px solid #FFD700;}
 .onecard-result.lose{background:linear-gradient(135deg,#FFCDD2,#EF9A9A);border:2px solid #E53935;}
