@@ -721,33 +721,37 @@ body::before{
 .ow-action-stack{display:flex;flex-direction:column;gap:8px;align-items:flex-start;}
 .ow-action-stack-r{display:flex;flex-direction:column;gap:8px;align-items:flex-end;}
 
-/* 자동차 운전 컨트롤 */
-.ow-drive-pad{
-  pointer-events:auto;
-  position:absolute;bottom:14px;
-  display:grid;grid-template-columns:60px 60px 60px;grid-template-rows:60px 60px;
-  gap:6px;
+/* 조작부 전체 컨테이너 */
+.ow-drive-pad {
+  position: absolute;
+  bottom: 160px; /* 채팅창 높이만큼 띄움 */
+  left: 20px;
+  display: grid;
+  grid-template-columns: 60px 60px 60px; /* 3열 */
+  grid-template-rows: 60px 60px;       /* 2행 */
+  gap: 8px;                            /* 버튼 간격 */
+  pointer-events: auto;
+  z-index: 100;
 }
-.ow-drive-pad.left{left:14px;}
-.ow-drive-pad.right{right:14px;}
-.ow-drive-btn{
-  background:rgba(255,255,255,.92);color:#1a1a2e;
-  border:none;border-radius:14px;
-  font-size:22px;font-weight:700;
-  display:flex;align-items:center;justify-content:center;
-  user-select:none;-webkit-user-select:none;
-  box-shadow:0 4px 14px rgba(0,0,0,.3);
-  touch-action:none;
-}
-.ow-drive-btn:active,.ow-drive-btn.holding{
-  background:#FFD700;color:#1a1a2e;transform:scale(.94);
-  box-shadow:0 2px 10px rgba(255,215,0,.6);
-}
-.ow-drive-btn.gas{background:#43A047;color:#fff;}
-.ow-drive-btn.gas:active,.ow-drive-btn.gas.holding{background:#1B5E20;}
-.ow-drive-btn.brake{background:#E53935;color:#fff;}
-.ow-drive-btn.brake:active,.ow-drive-btn.brake.holding{background:#B71C1C;}
 
+/* 버튼 공통 스타일 */
+.ow-drive-btn {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  touch-action: manipulation;
+}
+
+/* 가속/브레이크 색상 구분 (원한다면 추가) */
+.ow-drive-btn.gas { background: rgba(76, 175, 80, 0.9); color: white; }
+.ow-drive-btn.brake { background: rgba(244, 67, 54, 0.9); color: white; }
 /* 채팅 입력바 */
 .ow-chat-bar{
   pointer-events:auto;
@@ -1199,10 +1203,147 @@ body::before{
   display:flex;align-items:center;justify-content:center;
   z-index:10500;padding:14px;
 }
+/* ═══ PVP 결과 오버레이 — 풀버전 디자인 ═══ */
+.pvp-result-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  background: radial-gradient(ellipse at center, rgba(124,77,255,0.25), rgba(10,5,25,0.85) 70%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: pvpResultFadeIn 0.45s ease;
+  padding: 24px;
+  gap: 6px;
+}
+
+@keyframes pvpResultFadeIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* 🏆 / 💀 아이콘 (텍스트 위에 자동 출력) */
+.pvp-result-overlay::before {
+  font-size: 80px;
+  line-height: 1;
+  margin-bottom: 4px;
+  animation: pvpIconBounce 1.2s cubic-bezier(0.34,1.56,0.64,1) infinite alternate;
+  filter: drop-shadow(0 6px 16px rgba(0,0,0,0.4));
+}
+.pvp-result-overlay:has(.pvp-result-text.win)::before  { content: '🏆'; }
+.pvp-result-overlay:has(.pvp-result-text.lose)::before { content: '💀'; }
+
+@keyframes pvpIconBounce {
+  0%   { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-8px) scale(1.06); }
+}
+
+/* VICTORY / DEFEAT 큰 글씨 */
+.pvp-result-text {
+  font-family: 'Playfair Display','Noto Sans KR',serif;
+  font-size: 60px;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  margin: 0;
+  line-height: 1.1;
+  animation: pvpResultPop 0.7s cubic-bezier(0.34,1.56,0.64,1);
+}
+
+@keyframes pvpResultPop {
+  0%   { transform: scale(0.3) rotate(-8deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1.0) rotate(0);    opacity: 1; }
+}
+
+.pvp-result-text.win {
+  background: linear-gradient(135deg,#FFE57F 0%,#FFD700 35%,#FFA000 65%,#FF6F00 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 28px rgba(255,215,0,0.65));
+}
+.pvp-result-text.lose {
+  background: linear-gradient(135deg,#FF5252 0%,#E53935 50%,#7C2929 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 28px rgba(229,57,53,0.55));
+}
+
+/* 포인트 변동 박스 (글래스모피즘) */
+.pvp-points-display {
+  margin-top: 18px;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #E5E5E5;
+  letter-spacing: 0.02em;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 16px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: inline-flex; align-items: center; gap: 12px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08);
+  animation: pvpResultSlideUp 0.55s ease 0.4s both;
+}
+
+@keyframes pvpResultSlideUp {
+  0%   { transform: translateY(24px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.pvp-points-value {
+  font-family: 'Playfair Display',monospace;
+  font-weight: 800;
+  font-size: 30px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+.pvp-points-value.win  {
+  color: #69F0AE;
+  text-shadow: 0 0 12px rgba(105,240,174,0.65), 0 0 24px rgba(105,240,174,0.35);
+}
+.pvp-points-value.lose {
+  color: #FF6E6E;
+  text-shadow: 0 0 12px rgba(255,82,82,0.65), 0 0 24px rgba(255,82,82,0.35);
+}
+
+/* 확인 버튼 — 그라데이션 + 호버 효과 */
+.pvp-result-overlay button {
+  width: 180px;
+  padding: 14px 24px;
+  border: none;
+  border-radius: 14px;
+  font-family: 'Noto Sans KR',sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(135deg,#7C4DFF 0%,#E040FB 50%,#FF4081 100%);
+  box-shadow: 0 8px 28px rgba(124,77,255,0.55),
+              inset 0 1px 0 rgba(255,255,255,0.28);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  margin-top: 20px;
+  animation: pvpResultSlideUp 0.55s ease 0.65s both;
+}
+.pvp-result-overlay button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 12px 36px rgba(124,77,255,0.75),
+              inset 0 1px 0 rgba(255,255,255,0.35);
+}
+.pvp-result-overlay button:active {
+  transform: translateY(0);
+  filter: brightness(0.95);
+}
 .pvp-modal-content{
   background:linear-gradient(180deg,#0d0d1a 0%,#2d1b3d 100%);
   color:#fff;border-radius:18px;
   width:100%;max-width:480px;max-height:96vh;
+  position: relative;
   overflow:hidden;display:flex;flex-direction:column;
   box-shadow:0 22px 60px rgba(0,0,0,.7);
   border:1.5px solid rgba(255,215,0,.25);
@@ -2767,6 +2908,41 @@ body::before{
 .onecard-result{text-align:center;padding:20px;background:white;border-radius:14px;animation:fadeIn .5s ease;}
 .onecard-result.win{background:linear-gradient(135deg,#FFF9C4,#FFE082);border:2px solid #FFD700;}
 .onecard-result.lose{background:linear-gradient(135deg,#FFCDD2,#EF9A9A);border:2px solid #E53935;}
+/* ✅ 오픈월드 검은화면/사이즈 0 방지 패치 */
+body.ow-mode{
+  overflow:hidden !important;
+  background:#000 !important;
+}
+
+body.ow-mode #app{
+  max-width:none !important;
+  width:100vw !important;
+  height:100dvh !important;
+  margin:0 !important;
+  padding:0 !important;
+}
+
+#ow-root{
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  z-index:9999 !important;
+  background:#000 !important;
+  overflow:hidden !important;
+}
+
+#ow-canvas{
+  position:absolute !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  display:block !important;
+  background:#111 !important;
+}
+
+
+
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
