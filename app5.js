@@ -1788,6 +1788,27 @@ function determinePet(mbti, balAnswers) {
   
   return PET_BY_MBTI[mbti] || {e:'🐾', n:'러브몬', d:'신비로운 인연의 펫'};
 }
+// 레벨업 로직 체크 함수
+function checkLevelUp(pet) {
+  let hasLeveledUp = false;
+  
+  // 현재 레벨에 필요한 경험치 계산 (함수가 이미 존재한다고 가정)
+  let reqXp = XP_PER_LV(pet.level || 1);
+
+  // 경험치가 필요한 경험치보다 많으면 루프를 돌며 레벨업
+  while ((pet.xp || 0) >= reqXp) {
+    pet.xp -= reqXp; // 현재 경험치에서 필요 경험치 차감
+    pet.level = (pet.level || 1) + 1; // 레벨 1 증가
+    hasLeveledUp = true;
+    
+    // 다음 레벨에 필요한 경험치로 갱신 (반복 체크를 위해)
+    reqXp = XP_PER_LV(pet.level);
+  }
+
+  return hasLeveledUp; // 레벨업을 했는지 여부 반환
+}
+
+
 function getPetEvolution(level, isBred, iconOverride) {
   if (isBred && iconOverride) return { stage: "전설의 훈련사", icon: iconOverride };
 if (level < 5) return { stage: "유아기", icon: "🌱 (유아기)" };
@@ -3919,29 +3940,43 @@ async function checkAndLevelUp(nick){
     const data=snap.data();
     let lv=data.level||1;
     let xp=data.xp||0;
-    let leveled=false;
-let levelsGained=0;
+    let levelsGained=0; // 레벨업 횟수 체크용
+
     /* ★ 안전장치: 이미 MAX_LV 초과 시 강제 캡 */
-    if(lv>MAX_LV){
-      await petCol.doc(nick).update({level:MAX_LV,xp:0});
-if(S.myPet?.nick===nick){S.myPet.level=MAX_LV;S.myPet.xp=0;}
+    if(lv > MAX_LV){
+      await petCol.doc(nick).update({level:MAX_LV, xp:0});
+      if(S.myPet?.nick===nick){S.myPet.level=MAX_LV; S.myPet.xp=0;}
       return;
     }
-    while(xp>=XP_PER_LV(lv) && lv<MAX_LV){
-      lv++;xp-=XP_PER_LV(lv);leveled=true;levelsGained++;
-}
+
+    // 레벨업 계산
+    while (xp >= XP_PER_LV(lv) && lv < MAX_LV) {
+      xp -= XP_PER_LV(lv);
+      lv++;
+      levelsGained++; // 레벨업할 때마다 1씩 증가
+    }
+
     /* ★ 안전장치: while 이후에도 캡 보장 */
-    lv=Math.min(lv,MAX_LV);
-if(leveled){
+    lv=Math.min(lv, MAX_LV);
+
+    // [수정 포인트] levelsGained가 0보다 크면, 즉 레벨업이 발생했다면 저장!
+    if(levelsGained > 0){
       await petCol.doc(nick).update({level:lv, xp:xp});
-      if(S.myPet?.nick===nick){S.myPet.level=lv;S.myPet.xp=xp;}
+      
+      // 화면 상태 업데이트
+      if(S.myPet?.nick===nick){
+        S.myPet.level=lv;
+        S.myPet.xp=xp;
+      }
+      
+      // 내 펫일 경우에만 알림
       if(S.myEntry?.nick===nick){
         alert(
           `🎉 레벨 업! Lv.${lv} 달성!`+
           (levelsGained>1?` (${levelsGained}단계 연속 상승! 🔥)`:"")+
           (lv===99?"\n✨ 성체 달성!":"")
         );
-}
+      }
     }
   }catch(e){console.error(e);}
 }
@@ -4173,10 +4208,13 @@ try{
     await petCol.doc(myNick).update({points:INC(-cost)});
     S.myPet.points=(S.myPet.points||0)-cost;
 /* 아기 XP 추가 + 레벨업 체크 */
-    let newXp=(baby.babyXp||0)+xp;
-    let newLevel=baby.babyLevel||1;
-    let leveledUp=false;
-while(newXp>=XP_PER_LV(lv)&&newLevel<MAX_LV){newLevel++;newXp-=XP_PER_LV(lv);leveledUp=true;}
+let newLevel = baby.babyLevel || 1;
+let leveledUp = false;
+while (newXp >= XP_PER_LV(newLevel) && newLevel < MAX_LV) {
+  newXp -= XP_PER_LV(newLevel);
+  newLevel++;
+  leveledUp = true;
+}
     /* 먹이 기록 (최근 30개) */
     const feedLog=baby.feedLog||[];
     feedLog.push({nick:shortNick(myNick),xp,time:Date.now()});
@@ -4207,10 +4245,13 @@ try{
     /* 포인트 차감 */
     await petCol.doc(myNick).update({points:INC(-act.cost)});
     S.myPet.points=(S.myPet.points||0)-act.cost;
-    let newXp=(baby.babyXp||0)+(act.xp||0);
-    let newLv=baby.babyLevel||1;
-    let leveled=false;
-while(newXp>=XP_PER_LV(lv)&&newLv<MAX_LV){newLv++;newXp-=XP_PER_LV(lv);leveled=true;}
+let newLv = baby.babyLevel || 1;
+let leveled = false;
+while (newXp >= XP_PER_LV(newLv) && newLv < MAX_LV) {
+  newXp -= XP_PER_LV(newLv);
+  newLv++;
+  leveled = true;
+}
     const babyUpdate={babyXp:newXp,babyLevel:newLv};
     let resultMsg=`${act.emoji} ${act.label} 완료!${act.xp?` XP +${act.xp}`:''}`;
 /* 타입별 추가 효과 */
@@ -4620,24 +4661,33 @@ async function finalizeDungeon(won){
   __pendingDungeonViz = visualEvents;
   render();
 }
-async function finalizeDungeon(won){
-  const ds=S.dungeonState;
-  const myNick=S.myEntry?.nick;
-  if(!myNick||!S.myPet)return;
-  /* ★ 배틀씬 정리 */
-  if(__battleScene){ try{ __battleScene.dispose(); }catch(e){} __battleScene = null; }
-  try{
-    if(won){
-      let newXp=(S.myPet.xp||0)+ds.totalXp;
-      let newLv=S.myPet.level||1;
-      let leveled=false;
-      while(newXp>=XP_PER_LV(lv)&&newLv<MAX_LV){newLv++;newXp-=XP_PER_LV(lv);leveled=true;}
-      const kills={...(S.myPet.dungeonKills||{})};
-      const floorNum=ds.floorIdx+1;
-      kills[floorNum]=true;
-      const now=Date.now();
+async function finalizeDungeon(won) {
+  const ds = S.dungeonState;
+  const myNick = S.myEntry?.nick;
+  if (!myNick || !S.myPet) return;
+  
+  if (__battleScene) { try { __battleScene.dispose(); } catch (e) { } __battleScene = null; }
+  
+  try {
+    if (won) {
+      let newXp = (S.myPet.xp || 0) + ds.totalXp;
+      let newLv = S.myPet.level || 1;
+      let leveled = false;
+      
+      // ★ 1. lv -> newLv로 수정
+      while (newXp >= XP_PER_LV(newLv) && newLv < MAX_LV) { 
+        newXp -= XP_PER_LV(newLv); 
+        newLv++; 
+        leveled = true; 
+      }
+      
+      const kills = { ...(S.myPet.dungeonKills || {}) };
+      const floorNum = ds.floorIdx + 1;
+      kills[floorNum] = true;
+      
       const newBattleCount = (S.myPet.dungeonBattleCount || 0) + 1;
-      const triggerCooldown = newBattleCount >= 10; // 10판 완료 여부 확인
+      const triggerCooldown = newBattleCount >= 10;
+      
       const dbUpdate = {
         xp: newXp,
         level: newLv,
@@ -4646,90 +4696,80 @@ async function finalizeDungeon(won){
         currentMp: ds.playerMp,
         currentSp: ds.playerSp,
         inventory: ds.inventory,
-        dungeonBattleCount: triggerCooldown ? 0 : newBattleCount, // 10판이면 0, 아니면 증가
+        dungeonBattleCount: triggerCooldown ? 0 : newBattleCount,
         dungeonKills: kills
       };
-      S.myPet.dungeonBattleCount=triggerCooldown?0:newBattleCount;
+      
+      // ★ 2. 쿨타임 초기화 위치 수정 (블록 안으로 이동)
       if (triggerCooldown) {
         const now = Date.now();
         dbUpdate.dungeonCooldownStart = now;
         S.myPet.dungeonCooldownStart = now;
       }
-      S.myPet.dungeonKills=kills;
-      S.myPet.dungeonCooldownStart=now;
-     await petCol.doc(myNick).update(dbUpdate);
+      
+      S.myPet.dungeonKills = kills;
+      await petCol.doc(myNick).update(dbUpdate);
       S.myPet = { ...S.myPet, ...dbUpdate, points: (S.myPet.points || 0) + ds.totalPts };
-      const battleCount=S.myPet.dungeonBattleCount||0;
-      const remainBattles=triggerCooldown?0:(10-battleCount);
-      alert(`🏆 전투 승리!\n획득: XP +${ds.totalXp} · 포인트 +${ds.totalPts}${leveled?`\n🎉 레벨업! Lv.${newLv} 달성!`:''}${triggerCooldown?'\n\n⏳ 10전 완료! 3시간 쿨타임 시작!':`\n\n⚔️ 이번 라운드 ${battleCount}전/${10}전 (${remainBattles}전 더 하면 쿨타임)`}`);
-      onQuestEvent('dungeon',1);
-    }else {
-      // 1. 패배 페널티
+      
+      const battleCount = S.myPet.dungeonBattleCount || 0;
+      const remainBattles = triggerCooldown ? 0 : (10 - battleCount);
+      
+      alert(`🏆 전투 승리!\n획득: XP +${ds.totalXp} · 포인트 +${ds.totalPts}${leveled ? `\n🎉 레벨업! Lv.${newLv} 달성!` : ''}${triggerCooldown ? '\n\n⏳ 10전 완료! 3시간 쿨타임 시작!' : `\n\n⚔️ 이번 라운드 ${battleCount}전/${10}전 (${remainBattles}전 더 하면 쿨타임)`}`);
+      onQuestEvent('dungeon', 1);
+    } else {
+      // (패배 로직은 동일)
       const penaltyXp = Math.min(100, S.myPet.xp || 0);
       const newXp = Math.max(0, (S.myPet.xp || 0) - penaltyXp);
       const newPoints = Math.max(0, (S.myPet.points || 0) - 1000);
-
-      // 2. DB 업데이트 (카운트 초기화 0 추가)
+      
       await petCol.doc(myNick).update({
         xp: newXp,
-        points: INC(-1000), // 기존 사용하던 INC 함수 유지
-        currentHp: 1,
-        currentMp: ds.playerMp,
-        currentSp: ds.playerSp,
-        dungeonBattleCount: 0 // 패배 시 10연전 카운트 초기화
-      });
-
-      // 3. 로컬 상태 업데이트
-      S.myPet = {
-        ...S.myPet,
-        xp: newXp,
-        points: newPoints,
+        points: INC(-1000),
         currentHp: 1,
         currentMp: ds.playerMp,
         currentSp: ds.playerSp,
         dungeonBattleCount: 0
-      };
+      });
       
-      alert(`💀 전투 패배...\n페널티: XP -${penaltyXp} · 포인트 -1000\nHP 1로 부활했어요. 물약을 사용해 회복하세요!`);
+      S.myPet = { ...S.myPet, xp: newXp, points: newPoints, currentHp: 1, currentMp: ds.playerMp, currentSp: ds.playerSp, dungeonBattleCount: 0 };
+      alert(`💀 전투 패배...\n페널티: XP -${penaltyXp} · 포인트 -1000\nHP 1로 부활했어요.`);
     }
   } catch (e) {
     console.error("던전 종료 에러:", e);
   } finally {
-    // 4. 상태 정리
     S.dungeonState = null;
     render();
   }
 }
-async function restoreHpMp(){
-  /* 던전 밖에서 시간 경과 회복 (버튼으로 요청) */
-  const myNick=S.myEntry?.nick;
-  if(!myNick||!S.myPet)return;
-  const scaled=getEquippedStats(S.myPet); /* 장비 스탯 반영 */
-if (!confirm("HP/MP/SP를 최대치로 회복합니다. (5000P 소모)")) return;
-if ((S.myPet.points || 0) < 5000) { 
-    alert("포인트가 부족합니다! (5000P 필요)"); 
-    return; 
-}
-
-// 1. DB 업데이트: INC(-500) -> INC(-5000) 수정
-await petCol.doc(myNick).update({
+async function restoreHpMp() {
+  const myNick = S.myEntry?.nick;
+  if (!myNick || !S.myPet) return;
+  const scaled = getEquippedStats(S.myPet);
+  
+  if (!confirm("HP/MP/SP를 최대치로 회복합니다. (5000P 소모)")) return;
+  if ((S.myPet.points || 0) < 5000) {
+    alert("포인트가 부족합니다! (5000P 필요)");
+    return;
+  }
+  
+  await petCol.doc(myNick).update({
     currentHp: scaled.maxHp,
     currentMp: scaled.maxMp,
     currentSp: 100,
-    points: INC(-5000) 
-});
-
-// 2. 로컬 상태 업데이트
-S.myPet = {
+    points: INC(-5000)
+  });
+  
+  S.myPet = {
     ...S.myPet,
     currentHp: scaled.maxHp,
     currentMp: scaled.maxMp,
     currentSp: 100,
     points: (S.myPet.points || 0) - 5000
-};
-
-alert("✅ HP/MP/SP 완전 회복! (-5000P)");
-render();
+  };
+  
+  alert("✅ HP/MP/SP 완전 회복! (-5000P)");
+  render();
+} // ★ 3. 닫는 괄호 추가!
 /* ═══════════════════════════════════════
    🔥 환생 시스템
 ═══════════════════════════════════════ */
@@ -12070,6 +12110,7 @@ function _legacy_getHTML(){
 /* ─── HOME VIEW ─── */
 function rHome(){
   const myPet=S.myPet;
+  const lv = myPet.level || 1;
   return `<div style="max-width:480px;margin:0 auto;padding:.5rem 0" class="fadein">
     <div style="text-align:center;padding:1.5rem 0 1rem">
       <div style="font-size:52px;margin-bottom:6px" class="float">💕</div>
@@ -12691,9 +12732,11 @@ function rLovemonTab(){
       <button class="btn btn-mint" style="padding:10px 22px" data-a="lm_createPet">🐾 펫 생성하기</button>
     </div>`;
   }
-  const lvPct=Math.min(100,Math.round(((myPet.xp||0)/XP_PER_LV(lv))*100));
+const currentLv = myPet.level || 1; // 펫 레벨을 가져오고 없으면 1로 설정
+const lvPct = Math.min(100, Math.round(((myPet.xp || 0) / XP_PER_LV(currentLv)) * 100));
   const incomingReqs=S.breedRequests.filter(r=>r.to===myNick&&r.status==='pending');
   const outgoingReqs=S.breedRequests.filter(r=>r.from===myNick&&r.status==='pending');
+  const lv = myPet.level || 1;
   const evoInfo=getPetEvolution(myPet.level, myPet.isBred, myPet.petEmoji);
   /* ─ 내 펫 카드 ─ */
   const myPetHTML=`
@@ -12818,7 +12861,7 @@ function rLovemonTab(){
         const myAff=myPet.affectionMap?.[p.nick]||0;
         const canBreedFull=canBreed&&myAff>=BREED_AFFECTION;
         const alreadyReq=S.breedRequests.some(r=>r.from===myNick&&r.to===p.nick&&r.status==='pending');
-        const pLvPct=Math.min(100,Math.round(((p.xp||0)/XP_PER_LV(lv))*100));
+        const pLvPct = Math.min(100, Math.round(((p.xp || 0) / XP_PER_LV(p.level || 1)) * 100));
         return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
           <div style="font-size:34px;flex-shrink:0">${getVisualEmoji(p)}</div>
           <div style="flex:1;min-width:0">
@@ -13728,7 +13771,7 @@ function rHatchedBabyUI(baby, myNick){
   const rc=rarityColors[baby.rarity]||'#9E9E9E';
   const babyLevel=baby.babyLevel||1;
   const babyXp=baby.babyXp||0;
-  const xpPct=Math.min(100,Math.round((babyXp/XP_PER_LV(lv))*100));
+  const xpPct = Math.min(100, Math.round((babyXp / XP_PER_LV(babyLevel)) * 100));
   const partnerNick=baby.parent1Nick===myNick?baby.parent2Nick:baby.parent1Nick;
   const myPoints=S.myPet?.points||0;
   const recentLog=(baby.feedLog||[]).slice(-5).reverse();
@@ -13746,7 +13789,7 @@ function rHatchedBabyUI(baby, myNick){
     <div style="font-size:20px;font-weight:700;color:var(--rose2);margin-bottom:4px">${esc(baby.babyName||'아기몬')}</div>
     <div style="display:inline-block;background:${rc};color:white;padding:2px 14px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:12px">✨ ${baby.rarity||'일반'}</div>
     <div style="margin:0 0 12px">
-      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text3);margin-bottom:4px"><span>XP</span><span>${babyXp}/${XP_PER_LV(lv)}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text3);margin-bottom:4px"><span>XP</span><span>${babyXp}/${XP_PER_LV(babyLevel)}</span></div>
       <div class="lm-xp-bar"><div class="lm-xp-fill" style="width:${xpPct}%"></div></div>
     </div>
     <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:10px;background:rgba(255,255,255,.6);border-radius:10px;margin-bottom:12px">
@@ -15908,14 +15951,14 @@ function attachEvents(){
       }
       /* ★ 던전 킬 초기화 */
       else if(a==="lm_resetDungeonKills"){
-        if(confirm("이번 라운드 클리어 기록을 초기화하겠습니까?")){{
+        if(confirm("이번 라운드 클리어 기록을 초기화하겠습니까?")) { // <--- { 하나로 수정
           const myNick=S.myEntry?.nick;
           if(myNick){
             petCol.doc(myNick).update({dungeonKills:{}}).catch(()=>{});
             if(S.myPet)S.myPet.dungeonKills={};
             render();
           }
-        }}
+        }
       }
       /* ★ 던전 진입: 층 선택 */
       else if(a==="lm_selectFloor"){
