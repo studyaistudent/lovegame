@@ -2326,7 +2326,7 @@ S.screen="dating_result"; render(); upsertDating(entry);
 }
 function login(){
   const pw=(document.getElementById("pwI")||{}).value||"";
-  if(pw==="0515"){S.isAdmin=true;S.pwErr="";} else S.pwErr="비밀번호가 틀렸습니다.";
+  if(pw==="2742"){S.isAdmin=true;S.pwErr="";} else S.pwErr="비밀번호가 틀렸습니다.";
   render();
 }
 
