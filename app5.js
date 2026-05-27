@@ -1653,7 +1653,7 @@ const DUNGEON_ALL_FLOORS=[1,2,3,4,5,6,7,8,9,10];
 ═══════════════════════════════════════ */
 let S={
   screen:"home",
-  nick:"",area:"",pin:"",gender:"",height:"",freeTime:"",idealType:"",appeal:"",giDol:"",
+  nick:"",pin:"",gender:"",
   err:"",answers:{},qIdx:0,myEntry:null,entries:[],
   balAnswers:{},balIdx:0,myBalEntry:null,balEntries:[],
   datAnswers:{},datIdx:0,myDatEntry:null,datEntries:[],
@@ -12019,7 +12019,7 @@ function rHome(){
   return `<div style="max-width:480px;margin:0 auto;padding:.5rem 0" class="fadein">
     <div style="text-align:center;padding:1.5rem 0 1rem">
       <div style="font-size:52px;margin-bottom:6px" class="float">💕</div>
-      <h1 class="title-deco" style="font-size:26px;color:var(--rose2);margin-bottom:4px">💕 너를 담아 미니게임</h1>
+      <h1 class="title-deco" style="font-size:26px;color:var(--rose2);margin-bottom:4px">러브몬 미니게임</h1>
       <p style="font-size:12.5px;color:var(--text3)">MBTI · 밸런스 · 연애성향 · 펫 육성 · 퀴즈</p>
     </div>
     ${myPet?`<div class="card card-gold" style="margin-bottom:10px;display:flex;align-items:center;gap:14px">
@@ -12042,18 +12042,6 @@ function rHome(){
         <input id="pinI" type="password" class="inp" value="${esc(S.pin)}" placeholder="비밀번호 4자리" maxlength="4">
         <button class="btn btn-plum" style="padding:0 14px;font-size:12px;flex-shrink:0" data-a="loadMyInfo">🔓 불러오기</button>
       </div>
-      <label style="font-size:11.5px;color:var(--text2);display:block;margin-bottom:3px">지역</label>
-      <input id="areaI" class="inp" style="margin-bottom:9px" value="${esc(S.area)}" placeholder="예: 서울 강남구">
-      <label style="font-size:11.5px;color:var(--text2);display:block;margin-bottom:3px">키</label>
-      <input id="heightI" class="inp" style="margin-bottom:9px" value="${esc(S.height)}" placeholder="예: 175cm">
-      <label style="font-size:11.5px;color:var(--text2);display:block;margin-bottom:3px">낮/밤 프리</label>
-      <input id="freeI" class="inp" style="margin-bottom:9px" value="${esc(S.freeTime)}" placeholder="예: 평일 저녁 프리 / 주말 올프리">
-      <label style="font-size:11.5px;color:var(--text2);display:block;margin-bottom:3px">썸상 (이상형)</label>
-      <input id="idealI" class="inp" style="margin-bottom:9px" value="${esc(S.idealType)}" placeholder="예: 예의 바르고 대화 잘 통하는 사람">
-      <label style="font-size:11.5px;color:var(--text2);display:block;margin-bottom:3px">어필</label>
-      <input id="appealI" class="inp" style="margin-bottom:9px" value="${esc(S.appeal)}" placeholder="예: 리액션이 좋고 맛집 투어 좋아합니다">
-      <label style="font-size:11.5px;color:var(--text2);display:block;margin-bottom:3px">미/기/돌</label>
-      <input id="gidolI" class="inp" style="margin-bottom:12px" value="${esc(S.giDol)}" placeholder="예: 미혼 / 기혼 / 돌싱">
       <label style="font-size:11.5px;color:var(--text2);display:block;margin-bottom:6px">성별</label>
       <div style="display:flex;gap:8px">
         <button class="btn ${S.gender==="남성"?"btn-sel":""}" style="flex:1;padding:11px" data-a="gender" data-v="남성">👨 남성</button>
@@ -12105,7 +12093,7 @@ function rMBTITest(){
 function rResult(){
   if(!S.myEntry)return rHome();
   const e=S.myEntry;const info=MI[e.mbti]||{n:"",d:""};
-    const shareText=`🍀닉네임: ${e.nick}\n🍀지역: ${e.area||"-"}\n🍀키: ${e.height||"-"}\n🍀낮/밤 프리: ${e.freeTime||"-"}\n🍀썸상: ${e.idealType||"-"}\n🍀어필: ${e.appeal||"-"}\n🍀미/기/돌: ${e.giDol||"-"}\n🍀MBTI: ${e.mbti} (${info.n})`;
+    const shareText=`🍀닉네임: ${e.nick}\n🍀MBTI: ${e.mbti} (${info.n})`;
   const myPet=S.myPet;
   return `<div style="max-width:480px;margin:0 auto;padding:.5rem 0" class="fadein">
     <div class="card card-rose" style="text-align:center;margin-bottom:12px">
@@ -12592,13 +12580,6 @@ function rAdminTab(){
       return `<div class="card" style="margin-bottom:7px;display:flex;flex-direction:column;gap:6px;border:1.5px solid var(--rose);">
         <div style="font-size:12px;font-weight:bold;color:var(--rose2);margin-bottom:4px;">✏️ 정보 수정</div>
         <input id="edit_nick_${e.id}" class="inp" value="${esc(e.nick)}" placeholder="닉네임">
-        <input id="edit_area_${e.id}" class="inp" value="${esc(e.area||'')}" placeholder="지역">
-        <input id="edit_gender_${e.id}" class="inp" value="${esc(e.gender||'')}" placeholder="성별(남성/여성)">
-        <input id="edit_height_${e.id}" class="inp" value="${esc(e.height||'')}" placeholder="키">
-        <input id="edit_freeTime_${e.id}" class="inp" value="${esc(e.freeTime||'')}" placeholder="프리타임">
-        <input id="edit_idealType_${e.id}" class="inp" value="${esc(e.idealType||'')}" placeholder="이상형">
-        <input id="edit_appeal_${e.id}" class="inp" value="${esc(e.appeal||'')}" placeholder="어필">
-        <input id="edit_giDol_${e.id}" class="inp" value="${esc(e.giDol||'')}" placeholder="미/기/돌">
         <input id="edit_mbti_${e.id}" class="inp" value="${esc(e.mbti||'')}" placeholder="MBTI">
         <input id="edit_pin_${e.id}" class="inp" value="${esc(e.pin||'')}" placeholder="PIN(비밀번호)">
         <div style="display:flex;gap:6px;margin-top:4px;">
