@@ -1132,55 +1132,55 @@ const CM_WORDS = [
 ];
 /* ★ 러브몬 마켓 아이템 (수정됨) */
 const MARKET_ITEMS=[
-  {id:'feed_basic',  name:'기본 사료',   emoji:'🌾', cost:100,  xp:30,  desc:'XP +30, 기본 성장'},
-  {id:'feed_dopamine',name:'도파민 특식',emoji:'🍗', cost:500,  xp:250,  desc:'XP +250, 댄스 이펙트!'},
-  {id:'love_crystal',name:'진화의 결정', emoji:'💎', cost:2000, xp:1500, desc:'XP +1500 대폭 상승!'},
+  {id:'feed_basic',  name:'기본 사료',   emoji:'🌾', cost:1000,  xp:30,  desc:'XP +30, 기본 성장'},
+  {id:'feed_dopamine',name:'도파민 특식',emoji:'🍗', cost:5000,  xp:250,  desc:'XP +250, 댄스 이펙트!'},
+  {id:'love_crystal',name:'진화의 결정', emoji:'💎', cost:20000, xp:1500, desc:'XP +1500 대폭 상승!'},
 ];
 /* ── 2세 육아 케어 아이템 ── */
 const BABY_CARE_ITEMS=[
-  {type:'sing',  label:'노래 들려주기', emoji:'🎵', cost:300,  reductionMins:120, desc:'-2시간 / 300P'},
-  {type:'temp',  label:'온도 조절하기', emoji:'🌡️', cost:500,  reductionMins:240, desc:'-4시간 / 500P'},
-  {type:'story', label:'태교 동화 읽기',emoji:'📖', cost:800,  reductionMins:360, desc:'-6시간 / 800P'},
-  {type:'massage',label:'마사지 해주기',emoji:'💆', cost:1500, reductionMins:720, desc:'-12시간 / 1500P'},
+  {type:'sing',  label:'노래 들려주기', emoji:'🎵', cost:3000,  reductionMins:120, desc:'-2시간 / 300P'},
+  {type:'temp',  label:'온도 조절하기', emoji:'🌡️', cost:5000,  reductionMins:240, desc:'-4시간 / 500P'},
+  {type:'story', label:'태교 동화 읽기',emoji:'📖', cost:8000,  reductionMins:360, desc:'-6시간 / 800P'},
+  {type:'massage',label:'마사지 해주기',emoji:'💆', cost:15000, reductionMins:720, desc:'-12시간 / 1500P'},
 ];
-const XP_PER_LV=500;
-const MAX_LV=999;
+const XP_PER_LV(lv) = (level) => 500 + (level - 1) * 100;
+const MAX_LV=100;
 const BREED_LV=15;
 const BREED_AFFECTION=100;
 /* ── 던전 / 배틀 상수 ── */
 const ATK_SKILLS=[
   {id:'basic', name:'기본 공격',       emoji:'⚔️',  mp:0,  dmgMult:1.0, desc:'기본 타격 (MP 소모 없음)'},
-  {id:'power', name:'파워 스트라이크', emoji:'💥',  mp:20, dmgMult:2.0, desc:'강력한 일격 · MP -20'},
-  {id:'magic', name:'마법 폭발',       emoji:'✨',  mp:25, dmgMult:2.3, desc:'마법 타격 · MP -25'},
-  {id:'crit',  name:'크리티컬 히트',   emoji:'🗡️',  mp:50, dmgMult:3.0, desc:'치명타 확정 · MP -50'},
+  {id:'power', name:'파워 스트라이크', emoji:'💥',  mp:50, dmgMult:2.0, desc:'강력한 일격 · MP -50'},
+  {id:'magic', name:'마법 폭발',       emoji:'✨',  mp:100, dmgMult:2.5, desc:'마법 타격 · MP -100'},
+  {id:'crit',  name:'크리티컬 히트',   emoji:'🗡️',  mp:200, dmgMult:3.0, desc:'치명타 확정 · MP -200'},
 ];
 const DEF_SKILLS=[
-  {id:'guard', name:'철벽 가드',    emoji:'🛡️',  mp:15, defMult:2.5, desc:'방어력 2.5배 (이번 턴) · MP -15'},
+  {id:'guard', name:'철벽 가드',    emoji:'🛡️',  mp:20, defMult:2.5, desc:'방어력 2.5배 (이번 턴) · MP -15'},
   {id:'dodge', name:'회피 강화',    emoji:'💨',  mp:20, evaMult:2.0, desc:'회피율 2배 (이번 턴) · MP -20'},
-  {id:'heal',  name:'자가 치유',    emoji:'💚',  mp:30, healPct:0.22, desc:'HP 22% 회복 · MP -30'},
+  {id:'heal',  name:'자가 치유',    emoji:'💚',  mp:30, healPct:0.10, desc:'HP 20% 회복 · MP -30'},
 ];
 const POTION_ITEMS=[
-  {id:'hp_sm',  name:'HP 소형 물약',  emoji:'🧪', cost:200,  hp:50,   desc:'HP +50 즉시 회복'},
-  {id:'hp_lg',  name:'HP 대형 물약',  emoji:'🫙', cost:500,  hp:150,  desc:'HP +150 즉시 회복'},
-  {id:'mp_sm',  name:'MP 소형 물약',  emoji:'💧', cost:150,  mp:30,   desc:'MP +30 즉시 회복'},
-  {id:'mp_lg',  name:'MP 대형 물약',  emoji:'🌊', cost:400,  mp:100,  desc:'MP +100 즉시 회복'},
+  {id:'hp_sm',  name:'HP 소형 물약',  emoji:'🧪', cost:2000,  hp:100,   desc:'HP +100 즉시 회복'},
+  {id:'hp_lg',  name:'HP 대형 물약',  emoji:'🫙', cost:5000,  hp:300,  desc:'HP +300 즉시 회복'},
+  {id:'mp_sm',  name:'MP 소형 물약',  emoji:'💧', cost:1500,  mp:50,   desc:'MP +50 즉시 회복'},
+  {id:'mp_lg',  name:'MP 대형 물약',  emoji:'🌊', cost:4000,  mp:200,  desc:'MP +200 즉시 회복'},
 ];
 /* ★ 2세 육아 추가 액티비티 (부화 후) */
 const BABY_ACTIVITIES=[
-  {id:'bath',   label:'목욕시키기',   emoji:'🛁', cost:400,  xp:80,  type:'xp',   desc:'XP +80 · 청결 UP'},
-  {id:'nap',    label:'낮잠 재우기',  emoji:'😴', cost:600,  xp:50,  type:'hp',   val:10, desc:'최대HP +10 영구 · XP +50'},
-  {id:'toy',    label:'장난감 놀이',  emoji:'🧸', cost:800,  xp:150, type:'xp',   desc:'XP +150 · 친밀도 UP'},
-  {id:'walk',   label:'바깥 산책',    emoji:'🌳', cost:300,  xp:50,  type:'drop',  desc:'XP +50 · 랜덤 포인트 드롭'},
+  {id:'bath',   label:'목욕시키기',   emoji:'🛁', cost:4000,  xp:80,  type:'xp',   desc:'XP +80 · 청결 UP'},
+  {id:'nap',    label:'낮잠 재우기',  emoji:'😴', cost:6000,  xp:50,  type:'hp',   val:10, desc:'최대HP +10 영구 · XP +50'},
+  {id:'toy',    label:'장난감 놀이',  emoji:'🧸', cost:8000,  xp:150, type:'xp',   desc:'XP +150 · 친밀도 UP'},
+  {id:'walk',   label:'바깥 산책',    emoji:'🌳', cost:3000,  xp:50,  type:'drop',  desc:'XP +50 · 랜덤 포인트 드롭'},
   {id:'study',  label:'교육하기',  
     emoji:'📚', cost:1000, xp:100, type:'stat',  val:5,  desc:'랜덤 스탯 +5 영구 · XP +100'},
-  {id:'music',  label:'음악 감상',    emoji:'🎶', cost:500,  xp:120, type:'xp',   desc:'XP +120 · 감성 성장'},
-  {id:'story2', label:'동화 읽어주기',emoji:'📖', cost:700,  xp:100, type:'stat',  val:3,  desc:'스탯 +3 · XP +100'},
-  {id:'hug',    label:'꼭 안아주기',  emoji:'🤗', cost:200,  xp:40,  type:'bond',  desc:'XP +40 · 부모 애정도 +5'},
+  {id:'music',  label:'음악 감상',    emoji:'🎶', cost:5000,  xp:120, type:'xp',   desc:'XP +120 · 감성 성장'},
+  {id:'story2', label:'동화 읽어주기',emoji:'📖', cost:7000,  xp:100, type:'stat',  val:3,  desc:'스탯 +3 · XP +100'},
+  {id:'hug',    label:'꼭 안아주기',  emoji:'🤗', cost:2000,  xp:40,  type:'bond',  desc:'XP +40 · 부모 애정도 +5'},
 ];
-/* ★ 던전 쿨타임: 10층 전부 클리어 후 1시간 */
-const DUNGEON_COOLDOWN_MS=60*60*1000;
-/* ★ 환생 주사위 보너스: 1회당 +20 */
-const REBIRTH_DICE_BONUS=20;
+/* ★ 던전 쿨타임: 10층 전부 클리어 후 3시간 */
+const DUNGEON_COOLDOWN_MS=3*60*60*1000;
+/* ★ 환생 주사위 보너스: 1회당 +100 */
+const REBIRTH_DICE_BONUS=100;
 /* ★ 장착 슬롯 */
 const EQUIP_SLOTS={head:{label:'머리',icon:'🪖'},weapon:{label:'무기',icon:'⚔️'},armor:{label:'방어구',icon:'🛡️'},accessory:{label:'장신구',icon:'💍'},wing:{label:'날개',icon:'🪽'},special:{label:'특수',icon:'🌀'}};
 /* ★ 장착 아이템 상점 20개 */
@@ -1197,15 +1197,15 @@ const EQUIP_SHOP=[
   {id:'er05',slot:'wing',      name:'독수리 날개',      emoji:'🦅', grade:'rare',   cost:45000,  stats:{eva:12}},
   {id:'ee01',slot:'head',  
      name:'용암의 왕관',      emoji:'👑', grade:'epic',   cost:100000, stats:{atk:18,hp:40}},
-  {id:'ee02',slot:'weapon',    name:'화염검',           emoji:'🔥', grade:'epic',   cost:120000, stats:{atk:28}},
+  {id:'ee02',slot:'weapon',    name:'화염검',           emoji:'🔥', grade:'epic',   cost:100000, stats:{atk:28}},
   {id:'ee03',slot:'armor',     name:'용암 갑옷',        emoji:'🌋', grade:'epic',   cost:110000, stats:{def:30,hp:100}},
   {id:'ee04',slot:'accessory', name:'루비 반지',        emoji:'❤️',  grade:'epic',   cost:90000,  stats:{hp:100}},
   {id:'ee05',slot:'wing',      name:'화염 봉황 날개',   emoji:'🔥', grade:'epic',   cost:130000, stats:{atk:18,eva:10}},
   {id:'eu01',slot:'weapon',  
    name:'장미 검',          emoji:'🌹', grade:'unique', cost:250000, stats:{atk:32,hp:50}},
   {id:'eu02',slot:'special',   name:'챔피언 오라',      emoji:'💫', grade:'unique', cost:300000, stats:{atk:8,def:8,hp:50,mp:50}},
-  {id:'el01',slot:'weapon',    name:'카오스 블레이드',  emoji:'⚡', grade:'legend', cost:800000, stats:{atk:60}},
-  {id:'el02',slot:'armor',     name:'드래곤 비늘 갑옷', emoji:'🐲', grade:'legend', cost:900000, stats:{def:60,hp:200}},
+  {id:'el01',slot:'weapon',    name:'카오스 블레이드',  emoji:'⚡', grade:'legend', cost:500000, stats:{atk:60}},
+  {id:'el02',slot:'armor',     name:'드래곤 비늘 갑옷', emoji:'🐲', grade:'legend', cost:500000, stats:{def:60,hp:200}},
   {id:'el03',slot:'special',   name:'드래곤의 심장',    emoji:'❤️‍🔥',grade:'legend', cost:1000000,stats:{hp:200,mp:50}},
   {id:'el04',slot:'accessory', name:'운명의 별자리',    emoji:'✨', grade:'legend', cost:1200000,stats:{atk:20,def:20,hp:100,mp:100,eva:10}},
   /* ═══ 🌟 신화등급 (MYTH) — 핵과금 명품 라인 ═══ */
@@ -1217,11 +1217,11 @@ const EQUIP_SHOP=[
 ];
 /* ★ 하우스 등급 */
 const HOUSE_TIERS=[
-  {id:'basic', name:'판잣집',   emoji:'🏚️',maxSlots:3, cost:10000,     reqLv:1},
-  {id:'cabin', name:'오두막',   emoji:'🏡',maxSlots:6, cost:100000,  reqLv:5},
-  {id:'house', name:'일반 주택',emoji:'🏠',maxSlots:12,cost:800000,  reqLv:15},
-  {id:'villa', name:'전원주택', emoji:'🏡',maxSlots:20,cost:2000000, reqLv:30},
-  {id:'castle',name:'러브몬 성',emoji:'🏰',maxSlots:30,cost:10000000, reqLv:50},
+  {id:'basic', name:'판잣집',   emoji:'🏚️',maxSlots:5, cost:10000,     reqLv:1},
+  {id:'cabin', name:'오두막',   emoji:'🏡',maxSlots:10, cost:100000,  reqLv:5},
+  {id:'house', name:'일반 주택',emoji:'🏠',maxSlots:15,cost:500000,  reqLv:15},
+  {id:'villa', name:'전원주택', emoji:'🏡',maxSlots:20,cost:1000000, reqLv:30},
+  {id:'castle',name:'러브몬 성',emoji:'🏰',maxSlots:30,cost:2000000, reqLv:50},
 ];
 const WALLPAPERS={
   rose:    {name:'장미 벽지',  cost:8000,  hex:'#FDEEF4',threeColor:0xFDEEF4},
@@ -1277,47 +1277,47 @@ const FLOORS={
   emerald_floor:{name:'에메랄드 바닥',cost:32000,threeColor:0x2E7D32},
 };
 const FURNITURE_SHOP=[
-  {id:'f01',name:'나무 소파',     emoji:'🛋️',grade:'normal',cost:100000, type:'sofa',    w:2,h:1},
-  {id:'f02',name:'원목 침대',     emoji:'🛏️',grade:'normal',cost:120000, type:'bed',     w:2,h:1},
+  {id:'f01',name:'나무 소파',     emoji:'🛋️',grade:'normal',cost:50000, type:'sofa',    w:2,h:1},
+  {id:'f02',name:'원목 침대',     emoji:'🛏️',grade:'normal',cost:50000, type:'bed',     w:2,h:1},
   {id:'f03',name:'장미 화분',     emoji:'🌹',grade:'normal',cost:50000,  type:'plant',   w:1,h:1},
   {id:'f04',name:'침실 조명',     emoji:'💡',grade:'normal',cost:30000,  type:'lamp',    w:1,h:1},
-  {id:'f05',name:'별빛 조명',     emoji:'✨',grade:'rare',  cost:250000, type:'lamp',    w:1,h:1},
-  {id:'f06',name:'마법 책상',     emoji:'🔮',grade:'rare',  cost:350000, type:'desk',    w:1,h:1},
-  {id:'f07',name:'장미 소파',     emoji:'🌸',grade:'rare',  cost:400000, type:'sofa',    w:2,h:1},
-  {id:'f08',name:'수족관',        emoji:'🐠',grade:'rare',  cost:550000, type:'aquarium',w:2,h:1},
-  {id:'f09',name:'드래곤 벽난로', emoji:'🐲',grade:'epic',  cost:1500000,type:'fireplace',w:2,h:1},
-  {id:'f10',name:'마법 도서관',   emoji:'📖',grade:'epic',  cost:2500000,type:'library', w:2,h:2},
-  {id:'f11',name:'대형 분수',     emoji:'⛲',grade:'epic',  cost:1200000,type:'fountain',w:2,h:2},
-  {id:'f12',name:'황금 소파',     emoji:'👑',grade:'legend',cost:5000000,type:'sofa',    w:2,h:1},
-  {id:'f13',name:'드래곤 조각상', emoji:'🐲',grade:'legend',cost:7000000,type:'statue',  w:1,h:2},
+  {id:'f05',name:'별빛 조명',     emoji:'✨',grade:'rare',  cost:100000, type:'lamp',    w:1,h:1},
+  {id:'f06',name:'마법 책상',     emoji:'🔮',grade:'rare',  cost:100000, type:'desk',    w:1,h:1},
+  {id:'f07',name:'장미 소파',     emoji:'🌸',grade:'rare',  cost:100000, type:'sofa',    w:2,h:1},
+  {id:'f08',name:'수족관',        emoji:'🐠',grade:'rare',  cost:100000, type:'aquarium',w:2,h:1},
+  {id:'f09',name:'드래곤 벽난로', emoji:'🐲',grade:'epic',  cost:200000,type:'fireplace',w:2,h:1},
+  {id:'f10',name:'마법 도서관',   emoji:'📖',grade:'epic',  cost:200000,type:'library', w:2,h:2},
+  {id:'f11',name:'대형 분수',     emoji:'⛲',grade:'epic',  cost:200000,type:'fountain',w:2,h:2},
+  {id:'f12',name:'황금 소파',     emoji:'👑',grade:'legend',cost:500000,type:'sofa',    w:2,h:1},
+  {id:'f13',name:'드래곤 조각상', emoji:'🐲',grade:'legend',cost:500000,type:'statue',  w:1,h:2},
   {id:'f14',name:'교배 기념 액자',emoji:'💑',grade:'unique',cost:0,    type:'frame',   w:1,h:1},
-  {id:'f15',name:'던전 깃발', emoji:'⚔️',grade:'epic',  cost:1000000,    type:'flag',    w:1,h:1},
-  {id:'f16',name:'벚꽃 나무',     emoji:'🌸',grade:'rare',  cost:300000, type:'tree',     w:1,h:2},
+  {id:'f15',name:'던전 깃발', emoji:'⚔️',grade:'epic',  cost:500000,    type:'flag',    w:1,h:1},
+  {id:'f16',name:'벚꽃 나무',     emoji:'🌸',grade:'rare',  cost:100000, type:'tree',     w:1,h:2},
   {id:'f17',name:'행운의 화분',   emoji:'🪴',grade:'normal',cost:40000,  type:'plant',    w:1,h:1},
-  {id:'f18',name:'반짝 책장',     emoji:'📚',grade:'rare',  cost:280000, type:'bookshelf',w:1,h:2},
+  {id:'f18',name:'반짝 책장',     emoji:'📚',grade:'rare',  cost:100000, type:'bookshelf',w:1,h:2},
   {id:'f19',name:'벽시계',        emoji:'🕰️',grade:'normal',cost:60000,  type:'clock',    w:1,h:1},
-  {id:'f20',name:'홈 시어터',     emoji:'📺',grade:'epic',  cost:1800000,type:'tv',       w:2,h:1},
-  {id:'f21',name:'그랜드 피아노', emoji:'🎹',grade:'epic',  cost:2200000,type:'piano',    w:2,h:1},
+  {id:'f20',name:'홈 시어터',     emoji:'📺',grade:'epic',  cost:200000,type:'tv',       w:2,h:1},
+  {id:'f21',name:'그랜드 피아노', emoji:'🎹',grade:'epic',  cost:220000,type:'piano',    w:2,h:1},
   {id:'f22',name:'커피 테이블',   emoji:'☕',grade:'normal',cost:80000,  type:'table',    w:1,h:1},
-  {id:'f23',name:'프라이빗 칵테일',emoji:'🍸',grade:'rare',cost:380000,  type:'cocktail', w:1,h:1},
-  {id:'f24',name:'장난감 곰돌이', emoji:'🧸',grade:'rare',  cost:200000, type:'toy',      w:1,h:1},
-  {id:'f25',name:'트로피',        emoji:'🏆',grade:'epic',  cost:1200000,type:'trophy',   w:1,h:1},
+  {id:'f23',name:'프라이빗 칵테일',emoji:'🍸',grade:'rare',cost:100000,  type:'cocktail', w:1,h:1},
+  {id:'f24',name:'장난감 곰돌이', emoji:'🧸',grade:'rare',  cost:100000, type:'toy',      w:1,h:1},
+  {id:'f25',name:'트로피',        emoji:'🏆',grade:'epic',  cost:200000,type:'trophy',   w:1,h:1},
   {id:'f26',name:'러브 캔들',     emoji:'🕯️',grade:'normal',cost:35000,  type:'candle',   w:1,h:1},
-  {id:'f27',name:'마법의 거울',   emoji:'🌙',grade:'epic',  cost:1500000,type:'mirror',   w:1,h:2},
-  {id:'f28',name:'유니콘 인형',   emoji:'🦄',grade:'unique',cost:3000000,type:'unicorn',  w:1,h:1},
-  {id:'f29',name:'미니 정원',     emoji:'🌿',grade:'rare',  cost:450000, type:'garden',   w:2,h:1},
+  {id:'f27',name:'마법의 거울',   emoji:'🌙',grade:'epic',  cost:150000,type:'mirror',   w:1,h:2},
+  {id:'f28',name:'유니콘 인형',   emoji:'🦄',grade:'unique',cost:300000,type:'unicorn',  w:1,h:1},
+  {id:'f29',name:'미니 정원',     emoji:'🌿',grade:'rare',  cost:150000, type:'garden',   w:2,h:1},
   {id:'f30',name:'러브 풍선',     emoji:'🎈',grade:'normal',cost:50000,  type:'balloon',  w:1,h:1},
-  {id:'f31',name:'다이아몬드',    emoji:'💎',grade:'legend',cost:8000000,type:'diamond',  w:1,h:1},
-  {id:'f32',name:'고급 사운드',   emoji:'🔊',grade:'epic',  cost:1300000,type:'speaker',  w:1,h:1},
-  {id:'f33',name:'러브 트로피',   emoji:'💖',grade:'unique',cost:3500000,type:'love_trophy',w:1,h:1},
-  {id:'f34',name:'무지개 다리',   emoji:'🌈',grade:'legend',cost:9000000,type:'rainbow_bridge',w:2,h:1},
-  {id:'f35',name:'오로라 조명',   emoji:'🌌',grade:'legend',cost:6500000,type:'aurora',   w:1,h:2},
+  {id:'f31',name:'다이아몬드',    emoji:'💎',grade:'legend',cost:500000,type:'diamond',  w:1,h:1},
+  {id:'f32',name:'고급 사운드',   emoji:'🔊',grade:'epic',  cost:200000,type:'speaker',  w:1,h:1},
+  {id:'f33',name:'러브 트로피',   emoji:'💖',grade:'unique',cost:300000,type:'love_trophy',w:1,h:1},
+  {id:'f34',name:'무지개 다리',   emoji:'🌈',grade:'legend',cost:500000,type:'rainbow_bridge',w:2,h:1},
+  {id:'f35',name:'오로라 조명',   emoji:'🌌',grade:'legend',cost:500000,type:'aurora',   w:1,h:2},
   /* ═══ 🌟 신화등급 (MYTH) — 명품 가구 라인 ═══ */
-  {id:'fm01',name:'로얄 벨벳 왕좌',     emoji:'👑',grade:'myth',cost:16000000,type:'royal_throne',     w:2,h:2},
-  {id:'fm02',name:'샹들리에 스카이라인',emoji:'✨',grade:'myth',cost:19000000,type:'sky_chandelier',   w:2,h:2},
-  {id:'fm03',name:'골드 그랜드 피아노', emoji:'🎹',grade:'myth',cost:23000000,type:'gold_piano',       w:3,h:2},
-  {id:'fm04',name:'향수 오브제 화장대', emoji:'💄',grade:'myth',cost:17000000,type:'perfume_vanity',   w:2,h:2},
-  {id:'fm05',name:'크리스탈 아쿠아돔',  emoji:'🐠',grade:'myth',cost:21000000,type:'crystal_aquarium', w:3,h:2},
+  {id:'fm01',name:'로얄 벨벳 왕좌',     emoji:'👑',grade:'myth',cost:5000000,type:'royal_throne',     w:2,h:2},
+  {id:'fm02',name:'샹들리에 스카이라인',emoji:'✨',grade:'myth',cost:5000000,type:'sky_chandelier',   w:2,h:2},
+  {id:'fm03',name:'골드 그랜드 피아노', emoji:'🎹',grade:'myth',cost:5000000,type:'gold_piano',       w:3,h:2},
+  {id:'fm04',name:'향수 오브제 화장대', emoji:'💄',grade:'myth',cost:5000000,type:'perfume_vanity',   w:2,h:2},
+  {id:'fm05',name:'크리스탈 아쿠아돔',  emoji:'🐠',grade:'myth',cost:5000000,type:'crystal_aquarium', w:3,h:2},
 ];
 
 /* ═══════════════════════════════════════
@@ -1519,9 +1519,9 @@ const TITLES=[
    🎰 가챠 보상 풀 / 가격
 ═══════════════════════════════════════ */
 const GACHA_COST_SINGLE=100000;
-const GACHA_COST_TEN=900000;
+const GACHA_COST_TEN=800000;
 /* 등급별 가중치 (합 100) */
-const GACHA_GRADE_WEIGHT={normal:50, rare:30, epic:14, unique:5, legend:1};
+const GACHA_GRADE_WEIGHT={normal:50, rare:30, epic:14, unique:5, legend:1, myth:1};
 /* 등급별 보상 풀 정의 — 카테고리 type, 등급별 동적 추첨 */
 function buildGachaPool(){
   const pool={normal:[],rare:[],epic:[],unique:[],legend:[]};
@@ -1585,67 +1585,45 @@ const ONECARD_SUITS=[
 ];
 const ONECARD_RANKS=['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 const ONECARD_BETS=[500, 1000, 5000, 10000];
-const DUNGEON_FLOORS=[
-  /* 1층: reqLv.1  (Lv.1~4 대상) */
-  {floor:1, name:'풀숲 입구',   emoji:'🌿', reqLv:1,
-   mobs:[
-     {name:'풀 슬라임',    emoji:'🟢', hp:90,  atk:20, def:5,  eva:8,  xp:45,  pts:3030},
-     {name:'버섯 몬스터',  emoji:'🍄', hp:130, atk:26, def:7,  eva:5,  xp:60,  pts:5040},
-   ]},
-  /* 2층: reqLv.5 */
-  {floor:2, name:'어두운 동굴', emoji:'🕳️', reqLv:5,
-   mobs:[
-     {name:'박쥐 귀신',    emoji:'🦇', hp:260, atk:44, def:18, eva:26, xp:95,  pts:8065},
-     {name:'돌 골렘',   
-   emoji:'🪨', hp:420, atk:36, def:52, eva:3,  xp:120, pts:8085},
-   ]},
-  /* 3층: reqLv.10 */
-  {floor:3, name:'용암 지대',   emoji:'🌋', reqLv:10,
-   mobs:[
-     {name:'화염 도마뱀',  emoji:'🦎', hp:420, atk:62, def:30, eva:22, xp:165, pts:10115},
-     {name:'불꽃 오크',    emoji:'👹', hp:560, atk:68, def:24, eva:10, xp:190, pts:10135},
-   ]},
-  /* 4층: reqLv.15 */
-  {floor:4, name:'마왕의 성',   emoji:'🏰', reqLv:15,
-   mobs:[
-     {name:'언데드 기사',  emoji:'💀', hp:480, atk:85, def:48, eva:12, xp:260, pts:20200},
-     {name:'다크 위저드',  
-emoji:'🧙', hp:380, atk:98, def:32, eva:26, xp:290, pts:20225},
-   ]},
-  /* 5층: reqLv.20 */
-  {floor:5, name:'최후의 결전', emoji:'⚡', reqLv:20,
-   mobs:[
-     {name:'카오스 드래곤',emoji:'🐲', hp:900, atk:125,def:65, eva:22, xp:700, pts:30550},
-   ]},
-  /* ★ 6층: reqLv.30 */
-  {floor:6, name:'심연의 미로',  emoji:'🌀', reqLv:30,
-   mobs:[
-     {name:'미로 수호자',  emoji:'🗿', hp:1100,atk:140,def:80, eva:16, xp:900, pts:50720},
-     {name:'심연 마귀',    emoji:'😈', hp:900, atk:160,def:58, eva:30, xp:980, pts:50790},
-   ]},
-  /* ★ 7층: reqLv.40 */
-  {floor:7, name:'얼음 궁전',   emoji:'❄️', reqLv:40,
-mobs:[
-     {name:'빙하 골렘',    emoji:'🧊', hp:1400,atk:175,def:110,eva:8,  xp:1200,pts:70950},
-     {name:'눈보라 마녀',  emoji:'🧙‍♀️',hp:1100,atk:200,def:72, eva:38, xp:1300,pts:71050},
-   ]},
-  /* ★ 8층: reqLv.55 */
-  {floor:8, name:'폭풍 요새',   emoji:'⛈️', reqLv:55,
-   mobs:[
-     {name:'번개 골렘',    emoji:'⚡', hp:1700,atk:215,def:130,eva:18, xp:1600,pts:91300},
-     {name:'폭풍 황제',    emoji:'🌪️', hp:1400,atk:240,def:100,eva:42, xp:1700,pts:91400},
-   ]},
-  /* ★ 9층: reqLv.70 */
-  {floor:9, name:'지옥의 관문', emoji:'🔥', reqLv:70,
-   mobs:[
-     {name:'지옥 감시자',  emoji:'👿', hp:2200,atk:270,def:155,eva:22, xp:2100,pts:111800},
-{name:'마왕의 분신',  emoji:'💀', hp:1900,atk:300,def:120,eva:48, xp:2300,pts:111950},
-   ]},
-  /* ★ 10층: reqLv.90 (최종 보스) */
-  {floor:10, name:'신의 시험장',emoji:'🌌', reqLv:90,
-   mobs:[
-     {name:'신의 수호자',  emoji:'👼', hp:3500,atk:350,def:200,eva:30, xp:4000,pts:150000},
-   ]},
+const dungeonData = [
+  /* 1층: 입문 (Lv.1~4) */
+  {floor:1, name:'풀숲 입구',   emoji:'🌿', reqLv:1, mobs:[
+     {name:'풀 슬라임', emoji:'🟢', hp:120, atk:25, def:5, eva:5, xp:50, pts:5000},
+     {name:'버섯 몬스터', emoji:'🍄', hp:180, atk:30, def:8, eva:5, xp:70, pts:7000}]},
+  /* 2층: 초반 (Lv.5~9) */
+  {floor:2, name:'어두운 동굴', emoji:'🕳️', reqLv:5, mobs:[
+     {name:'박쥐 귀신', emoji:'🦇', hp:350, atk:55, def:20, eva:20, xp:120, pts:10000},
+     {name:'돌 골렘', emoji:'🪨', hp:600, atk:45, def:60, eva:2, xp:150, pts:12000}]},
+  /* 3층: 중초반 (Lv.10~14) */
+  {floor:3, name:'용암 지대', emoji:'🌋', reqLv:10, mobs:[
+     {name:'화염 도마뱀', emoji:'🦎', hp:700, atk:80, def:40, eva:20, xp:250, pts:20000},
+     {name:'불꽃 오크', emoji:'👹', hp:900, atk:90, def:30, eva:10, xp:300, pts:25000}]},
+  /* 4층: 중반 (Lv.15~19) */
+  {floor:4, name:'마왕의 성', emoji:'🏰', reqLv:15, mobs:[
+     {name:'언데드 기사', emoji:'💀', hp:1200, atk:120, def:70, eva:15, xp:500, pts:40000},
+     {name:'다크 위저드', emoji:'🧙', hp:1000, atk:150, def:40, eva:30, xp:600, pts:45000}]},
+  /* 5층: 중반 보스 (Lv.20~29) */
+  {floor:5, name:'최후의 결전', emoji:'⚡', reqLv:20, mobs:[
+     {name:'카오스 드래곤', emoji:'🐲', hp:2500, atk:180, def:100, eva:25, xp:1200, pts:80000}]},
+  /* 6층: 후반 진입 (Lv.30~39) */
+  {floor:6, name:'심연의 미로', emoji:'🌀', reqLv:30, mobs:[
+     {name:'미로 수호자', emoji:'🗿', hp:3500, atk:220, def:150, eva:20, xp:2000, pts:150000},
+     {name:'심연 마귀', emoji:'😈', hp:4000, atk:260, def:120, eva:45, xp:2200, pts:180000}]},
+  /* 7층: 고레벨 (Lv.40~54) */
+  {floor:7, name:'얼음 궁전', emoji:'❄️', reqLv:40, mobs:[
+     {name:'빙하 골렘', emoji:'🧊', hp:6000, atk:300, def:250, eva:10, xp:3500, pts:300000},
+     {name:'눈보라 마녀', emoji:'🧙‍♀️', hp:5000, atk:350, def:180, eva:50, xp:4000, pts:350000}]},
+  /* 8층: 심화 (Lv.55~69) */
+  {floor:8, name:'폭풍 요새', emoji:'⛈️', reqLv:55, mobs:[
+     {name:'번개 골렘', emoji:'⚡', hp:8000, atk:420, def:300, eva:20, xp:6000, pts:500000},
+     {name:'폭풍 황제', emoji:'🌪️', hp:7000, atk:480, def:220, eva:55, xp:6500, pts:600000}]},
+  /* 9층: 마계 (Lv.70~89) */
+  {floor:9, name:'지옥의 관문', emoji:'🔥', reqLv:70, mobs:[
+     {name:'지옥 감시자', emoji:'👿', hp:11000, atk:550, def:400, eva:30, xp:10000, pts:900000},
+     {name:'마왕의 분신', emoji:'💀', hp:9000, atk:650, def:300, eva:60, xp:12000, pts:1000000}]},
+  /* 10층: 최종 콘텐츠 (Lv.90+) */
+  {floor:10, name:'신의 시험장', emoji:'🌌', reqLv:90, mobs:[
+     {name:'신의 수호자', emoji:'👼', hp:25000, atk:800, def:600, eva:40, xp:30000, pts:3000000}]},
 ];
 const DUNGEON_ALL_FLOORS=[1,2,3,4,5,6,7,8,9,10];
 /* ═══════════════════════════════════════
@@ -3949,8 +3927,8 @@ let levelsGained=0;
 if(S.myPet?.nick===nick){S.myPet.level=MAX_LV;S.myPet.xp=0;}
       return;
     }
-    while(xp>=XP_PER_LV && lv<MAX_LV){
-      lv++;xp-=XP_PER_LV;leveled=true;levelsGained++;
+    while(xp>=XP_PER_LV(lv) && lv<MAX_LV){
+      lv++;xp-=XP_PER_LV(lv);leveled=true;levelsGained++;
 }
     /* ★ 안전장치: while 이후에도 캡 보장 */
     lv=Math.min(lv,MAX_LV);
@@ -4198,7 +4176,7 @@ try{
     let newXp=(baby.babyXp||0)+xp;
     let newLevel=baby.babyLevel||1;
     let leveledUp=false;
-while(newXp>=XP_PER_LV&&newLevel<MAX_LV){newLevel++;newXp-=XP_PER_LV;leveledUp=true;}
+while(newXp>=XP_PER_LV(lv)&&newLevel<MAX_LV){newLevel++;newXp-=XP_PER_LV(lv);leveledUp=true;}
     /* 먹이 기록 (최근 30개) */
     const feedLog=baby.feedLog||[];
     feedLog.push({nick:shortNick(myNick),xp,time:Date.now()});
@@ -4232,7 +4210,7 @@ try{
     let newXp=(baby.babyXp||0)+(act.xp||0);
     let newLv=baby.babyLevel||1;
     let leveled=false;
-while(newXp>=XP_PER_LV&&newLv<MAX_LV){newLv++;newXp-=XP_PER_LV;leveled=true;}
+while(newXp>=XP_PER_LV(lv)&&newLv<MAX_LV){newLv++;newXp-=XP_PER_LV(lv);leveled=true;}
     const babyUpdate={babyXp:newXp,babyLevel:newLv};
     let resultMsg=`${act.emoji} ${act.label} 완료!${act.xp?` XP +${act.xp}`:''}`;
 /* 타입별 추가 효과 */
@@ -4653,65 +4631,105 @@ async function finalizeDungeon(won){
       let newXp=(S.myPet.xp||0)+ds.totalXp;
       let newLv=S.myPet.level||1;
       let leveled=false;
-      while(newXp>=XP_PER_LV&&newLv<MAX_LV){newLv++;newXp-=XP_PER_LV;leveled=true;}
+      while(newXp>=XP_PER_LV(lv)&&newLv<MAX_LV){newLv++;newXp-=XP_PER_LV(lv);leveled=true;}
       const kills={...(S.myPet.dungeonKills||{})};
       const floorNum=ds.floorIdx+1;
       kills[floorNum]=true;
       const now=Date.now();
-      const newBattleCount=(S.myPet.dungeonBattleCount||0)+1;
-      const triggerCooldown=newBattleCount>=10;
-      const dbUpdate={
-        xp:newXp,level:newLv,points:INC(ds.totalPts),
-        currentHp:ds.playerHp,currentMp:ds.playerMp,currentSp:ds.playerSp,
-        inventory:ds.inventory,
-        dungeonBattleCount:triggerCooldown?0:newBattleCount,
+      const newBattleCount = (S.myPet.dungeonBattleCount || 0) + 1;
+      const triggerCooldown = newBattleCount >= 10; // 10판 완료 여부 확인
+      const dbUpdate = {
+        xp: newXp,
+        level: newLv,
+        points: INC(ds.totalPts),
+        currentHp: ds.playerHp,
+        currentMp: ds.playerMp,
+        currentSp: ds.playerSp,
+        inventory: ds.inventory,
+        dungeonBattleCount: triggerCooldown ? 0 : newBattleCount, // 10판이면 0, 아니면 증가
+        dungeonKills: kills
       };
       S.myPet.dungeonBattleCount=triggerCooldown?0:newBattleCount;
-      if(triggerCooldown){
-        dbUpdate.dungeonCooldownStart=now;
-        S.myPet.dungeonCooldownStart=now;
+      if (triggerCooldown) {
+        const now = Date.now();
+        dbUpdate.dungeonCooldownStart = now;
+        S.myPet.dungeonCooldownStart = now;
       }
       S.myPet.dungeonKills=kills;
       S.myPet.dungeonCooldownStart=now;
-      await petCol.doc(myNick).update(dbUpdate);
-      S.myPet={...S.myPet,xp:newXp,level:newLv,
-        points:(S.myPet.points||0)+ds.totalPts,
-        currentHp:ds.playerHp,currentMp:ds.playerMp,currentSp:ds.playerSp,inventory:ds.inventory};
+     await petCol.doc(myNick).update(dbUpdate);
+      S.myPet = { ...S.myPet, ...dbUpdate, points: (S.myPet.points || 0) + ds.totalPts };
       const battleCount=S.myPet.dungeonBattleCount||0;
       const remainBattles=triggerCooldown?0:(10-battleCount);
-      alert(`🏆 전투 승리!\n획득: XP +${ds.totalXp} · 포인트 +${ds.totalPts}${leveled?`\n🎉 레벨업! Lv.${newLv} 달성!`:''}${triggerCooldown?'\n\n⏳ 10전 완료! 1시간 쿨타임 시작!':`\n\n⚔️ 이번 라운드 ${battleCount}전/${10}전 (${remainBattles}전 더 하면 쿨타임)`}`);
+      alert(`🏆 전투 승리!\n획득: XP +${ds.totalXp} · 포인트 +${ds.totalPts}${leveled?`\n🎉 레벨업! Lv.${newLv} 달성!`:''}${triggerCooldown?'\n\n⏳ 10전 완료! 3시간 쿨타임 시작!':`\n\n⚔️ 이번 라운드 ${battleCount}전/${10}전 (${remainBattles}전 더 하면 쿨타임)`}`);
       onQuestEvent('dungeon',1);
-    }else{
-      const penaltyXp=Math.min(100,S.myPet.xp||0);
-      const newXp=Math.max(0,(S.myPet.xp||0)-penaltyXp);
+    }else {
+      // 1. 패배 페널티
+      const penaltyXp = Math.min(100, S.myPet.xp || 0);
+      const newXp = Math.max(0, (S.myPet.xp || 0) - penaltyXp);
+      const newPoints = Math.max(0, (S.myPet.points || 0) - 1000);
+
+      // 2. DB 업데이트 (카운트 초기화 0 추가)
       await petCol.doc(myNick).update({
-        xp:newXp,points:INC(-1000),
-        currentHp:1,currentMp:ds.playerMp,currentSp:ds.playerSp,
+        xp: newXp,
+        points: INC(-1000), // 기존 사용하던 INC 함수 유지
+        currentHp: 1,
+        currentMp: ds.playerMp,
+        currentSp: ds.playerSp,
+        dungeonBattleCount: 0 // 패배 시 10연전 카운트 초기화
       });
-      S.myPet={...S.myPet,xp:newXp,
-        points:Math.max(0,(S.myPet.points||0)-1000),
-        currentHp:1,currentMp:ds.playerMp,currentSp:ds.playerSp};
+
+      // 3. 로컬 상태 업데이트
+      S.myPet = {
+        ...S.myPet,
+        xp: newXp,
+        points: newPoints,
+        currentHp: 1,
+        currentMp: ds.playerMp,
+        currentSp: ds.playerSp,
+        dungeonBattleCount: 0
+      };
+      
       alert(`💀 전투 패배...\n페널티: XP -${penaltyXp} · 포인트 -1000\nHP 1로 부활했어요. 물약을 사용해 회복하세요!`);
     }
-  }catch(e){console.error(e);}
-  S.dungeonState=null;
-  render();
+  } catch (e) {
+    console.error("던전 종료 에러:", e);
+  } finally {
+    // 4. 상태 정리
+    S.dungeonState = null;
+    render();
+  }
 }
 async function restoreHpMp(){
   /* 던전 밖에서 시간 경과 회복 (버튼으로 요청) */
   const myNick=S.myEntry?.nick;
   if(!myNick||!S.myPet)return;
   const scaled=getEquippedStats(S.myPet); /* 장비 스탯 반영 */
-if(!confirm("HP/MP를 최대치로 회복합니다. (500P 소모)"))return;
-  if((S.myPet.points||0)<500){alert("포인트가 부족합니다! (500P 필요)");return;}
-  await petCol.doc(myNick).update({
-    currentHp:scaled.maxHp,currentMp:scaled.maxMp,currentSp:100,points:INC(-500)
-  });
-S.myPet={...S.myPet,currentHp:scaled.maxHp,currentMp:scaled.maxMp,currentSp:100,
-    points:(S.myPet.points||0)-500};
-  alert("✅ HP/MP/SP 완전 회복! (-500P)");
-  render();
+if (!confirm("HP/MP/SP를 최대치로 회복합니다. (5000P 소모)")) return;
+if ((S.myPet.points || 0) < 5000) { 
+    alert("포인트가 부족합니다! (5000P 필요)"); 
+    return; 
 }
+
+// 1. DB 업데이트: INC(-500) -> INC(-5000) 수정
+await petCol.doc(myNick).update({
+    currentHp: scaled.maxHp,
+    currentMp: scaled.maxMp,
+    currentSp: 100,
+    points: INC(-5000) 
+});
+
+// 2. 로컬 상태 업데이트
+S.myPet = {
+    ...S.myPet,
+    currentHp: scaled.maxHp,
+    currentMp: scaled.maxMp,
+    currentSp: 100,
+    points: (S.myPet.points || 0) - 5000
+};
+
+alert("✅ HP/MP/SP 완전 회복! (-5000P)");
+render();
 /* ═══════════════════════════════════════
    🔥 환생 시스템
 ═══════════════════════════════════════ */
@@ -11503,13 +11521,13 @@ function initMiniMob3D(containerId, mobData) {
   }, 50);
 }
 /* ═══════════════════════════════════════
-   ⚔️ PvP 시스템 (12시간 쿨타임)
+   ⚔️ PvP 시스템 (1시간 쿨타임)
 ═══════════════════════════════════════ */
-const PVP_COOLDOWN_MS = 0 * 60 * 60 * 1000;
+const PVP_COOLDOWN_MS = 1 * 60 * 60 * 1000;
 /* 1시간 */
 const PVP_STEAL_RATE  = 0.10; /* 포인트 10% 탈취 */
 const PVP_MIN_STEAL   = 50;
-const PVP_MAX_STEAL   = 2000;
+const PVP_MAX_STEAL   = 10000;
 function simulatePvP(myPet, targetPet){
   const mySt  = getEquippedStats(myPet);
   const tgSt  = getEquippedStats(targetPet);
@@ -11571,7 +11589,7 @@ async function startPvP(targetNick){
   const myNick=S.myEntry?.nick;
   if(!myNick||!S.myPet){alert("MBTI 검사 완료 후 이용해주세요!");return;}
   if(!S.myPet.diceStats){alert("먼저 주사위를 굴려 스탯을 설정해주세요! 🎲");return;}
-  /* 12시간 쿨타임 체크 */
+  /* 1시간 쿨타임 체크 */
   const last=S.myPet.pvpCooldown||0;
 const coolEnd=last+PVP_COOLDOWN_MS;
   if(Date.now()<coolEnd){
@@ -11590,7 +11608,7 @@ const tgSt=getEquippedStats(target);
     `⚔️ PvP 도전!\n\n상대: ${target.petEmoji}${target.petName} Lv.${target.level||1} (${targetNick})\n\n` +
     `내 스탯 — ATK:${mySt.atk} DEF:${mySt.def} HP:${mySt.maxHp}\n` +
     `상대 스탯 — ATK:${tgSt.atk} DEF:${tgSt.def} HP:${tgSt.maxHp}\n\n` +
-    `🏆 승리 시 +${stealAmt}P 탈취\n💀 패배 시 -${loseAmt}P 손실\n\n⏰ 12시간 쿨타임 발동`
+    `🏆 승리 시 +${stealAmt}P 탈취\n💀 패배 시 -${loseAmt}P 손실\n\n⏰ 1시간 쿨타임 발동`
   ))return;
   const result=simulatePvP(S.myPet,target);
   const iWon=result.winner==='me';
@@ -12062,8 +12080,8 @@ function rHome(){
       <div style="font-size:44px;animation:float 2.5s ease-in-out infinite">${getVisualEmoji(myPet)}</div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:700;color:var(--text1)">${esc(myPet.petName)} <span style="font-size:11px;color:var(--text3)">(${lvLabel(myPet.level||1)})</span></div>
-        <div style="font-size:11px;color:var(--text3);margin:2px 0">XP ${myPet.xp||0}/${XP_PER_LV} · 💰${myPet.points||0}P</div>
-        <div class="prog" style="margin-top:4px"><div class="prog-fill" style="width:${Math.min(100,Math.round(((myPet.xp||0)/XP_PER_LV)*100))}%"></div></div>
+        <div style="font-size:11px;color:var(--text3);margin:2px 0">XP ${myPet.xp||0}/${XP_PER_LV(lv)} · 💰${myPet.points||0}P</div>
+        <div class="prog" style="margin-top:4px"><div class="prog-fill" style="width:${Math.min(100,Math.round(((myPet.xp||0)/XP_PER_LV(lv))*100))}%"></div></div>
       </div>
       <div style="text-align:center">
         <button class="btn btn-mint" style="padding:7px 14px;font-size:12px" data-a="goLovemon">🐾 내 펫</button>
@@ -12673,7 +12691,7 @@ function rLovemonTab(){
       <button class="btn btn-mint" style="padding:10px 22px" data-a="lm_createPet">🐾 펫 생성하기</button>
     </div>`;
   }
-  const lvPct=Math.min(100,Math.round(((myPet.xp||0)/XP_PER_LV)*100));
+  const lvPct=Math.min(100,Math.round(((myPet.xp||0)/XP_PER_LV(lv))*100));
   const incomingReqs=S.breedRequests.filter(r=>r.to===myNick&&r.status==='pending');
   const outgoingReqs=S.breedRequests.filter(r=>r.from===myNick&&r.status==='pending');
   const evoInfo=getPetEvolution(myPet.level, myPet.isBred, myPet.petEmoji);
@@ -12713,7 +12731,7 @@ function rLovemonTab(){
     })()}
     <div style="margin:10px 0 4px">
       <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text3);margin-bottom:5px">
-        <span>경험치</span><span>${myPet.xp||0} / ${XP_PER_LV} XP (Lv.${(myPet.level||1)+1}까지)</span>
+        <span>경험치</span><span>${myPet.xp||0} / ${XP_PER_LV(lv)} XP (Lv.${(myPet.level||1)+1}까지)</span>
       </div>
       <div class="lm-xp-bar"><div class="lm-xp-fill" style="width:${lvPct}%"></div></div>
     </div>
@@ -12800,7 +12818,7 @@ function rLovemonTab(){
         const myAff=myPet.affectionMap?.[p.nick]||0;
         const canBreedFull=canBreed&&myAff>=BREED_AFFECTION;
         const alreadyReq=S.breedRequests.some(r=>r.from===myNick&&r.to===p.nick&&r.status==='pending');
-        const pLvPct=Math.min(100,Math.round(((p.xp||0)/XP_PER_LV)*100));
+        const pLvPct=Math.min(100,Math.round(((p.xp||0)/XP_PER_LV(lv))*100));
         return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
           <div style="font-size:34px;flex-shrink:0">${getVisualEmoji(p)}</div>
           <div style="flex:1;min-width:0">
@@ -12808,7 +12826,7 @@ function rLovemonTab(){
             <div style="height:4px;background:rgba(155,89,182,.1);border-radius:99px;margin:5px 0 2px">
               <div style="height:100%;width:${pLvPct}%;background:linear-gradient(90deg,var(--rose),var(--lm-purple));border-radius:99px"></div>
             </div>
-            <div style="font-size:10.5px;color:var(--text3);margin-bottom:4px">XP ${p.xp||0}/${XP_PER_LV} · 💰${p.points||0}P</div>
+            <div style="font-size:10.5px;color:var(--text3);margin-bottom:4px">XP ${p.xp||0}/${XP_PER_LV(lv)} · 💰${p.points||0}P</div>
             <div style="font-size:10.5px;color:var(--rose2)">💕 호감도 ${myAff}/${BREED_AFFECTION}</div>
             <div class="affection-bar"><div class="affection-fill" style="width:${Math.min(100,(myAff/BREED_AFFECTION)*100)}%"></div></div>
           </div>
@@ -13710,7 +13728,7 @@ function rHatchedBabyUI(baby, myNick){
   const rc=rarityColors[baby.rarity]||'#9E9E9E';
   const babyLevel=baby.babyLevel||1;
   const babyXp=baby.babyXp||0;
-  const xpPct=Math.min(100,Math.round((babyXp/XP_PER_LV)*100));
+  const xpPct=Math.min(100,Math.round((babyXp/XP_PER_LV(lv))*100));
   const partnerNick=baby.parent1Nick===myNick?baby.parent2Nick:baby.parent1Nick;
   const myPoints=S.myPet?.points||0;
   const recentLog=(baby.feedLog||[]).slice(-5).reverse();
@@ -13728,7 +13746,7 @@ function rHatchedBabyUI(baby, myNick){
     <div style="font-size:20px;font-weight:700;color:var(--rose2);margin-bottom:4px">${esc(baby.babyName||'아기몬')}</div>
     <div style="display:inline-block;background:${rc};color:white;padding:2px 14px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:12px">✨ ${baby.rarity||'일반'}</div>
     <div style="margin:0 0 12px">
-      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text3);margin-bottom:4px"><span>XP</span><span>${babyXp}/${XP_PER_LV}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--text3);margin-bottom:4px"><span>XP</span><span>${babyXp}/${XP_PER_LV(lv)}</span></div>
       <div class="lm-xp-bar"><div class="lm-xp-fill" style="width:${xpPct}%"></div></div>
     </div>
     <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;padding:10px;background:rgba(255,255,255,.6);border-radius:10px;margin-bottom:12px">
@@ -14362,7 +14380,7 @@ function rPetInfoModal() {
             <span style="font-weight:700;color:var(--rose2)">${myAff} / ${BREED_AFFECTION}</span>
           </div>
           <div class="affection-bar" style="margin-bottom:6px"><div class="affection-fill" style="width:${Math.min(100,(myAff/BREED_AFFECTION)*100)}%"></div></div>
-          <div style="font-size:11px;color:var(--text3)">XP ${p.xp || 0}/${XP_PER_LV} · MBTI ${esc(p.mbti || '?')} · ⚔️ ${p.pvpRecord?.win || 0}승 ${p.pvpRecord?.lose || 0}패</div>
+          <div style="font-size:11px;color:var(--text3)">XP ${p.xp || 0}/${XP_PER_LV(lv)} · MBTI ${esc(p.mbti || '?')} · ⚔️ ${p.pvpRecord?.win || 0}승 ${p.pvpRecord?.lose || 0}패</div>
         </div>
         <div style="display:flex;gap:6px">
           <button class="btn btn-plum" style="flex:1;padding:9px;font-size:12px" data-a="lm_feedOther" data-nick="${esc(p.nick)}">🍖 먹이 +10</button>
@@ -19960,6 +19978,19 @@ class OpenWorldRenderer {
     this.canvas = canvas;
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.Fog(0xffe4f0, 30, 100);
+	  // 클래스 멤버 변수로 미리 선언 (최초 1회 생성)
+this.cDawnTop = new THREE.Color(0x4A3A6A); this.cDawnMid = new THREE.Color(0x6A4A8A); this.cDawnBot = new THREE.Color(0xFFAB91);
+this.cDayTop = new THREE.Color(0x7ec7ff); this.cDayMid = new THREE.Color(0xffd4e8); this.cDayBot = new THREE.Color(0xfff0cc);
+this.cTwilTop = new THREE.Color(0xff7043); this.cTwilMid = new THREE.Color(0xff8a65); this.cTwilBot = new THREE.Color(0xffb74d);
+this.cEveTop = new THREE.Color(0x2a1f3d); this.cEveMid = new THREE.Color(0x4a3a5d); this.cEveBot = new THREE.Color(0x6a4a4a);
+this.cNightTop = new THREE.Color(0x0c0c2a); this.cNightMid = new THREE.Color(0x1a1a3e); this.cNightBot = new THREE.Color(0x2a2a4a);
+
+// 계산용 임시 변수들
+this.topCol = new THREE.Color();
+this.midCol = new THREE.Color();
+this.botCol = new THREE.Color();
+this.vertexTempCol = new THREE.Color();
+this.cloudTargetCol = new THREE.Color();
 const __size = _owGetCanvasSize(canvas);
 
 this.camera = new THREE.PerspectiveCamera(60, __size.w / __size.h, 0.1, 200);
@@ -21171,103 +21202,99 @@ if(S.ow.isDriver && this.companion){
     updateOWOverlays(this);
   }
 
-  _updateDayNight(){
-    // S.ow.timeOfDay: 0=새벽, 0.25=정오, 0.5=황혼, 0.75=한밤
-    const t = S.ow.timeOfDay;
-    // 천천히 자동 흐름 (1게임시간/3분)
-    S.ow.timeOfDay = (t + 0.00012) % 1;
-    const phase = S.ow.timeOfDay;
-    let topCol, midCol, botCol, ambient, sunInten, moonInten, fogColor;
-    if(phase < 0.18){
-      // 새벽 — 보라 → 핑크
-      const k = phase / 0.18;
-      topCol = new THREE.Color(0x4A3A6A).lerp(new THREE.Color(0x7ec7ff), k);
-      midCol = new THREE.Color(0x6A4A8A).lerp(new THREE.Color(0xffd4e8), k);
-      botCol = new THREE.Color(0xFFAB91).lerp(new THREE.Color(0xfff0cc), k);
-      ambient = 0.3 + k*0.3; sunInten = 0.5 + k*0.8; moonInten = 0.4*(1-k);
-    } else if(phase < 0.4){
-      // 낮 — 청록/핑크/노랑
-      topCol = new THREE.Color(0x7ec7ff);
-      midCol = new THREE.Color(0xffd4e8);
-      botCol = new THREE.Color(0xfff0cc);
-      ambient = 0.6; sunInten = 1.3; moonInten = 0;
-    } else if(phase < 0.55){
-      // 황혼 — 핑크 → 주황
-      const k = (phase-0.4)/0.15;
-      topCol = new THREE.Color(0x7ec7ff).lerp(new THREE.Color(0xff7043), k);
-      midCol = new THREE.Color(0xffd4e8).lerp(new THREE.Color(0xff8a65), k);
-      botCol = new THREE.Color(0xfff0cc).lerp(new THREE.Color(0xffb74d), k);
-      ambient = 0.6 - k*0.3; sunInten = 1.3 - k*0.9; moonInten = k*0.3;
-    } else if(phase < 0.7){
-      // 저녁 — 주황 → 보라
-      const k = (phase-0.55)/0.15;
-      topCol = new THREE.Color(0xff7043).lerp(new THREE.Color(0x2a1f3d), k);
-      midCol = new THREE.Color(0xff8a65).lerp(new THREE.Color(0x4a3a5d), k);
-      botCol = new THREE.Color(0xffb74d).lerp(new THREE.Color(0x6a4a4a), k);
-      ambient = 0.3 - k*0.15; sunInten = 0.4 - k*0.4; moonInten = 0.3 + k*0.3;
-    } else {
-      // 한밤 — 진한 청자색 (별 보이게)
-      topCol = new THREE.Color(0x0c0c2a);
-      midCol = new THREE.Color(0x1a1a3e);
-      botCol = new THREE.Color(0x2a2a4a);
-      ambient = 0.15; sunInten = 0; moonInten = 0.7;
+_updateDayNight(){
+  const DAY_DURATION_MS = 1000 * 60 * 20;
+  const phase = (Date.now() % DAY_DURATION_MS) / DAY_DURATION_MS;
+  let ambient, sunInten, moonInten;
+
+  // 1. 위/중간/아래 색상 계산 (객체 생성 없이 copy/lerp 활용)
+  if(phase < 0.18){
+    const k = phase / 0.18;
+    this.topCol.copy(this.cDawnTop).lerp(this.cDayTop, k);
+    this.midCol.copy(this.cDawnMid).lerp(this.cDayMid, k);
+    this.botCol.copy(this.cDawnBot).lerp(this.cDayBot, k);
+    ambient = 0.3 + k*0.3; sunInten = 0.5 + k*0.8; moonInten = 0.4*(1-k);
+  } else if(phase < 0.4){
+    this.topCol.copy(this.cDayTop);
+    this.midCol.copy(this.cDayMid);
+    this.botCol.copy(this.cDayBot);
+    ambient = 0.6; sunInten = 1.3; moonInten = 0;
+  } else if(phase < 0.55){
+    const k = (phase-0.4)/0.15;
+    this.topCol.copy(this.cDayTop).lerp(this.cTwilTop, k);
+    this.midCol.copy(this.cDayMid).lerp(this.cTwilMid, k);
+    this.botCol.copy(this.cDayBot).lerp(this.cTwilBot, k);
+    ambient = 0.6 - k*0.3; sunInten = 1.3 - k*0.9; moonInten = k*0.3;
+  } else if(phase < 0.7){
+    const k = (phase-0.55)/0.15;
+    this.topCol.copy(this.cTwilTop).lerp(this.cEveTop, k);
+    this.midCol.copy(this.cTwilMid).lerp(this.cEveMid, k);
+    this.botCol.copy(this.cTwilBot).lerp(this.cEveBot, k);
+    ambient = 0.3 - k*0.15; sunInten = 0.4 - k*0.4; moonInten = 0.3 + k*0.3;
+  } else {
+    this.topCol.copy(this.cNightTop);
+    this.midCol.copy(this.cNightMid);
+    this.botCol.copy(this.cNightBot);
+    ambient = 0.15; sunInten = 0; moonInten = 0.7;
+  }
+
+  // 2. 안개 및 조명 적용
+  if(this.scene.fog) this.scene.fog.color.copy(this.midCol);
+  this.ambient.intensity = ambient;
+  this.sun.intensity = sunInten;
+  this.moonLight.intensity = moonInten;
+
+  // 3. 버텍스 컬러 업데이트 (최적화 루프)
+  if(this._skyColors && this._skyPositions){
+    const arr = this._skyColors;
+    const pos = this._skyPositions;
+    for(let i = 0; i < pos.count; i++){
+      const y = pos.getY(i) / 180;
+      if(y > 0.3){
+        const k = Math.min(1, (y - 0.3) / 0.7);
+        this.vertexTempCol.copy(this.midCol).lerp(this.topCol, k);
+      } else {
+        const k = Math.max(0, (0.3 - y) / 0.6);
+        this.vertexTempCol.copy(this.midCol).lerp(this.botCol, k);
+      }
+      arr[i*3] = this.vertexTempCol.r; arr[i*3+1] = this.vertexTempCol.g; arr[i*3+2] = this.vertexTempCol.b;
     }
-    fogColor = midCol.clone();
-    // vertex color 갱신 (그라데이션)
-    if(this._skyColors && this._skyPositions){
-      const arr = this._skyColors;
-      const pos = this._skyPositions;
-      for(let i = 0; i < pos.count; i++){
-        const y = pos.getY(i) / 180;
-        let c;
-        if(y > 0.3){
-          const k = Math.min(1, (y - 0.3) / 0.7);
-          c = midCol.clone().lerp(topCol, k);
-        } else {
-          const k = Math.max(0, (0.3 - y) / 0.6);
-          c = midCol.clone().lerp(botCol, k);
+    this.sky.geometry.attributes.color.needsUpdate = true;
+  }
+
+  // 4. 구름 업데이트
+  if(this.clouds){
+    const isNight = phase > 0.65 || phase < 0.1;
+    this.cloudTargetCol.setHex(isNight ? 0x6a6a7a : 0xffffff);
+    for(const c of this.clouds){
+      const a = Math.atan2(c.position.z, c.position.x);
+      const r = Math.hypot(c.position.x, c.position.z);
+      const newA = a + c.userData.speed * 0.012;
+      c.position.x = Math.cos(newA) * r;
+      c.position.z = Math.sin(newA) * r;
+      c.children.forEach(p=>{
+        if(p.material && p.material.color){
+          p.material.color.lerp(this.cloudTargetCol, 0.04);
+          p.material.opacity = isNight ? 0.6 : 0.92;
         }
-        arr[i*3] = c.r; arr[i*3+1] = c.g; arr[i*3+2] = c.b;
-      }
-      this.sky.geometry.attributes.color.needsUpdate = true;
-    }
-    if(this.scene.fog) this.scene.fog.color.copy(fogColor);
-    this.ambient.intensity = ambient;
-    this.sun.intensity = sunInten;
-    this.moonLight.intensity = moonInten;
-    // 구름 천천히 흐르기
-    if(this.clouds){
-      for(const c of this.clouds){
-        const a = Math.atan2(c.position.z, c.position.x);
-        const r = Math.hypot(c.position.x, c.position.z);
-        const newA = a + c.userData.speed * 0.012;
-        c.position.x = Math.cos(newA) * r;
-        c.position.z = Math.sin(newA) * r;
-        // 밤이면 구름 어둡게
-        c.children.forEach(p=>{
-          if(p.material && p.material.color){
-            const target = phase > 0.65 || phase < 0.1 ? 0x6a6a7a : 0xffffff;
-            p.material.color.lerp(new THREE.Color(target), 0.04);
-            p.material.opacity = phase > 0.65 || phase < 0.1 ? 0.6 : 0.92;
-          }
-        });
-      }
-    }
-    // 반짝이 (밤일수록 진해짐)
-    if(this.sparkles){
-      this._sparklePhase = (this._sparklePhase || 0) + 0.05;
-      this.sparkles.material.opacity = phase > 0.6 ? 0.9 : 0.45 + Math.abs(Math.sin(this._sparklePhase))*0.2;
-      this.sparkles.material.color.setHex(phase > 0.6 ? 0xFFFFFF : 0xFFFACD);
-    }
-    // 가로등 (저녁 이후 점등)
-    const lampOn = phase > 0.5;
-    if(this.lamps){
-      this.lamps.forEach(l=>{
-        l.userData.light.intensity = lampOn ? 1.4 : 0;
-        l.userData.head.material.color.setHex(lampOn ? 0xFFE082 : 0xCCCCCC);
       });
     }
   }
+
+  // 5. 반짝이 및 가로등
+  if(this.sparkles){
+    this._sparklePhase = (this._sparklePhase || 0) + 0.05;
+    this.sparkles.material.opacity = phase > 0.6 ? 0.9 : 0.45 + Math.abs(Math.sin(this._sparklePhase))*0.2;
+    this.sparkles.material.color.setHex(phase > 0.6 ? 0xFFFFFF : 0xFFFACD);
+  }
+  const lampOn = phase > 0.5;
+  if(this.lamps){
+    this.lamps.forEach(l=>{
+      l.userData.light.intensity = lampOn ? 1.4 : 0;
+      l.userData.head.material.color.setHex(lampOn ? 0xFFE082 : 0xCCCCCC);
+    });
+  }
+}
 
   dispose(){
     try{ this.renderer.dispose(); }catch(e){}
